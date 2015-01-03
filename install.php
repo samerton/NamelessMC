@@ -222,6 +222,10 @@ if(Input::exists()) {
 					20 => array(
 						'name' => 'vote_message',
 						'value' => ''
+					),
+					21 => array(
+						'name' => 'infractions',
+						'value' => 'false'
 					)
 				);
 				
@@ -245,6 +249,12 @@ if(Input::exists()) {
 				} else {
 					$data[4]["value"] = "false";
 				}
+				if(Input::get('infractions') == "on"){
+					$data[21]["value"] = "true";
+				} else {
+					$data[21]["value"] = "false";
+				}
+				
 				if(!empty(Input::get('buycraft'))){
 					$data[5]["value"] = htmlspecialchars(Input::get('buycraft'));
 				}
@@ -444,6 +454,11 @@ if(Input::exists()) {
 			  <div class="checkbox">
 				<label>
 				  <input name="stats" type="checkbox"> Enable Stats Page
+				</label>
+			  </div>
+			  <div class="checkbox">
+				<label>
+				  <input name="infractions" type="checkbox"> Enable Minecraft Infractions (Requires Bungee Admin Tools)
 				</label>
 			  </div>
 			  <div class="form-group">
