@@ -314,7 +314,7 @@ if(Input::exists()) {
 			</ul>
 		</div>
 	<?php 
-	if($GLOBALS['config']['mysql']['db'] !== "default"){
+	if($GLOBALS['config']['mysql']['db'] !== ""){
 		if(!isset($_GET['step'])){
 	?>
 		<div class="well">
