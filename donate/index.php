@@ -14,6 +14,9 @@ require_once '../inc/functions/html/library/HTMLPurifier.auto.php';
 
 $queries = new Queries();
 
+/*
+ *  Check if page is disabled
+ */ 
 if($queries->getWhere("settings", array("name", "=", "donate"))[0]->value === "false"){
 	Redirect::to("../");
 	die();
@@ -22,6 +25,10 @@ if($queries->getWhere("settings", array("name", "=", "donate"))[0]->value === "f
 if(!isset($user)){
 	$user = new User();
 }
+
+/*
+ *  Log user in
+ */
 
 if(!$user->isLoggedIn()){
 	if(Input::exists()) {
@@ -39,8 +46,8 @@ if(!$user->isLoggedIn()){
 				$login = $user->login(Input::get('username'), Input::get('password'), $remember);
 				
 				if($login) {
-					Session::flash('home', '<div class="alert alert-info">  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>You have been successfully logged in</div>');
-					Redirect::to("../");
+					Session::flash('donate', '<div class="alert alert-info">  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>You have been successfully logged in</div>');
+					Redirect::to("./");
 					die();
 				} else {
 					echo '<p>Sorry, there was an unknown error whilst logging you in. <a href="../">Homepage</a></p>';
@@ -86,46 +93,30 @@ if(!isset($queries)){
 	
 	<div class="container">
 	<?php 
+	    if(Session::exists('donate')){
+		  echo Session::flash('donate');
+	    }
 		if(!$user->isLoggedIn()){
 	?>
 		<div class="row">
 			<div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
 			<?php
+			/*
+			 *  Display validation errors
+			 */
 			if(Input::exists()) {
-				if($validation->passed()) {	} 
-				else {
+				if(!$validation->passed()) {
 					echo '<div class="alert alert-danger">';
 					foreach($validation->errors() as $error) {
 						if (strpos($error,'is required') !== false) {
 							if (strpos($error,'username') !== false) {
 								echo 'You must input a username.<br />';
-							} else if (strpos($error,'email') !== false) {
-								echo 'You must input an email address.<br />';
 							} else if (strpos($error,'password') !== false) {
 								echo 'You must input a password.<br />';
-							} else if (strpos($error,'mcquestion') !== false) {
-								echo 'You must answer the question.<br />';
-							} else if (strpos($error,'t_and_c') !== false) {
-								echo 'You must agree to our terms and conditions in order to register.<br />';
 							}
 						}
-						if (strpos($error,'already exists!') !== false) {
-							echo 'That username already exists!<br />';
-						}
-						if (strpos($error,'must be a minimum of 6 characters') !== false) {
-							echo 'Your password must be a minimum of 6 characters.<br />';
-						}
-						if (strpos($error,'must be a minimum of 4 characters') !== false) {
-							echo 'Your username must be a minimum of 4 characters.<br />';
-						}
-						if (strpos($error,'Your username is not a valid Minecraft account.') !== false) {
-							echo 'Your username is not a valid Minecraft account.<br />';
-						}
-						if (strpos($error,'password must match password_again.') !== false) {
-							echo 'Your passwords do not match.<br />';
-						}
-						if (strpos($error,'The question was not answered correctly.') !== false) {
-							echo 'The question was not answered correctly.<br />';
+						if (strpos($error,'active') !== false){
+							echo 'Your account is currently inactive. Did you request a password reset?';
 						}
 					}
 					echo '</div>';
@@ -136,7 +127,7 @@ if(!isset($queries)){
 					<h2>Sign In</h2>
 					<hr class="colorgraph">
 					<div class="form-group">
-						<input type="text" name="username" id="username" autocomplete="off" value="<?php echo escape(Input::get('username'))?>" class="form-control input-lg" placeholder="Username" tabindex="3">
+						<input type="text" name="username" id="username" autocomplete="off" value="<?php echo escape(Input::get('username')); ?>" class="form-control input-lg" placeholder="Username" tabindex="3">
 					</div>
 					<div class="form-group">
 						<input type="password" name="password" id="password" class="form-control input-lg" placeholder="Password" tabindex="4">
