@@ -53,6 +53,7 @@ if(!isset($user)){
 	<a href="https://github.com/xPaw/PHP-Minecraft-Query">PHP Minecraft Query</a> - xPaw (<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">License</a>)<br />
 	<a href="http://www.white-hat-web-design.co.uk/blog/resizing-images-with-php/">SimpleImage</a> - Simon Jarvis (GNU General Public License)<br />
 	<a href="https://github.com/jimmiw/php-time-ago">PHP Time Ago</a> - Jimmi Westerberg (MIT License)
+	Emoticons - Oscar Gruno and Andy Fedosjeenko
 		<hr>
 	  <?php include("../inc/templates/footer.php"); ?> 
 	  
