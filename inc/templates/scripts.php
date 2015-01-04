@@ -2,6 +2,8 @@
 /*
  *	Made by Samerton
  *  http://worldscapemc.co.uk
+ *
+ *  License: MIT
  */
 ?>
     <!-- Bootstrap core JavaScript
