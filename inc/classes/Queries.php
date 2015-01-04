@@ -122,11 +122,11 @@ class Queries {
 			$data = $this->_db->createTable("users_session", " `id` int(11) NOT NULL AUTO_INCREMENT, `user_id` int(11) NOT NULL, `hash` varchar(50) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1");
 			echo 'Users session table successfully initialised<br />';
 			$data = $this->_db->createTable("uuid_cache", " `id` int(11) NOT NULL AUTO_INCREMENT, `mcname` varchar(64) NOT NULL, `uuid` varchar(255) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=latin1");
-			echo 'UUID Cache table successfully initialised<br /></div>';
+			echo 'UUID Cache table successfully initialised<br />';
 			$data = $this->_db->createTable("vote_sites", " `id` int(11) NOT NULL AUTO_INCREMENT, `site` varchar(255) NOT NULL, `name` varchar(64) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo 'Vote sites table successfully initialised<br />';
 			$data = $this->_db->createTable("vote_top", " `id` int(11) NOT NULL AUTO_INCREMENT, `uuid` varchar(255) NOT NULL, `time_saved` datetime NOT NULL, `number` int(11) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
-			echo 'Top voters table successfully initialised<br />';
+			echo 'Top voters table successfully initialised<br /></div>';
 			return '<div class="alert alert-success">Database successfully initialised.</div>';
 		}
 	}
