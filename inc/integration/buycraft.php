@@ -1,7 +1,9 @@
 <?php
 /*
- * Made by Samerton
- * http://worldscapemc.co.uk
+ *  Made by Samerton
+ *  http://worldscapemc.co.uk
+ *
+ *  MIT License
  */ 
 if(!isset($queries)){
 	$queries = new Queries();
