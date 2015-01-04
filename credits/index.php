@@ -45,7 +45,7 @@ if(!isset($user)){
 	
 	<div class="container">
 	<h3>Credits</h3>
-	Website software written by <a href="https://worldscapemc.co.uk">Samerton (worldscapemc.co.uk)</a><br /><br />
+	Website software written by <a href="https://github.com/samerton/NamelessMC">Samerton (worldscapemc.co.uk)</a><br /><br />
 	<a href="https://github.com/ezyang/htmlpurifier">HTMLPurifier</a> - Edward Z. Yang (GNU Lesser General Public License)<br />
 	<a href="https://github.com/summernote/summernote">Summernote Editor</a> - easylogic (MIT License)<br />
 	<a href="http://getbootstrap.com/">Built with Bootstrap</a> - Twitter, Inc (MIT License)<br />
@@ -53,6 +53,7 @@ if(!isset($user)){
 	<a href="https://github.com/xPaw/PHP-Minecraft-Query">PHP Minecraft Query</a> - xPaw (<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">License</a>)<br />
 	<a href="http://www.white-hat-web-design.co.uk/blog/resizing-images-with-php/">SimpleImage</a> - Simon Jarvis (GNU General Public License)<br />
 	<a href="https://github.com/jimmiw/php-time-ago">PHP Time Ago</a> - Jimmi Westerberg (MIT License)
+	<a href="https://github.com/Shadowwolf97/Minecraft-UUID-Utils">Minecraft UUID Uitls</a> - Daniel Fanara (MIT License)
 	Emoticons - Oscar Gruno and Andy Fedosjeenko
 		<hr>
 	  <?php include("../inc/templates/footer.php"); ?> 
