@@ -226,6 +226,10 @@ if(Input::exists()) {
 					21 => array(
 						'name' => 'infractions',
 						'value' => 'false'
+					),
+					22 => array(
+						'name' => 'buycraft_url',
+						'value' => 'null'
 					)
 				);
 				
@@ -257,6 +261,9 @@ if(Input::exists()) {
 				
 				if(!empty(Input::get('buycraft'))){
 					$data[5]["value"] = htmlspecialchars(Input::get('buycraft'));
+				}
+				if(!empty(Input::get('buycraft_url'))){
+					$data[22]["value"] = htmlspecialchars(Input::get('buycraft_url'));
 				}
 				
 				try {
@@ -464,6 +471,10 @@ if(Input::exists()) {
 			  <div class="form-group">
 				<label for="InputBuycraft">Buycraft API Key (can be left blank)</label>
 				<input type="text" class="form-control" id="InputBuycraft" name="buycraft" placeholder="Buycraft API Key">
+			  </div>
+			  <div class="form-group">
+				<label for="InputBuycraftURL">Buycraft Store URL (can be left blank)</label>
+				<input type="text" class="form-control" id="InputBuycraftURL" name="buycraft_url" placeholder="Buycraft Store URL">
 			  </div>
 			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
 			  <input type="hidden" name="action" value="settings">
