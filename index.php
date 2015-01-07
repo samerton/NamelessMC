@@ -57,9 +57,10 @@ if($lim == 2){
 			}
 		}
 	}
-} else { // Get parameters, eg ?action=create
-	if(!empty($directories[3])){
-		$params = $_GET;
+	if($lim == 3) { // Get parameters, eg ?action=create
+		if(!empty($directories[3])){
+			$params = $_GET;
+		}
 	}
 }
 
