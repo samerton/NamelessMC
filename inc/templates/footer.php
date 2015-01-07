@@ -17,18 +17,18 @@
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#">&copy; <?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value) . ' ' . date('Y'); ?></a>
 					<ul class="dropdown-menu">
-						<li><a href="<?php echo $path; ?>credits">Site software &copy; Samerton</a></li>
+						<li><a href="/credits">Site software &copy; Samerton</a></li>
 					</ul>
 				</li>
 				<?php if($queries->getWhere("settings", array("name", "=", "infractions"))[0]->value != "false"){ ?>
-				<li><a href="<?php echo $path; ?>infractions.php">Infractions</a></li>
+				<li><a href="/infractions">Infractions</a></li>
 				<?php } ?>
-				<!--<li><a href="<?php //echo $path; ?>help">Help</a></li>-->
+				<li><a href="/help">Help</a></li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#">Rules <b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li><a href="<?php echo $path; ?>forum/view_topic.php?tid=1">Server</a></li>
-						<li><a href="<?php echo $path; ?>forum/view_topic.php?tid=2">Forum</a></li>
+						<li><a href="/forum">Server</a></li>
+						<li><a href="/forum">Forum</a></li>
 					</ul>
 				</li>
 			</ul>
