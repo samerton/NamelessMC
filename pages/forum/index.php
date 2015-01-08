@@ -2,6 +2,8 @@
 /*
  *	Made by Samerton
  *  http://worldscapemc.co.uk
+ *
+ *  License: MIT
  */
 
 $page = "forum";
@@ -159,6 +161,12 @@ $timeago = new Timeago();
 					  <th>Last Post</th>
 					</tr>
 			    </thead>
+				<?php
+				/* 
+				 *  TODO
+				 *  Tidy the table up
+				 */
+				?>
 			    <tbody>
 					<?php
 					$list = $forum->listCategories($user->data()->group_id);
@@ -201,6 +209,10 @@ $timeago = new Timeago();
 				</div>
 				<div class="panel-body">
 					<?php 
+					/*
+					 *  TODO
+					 *  Tidy latest posts up
+					 */
 						$latest = $forum->getLatestPosts('posts', 'post_date', 'DESC');
 						$outputted_posts = array();
 						foreach($latest as $post){
