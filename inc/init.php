@@ -10,6 +10,10 @@ if(!isset($page)){
 	die();
 }
 
+/* 
+ *  Define global variables
+ */
+
 $GLOBALS['config'] = array(
 	'mysql' => array(
 		'host' => '', // Web server database IP (Likely to be 127.0.0.1)
@@ -39,20 +43,20 @@ $GLOBALS['config'] = array(
 	)
 );
 
+/*
+ *  Autoload classes, include sanitize function
+ */ 
 
-if ($path === ""){
-	spl_autoload_register(function($class) {
-		require_once 'inc/classes/' . $class . '.php';
-	});
-	require_once 'inc/functions/sanitize.php';
-} else if ($path === "../"){
-	spl_autoload_register(function($class) {
-		require_once '../inc/classes/' . $class . '.php';
-	});
-	require_once '../inc/functions/sanitize.php';
-}
+spl_autoload_register(function($class) {
+	require_once 'inc/classes/' . $class . '.php';
+});
+require_once 'inc/functions/sanitize.php';
 
-if($page !== "install"){
+/*
+ *  Perform page checks
+ */
+
+if(strtolower($page) !== "install"){
 
 	/*
 	 * Check cookies to see if the user has ticked "remember me" whilst logging in, if so log them in
@@ -95,9 +99,9 @@ if($page !== "install"){
  * Install file check 
  */ 
  
-if($page === "admin"){
+if(strtolower($page) === "admin"){
 	clearstatcache();
-	if(file_exists($path . "install.php")){
+	if(file_exists("install.php")){
 		Session::flash('adm-alert', '<div class="alert alert-danger">The installation file (install.php) exists. Please remove it!</div>');
 	}
 }
@@ -106,7 +110,7 @@ if($page === "admin"){
  * Maintenance mode 
  * TODO: Tidy up the message
  */ 
-if($page === "forum"){
+if(strtolower($page) === "forum"){
 	if($queries->getWhere("settings", array("name", "=", "maintenance"))[0]->value === "true"){
 		if($user->data()->group_id != 2){
 			echo 'Sorry, the forums are in maintenance mode. Please head back to the <a href="../">homepage</a>.';
