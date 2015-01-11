@@ -22,7 +22,7 @@ if($user->isLoggedIn()){
 		die();
 	}
 } else {
-	Redirect::to('/');
+	Redirect::to('/signin/?from=acp');
 	die();
 }
 
