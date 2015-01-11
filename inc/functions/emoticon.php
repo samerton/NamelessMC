@@ -59,4 +59,3 @@ function emoticon($string, $location){
 	$string = str_replace(":wub:","<img src=\"" . $emoticon_path . "emoticons/wub.png\" />",$string);
 	return $string;
 }
-?>
