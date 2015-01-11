@@ -15,7 +15,7 @@
  *     - Groups
  *     - Posts and Topics
  *     - Reports
- *     - Users - password reset email will be sent for each user
+ *     - Users
  */
  
 if(!isset($queries)){
@@ -43,13 +43,6 @@ if(!empty(Input::get('db_prefix'))){
 	$prefix = escape(Input::get('db_prefix'));
 }
 
-/*
- *  Get the site name and the site email for the new password emails
- */
-
-$sitename = htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value);
-$siteemail = $queries->getWhere("settings", array("name", "=", "outgoing_email"))[0]->value;
- 
 /*
  *  Users
  */
@@ -103,8 +96,8 @@ while ($row = $modernbb_users->fetch_assoc()) {
 		$queries->create("users", array(
 			"id" => $row["id"],
 			"username" => htmlspecialchars($row["username"]),
-			"password" => "",
-			"salt" => "",
+			"password" => htmlspecialchars($row["password"]),
+			"salt" => "modernbb",
 			"mcname" => htmlspecialchars($row["username"]),
 			"uuid" => "",
 			"joined" => date('Y-m-d H:i:s', $row["registered"]),
@@ -116,26 +109,6 @@ while ($row = $modernbb_users->fetch_assoc()) {
 			"reset_code" => $code,
 			"pf_location" => htmlspecialchars($row["location"])
 		));
-		
-		$to      = $row["email"];
-		$subject = $sitename . ' - New Password';
-		$message = 'Hello, ' . htmlspecialchars($row["username"]) . '
-
-					You are receiving this email because your ' . $sitename . ' account requires a password reset.
-
-					In order to reset your password, please use the following link:
-					http://' . $_SERVER['SERVER_NAME'] . '/changepassword.php?c=' . $code . '
-					
-					If you have any queries, please contact us at ' . htmlspecialchars($siteemail) . '
-					Please note that your account will not be accessible until this action is complete.
-					
-					Thanks,
-					' . $sitename . ' staff.';
-		$headers = 'From: ' . $siteemail . "\r\n" .
-			'Reply-To: ' . $siteemail . "\r\n" .
-			'X-Mailer: PHP/' . phpversion();
-
-		mail($to, $subject, $message, $headers);
 	}
 }
 
