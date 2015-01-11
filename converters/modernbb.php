@@ -66,68 +66,77 @@ $modernbb_users->data_seek(0);
  *  Loop through the users and send an email containing a reset password link
  */
 while ($row = $modernbb_users->fetch_assoc()) {
-	if($row["username"] === "Guest" || $row["username"] === $user->data()->username || $row["id"] == 1){
+	if($row["username"] === "Guest"){
 		continue;
 	}
 	
-	// Get the user's group info
-	$group = $row["group_id"];
-	$group = $mysqli->query("SELECT * FROM {$prefix}groups WHERE g_id = {$group}");
-	$group->data_seek(0);
-	$group = $group->fetch_assoc();
-	
-	if($group["g_id"] == 1){ // admin
-		$group_id = 2;
-	} else if($group["g_id"] == 2){ // moderator
-		$group_id = 3;
-	} else if($group["g_id"] == 4){ // member
-		$group_id = 1;
-	} else if($group["g_id"] == 3){ // guest, needs to be member
-		$group_id = 1;
+	if($row["username"] === $user->data()->username){
+		$queries->update("users", $user->data()->id, array(
+			"id" => $row["id"]
+		));
+		$queries->update("users_session", 1, array(
+			"user_id" => $row["id"]
+		));
 	} else {
-		$group_id = $group["g_id"];
+		// Get the user's group info
+		$group = $row["group_id"];
+		$group = $mysqli->query("SELECT * FROM {$prefix}groups WHERE g_id = {$group}");
+		$group->data_seek(0);
+		$group = $group->fetch_assoc();
+		
+		if($group["g_id"] == 1){ // admin
+			$group_id = 2;
+		} else if($group["g_id"] == 2){ // moderator
+			$group_id = 3;
+		} else if($group["g_id"] == 4){ // member
+			$group_id = 1;
+		} else if($group["g_id"] == 3){ // guest, needs to be member
+			$group_id = 1;
+		} else {
+			$group_id = $group["g_id"];
+		}
+		
+		$group = null;
+		
+		$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 60);
+		
+		$queries->create("users", array(
+			"id" => $row["id"],
+			"username" => htmlspecialchars($row["username"]),
+			"password" => "",
+			"salt" => "",
+			"mcname" => htmlspecialchars($row["username"]),
+			"uuid" => "",
+			"joined" => date('Y-m-d H:i:s', $row["registered"]),
+			"group_id" => $group_id,
+			"email" => $row["email"],
+			"lastip" => "",
+			"active" => 0,
+			"signature" => htmlspecialchars($row["signature"]),
+			"reset_code" => $code,
+			"pf_location" => htmlspecialchars($row["location"])
+		));
+		
+		$to      = $row["email"];
+		$subject = $sitename . ' - New Password';
+		$message = 'Hello, ' . htmlspecialchars($row["username"]) . '
+
+					You are receiving this email because your ' . $sitename . ' account requires a password reset.
+
+					In order to reset your password, please use the following link:
+					http://' . $_SERVER['SERVER_NAME'] . '/changepassword.php?c=' . $code . '
+					
+					If you have any queries, please contact us at ' . htmlspecialchars($siteemail) . '
+					Please note that your account will not be accessible until this action is complete.
+					
+					Thanks,
+					' . $sitename . ' staff.';
+		$headers = 'From: ' . $siteemail . "\r\n" .
+			'Reply-To: ' . $siteemail . "\r\n" .
+			'X-Mailer: PHP/' . phpversion();
+
+		mail($to, $subject, $message, $headers);
 	}
-	
-	$group = null;
-	
-	$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 60);
-	
-	$queries->create("users", array(
-		"id" => $row["id"],
-		"username" => htmlspecialchars($row["username"]),
-		"password" => "",
-		"salt" => "",
-		"mcname" => htmlspecialchars($row["username"]),
-		"uuid" => "",
-		"joined" => date('Y-m-d H:i:s', $row["registered"]),
-		"group_id" => $group_id,
-		"email" => $row["email"],
-		"lastip" => "",
-		"active" => 0,
-		"signature" => htmlspecialchars($row["signature"]),
-		"reset_code" => $code,
-		"pf_location" => htmlspecialchars($row["location"])
-	));
-	
-	$to      = $row["email"];
-	$subject = $sitename . ' - New Password';
-	$message = 'Hello, ' . htmlspecialchars($row["username"]) . '
-
-				You are receiving this email because your ' . $sitename . ' account requires a password reset.
-
-				In order to reset your password, please use the following link:
-				http://' . $_SERVER['SERVER_NAME'] . '/changepassword.php?c=' . $code . '
-				
-				If you have any queries, please contact us at ' . htmlspecialchars($siteemail) . '
-				Please note that your account will not be accessible until this action is complete.
-				
-				Thanks,
-				' . $sitename . ' staff.';
-	$headers = 'From: ' . $siteemail . "\r\n" .
-		'Reply-To: ' . $siteemail . "\r\n" .
-		'X-Mailer: PHP/' . phpversion();
-
-	mail($to, $subject, $message, $headers);
 }
 
 $modernbb_users = null;
