@@ -1,5 +1,7 @@
 **Welcome to the NamelessMC wiki!**
 
+**Please note: The software is very new, it's likely there will be database updates soon, and there will be bugs. It's advised not to use publicly yet.**
+
 NamelessMC is a free, easy to use & powerful website software for your Minecraft server, which includes a large range of features.
 
 **Demo: http://demo.worldscapemc.co.uk/**
