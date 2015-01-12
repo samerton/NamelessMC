@@ -228,6 +228,14 @@ if(Input::exists()) {
 						'value' => 'false'
 					),
 					22 => array(
+						'name' => 'rules_forum_url',
+						'value' => ''
+					),
+					23 => array(
+						'name' => 'rules_server_url',
+						'value' => ''
+					),
+					24 => array(
 						'name' => 'buycraft_url',
 						'value' => 'null'
 					)
@@ -275,7 +283,7 @@ if(Input::exists()) {
 						));
 					}
 					
-					Redirect::to('install.php?step=finalise');
+					Redirect::to('install.php?step=convert');
 					die();
 					
 				} catch(Exception $e){
@@ -294,6 +302,24 @@ if(Input::exists()) {
 				die();
 			}
 			
+		} else if(Input::get('action') === 'convert'){
+			$validate = new Validate();
+			$validation = $validate->check($_POST, array(
+				'db_address' => array(
+					'required' => true
+				),
+				'db_name' => array(
+					'required' => true
+				),
+				'db_username' => array(
+					'required' => true
+				)
+			));
+			
+			if(!$validation->passed()){
+				Redirect::to('install.php?step=convert&convert=yes&from=modernbb');
+				die();
+			}
 		}
 	} else {
 		echo 'Invalid token';
@@ -324,10 +350,11 @@ if(Input::exists()) {
 		<div class="well">
 			<ul class="nav nav-pills" role="tablist">
 			  <li<?php if(!isset($_GET['step'])){?> class="active"<?php } ?>><a>Welcome</a></li>
-			  <li<?php if($_GET['step'] === "dbcheck" || $_GET['step'] === "dbinit"){?> class="active"<?php } ?>><a>Database</a></li>
-			  <li<?php if($_GET['step'] === "adminacc"){?> class="active"<?php } ?>><a>Admin account</a></li>
-			  <li<?php if($_GET['step'] === "settings"){?> class="active"<?php } ?>><a>Settings</a></li>
-			  <li<?php if($_GET['step'] === "finalise"){?> class="active"<?php } ?>><a>Finalise</a></li>
+			  <li<?php if(isset($_GET['step']) && ($_GET['step'] === "dbcheck" || $_GET['step'] === "dbinit")){?> class="active"<?php } ?>><a>Database</a></li>
+			  <li<?php if(isset($_GET['step']) && $_GET['step'] === "adminacc"){?> class="active"<?php } ?>><a>Admin account</a></li>
+			  <li<?php if(isset($_GET['step']) && $_GET['step'] === "settings"){?> class="active"<?php } ?>><a>Settings</a></li>
+			  <li<?php if(isset($_GET['step']) && $_GET['step'] === "convert"){?> class="active"<?php } ?>><a>Convert</a></li>
+			  <li<?php if(isset($_GET['step']) && $_GET['step'] === "finalise"){?> class="active"<?php } ?>><a>Finalise</a></li>
 			</ul>
 		</div>
 	<?php 
@@ -482,7 +509,7 @@ if(Input::exists()) {
 			</form>
 		</div>
 	<?php 
-		} else if($_GET['step'] === "finalise"){
+		} else if($_GET['step'] === "convert"){
 			if(!isset($user)){
 				$user = new User();
 			}
@@ -490,11 +517,154 @@ if(Input::exists()) {
 				Redirect::to('install.php?step=adminacc');
 				die();
 			}
+			if(isset($_GET["convert"]) && !isset($_GET["from"])){
+	?>
+		<div class="well">
+			<h4>Which forum software are you converting from?</h4>
+			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=modernbb'">ModernBB</a><br />
+			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=phpbb'">phpBB</a><br />
+			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=mybb'">MyBB</a><br /><br />
+			<button class="btn btn-danger" onclick="location.href='install.php?step=convert'">Cancel</button>
+		</div>
+	<?php
+			} else if(isset($_GET["convert"]) && isset($_GET["from"])){
+	?>
+		<div class="well">
+	<?php
+			if(strtolower($_GET["from"]) === "modernbb"){
+				if(!Input::exists()){
+	?>
+			<h4>Converting from ModernBB:</h4>
+			
+	<?php
+					if(isset($_GET["error"])){
+	?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	<?php
+					}
+	?>
+			
+			<form action="install.php?step=convert&convert=yes&from=modernbb" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">ModernBB Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">ModernBB Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">ModernBB Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">ModernBB Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPrefix">ModernBB Table Prefix (blank for none)</label>
+				<input class="form-control" type="text" id="InputDBPrefix" name="db_prefix" placeholder="Table prefix">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='install.php?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	<?php
+				} else {
+					require 'converters/modernbb.php';
+	?>
+			<div class="alert alert-success">
+				Successfully imported ModernBB data. <strong>Important:</strong> Please redefine any private categories in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='install.php?step=finalise'">Proceed</button></center>
+			</div>
+	<?php
+				}
+	?>
+	
+	<?php
+			} else if(strtolower($_GET["from"]) === "phpbb"){
+				if(!Input::exists()){
+	?>
+			<h4>Converting from phpBB:</h4>
+			
+	<?php
+					if(isset($_GET["error"])){
+	?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	<?php
+					}
+	?>
+			
+			<form action="install.php?step=convert&convert=yes&from=phpbb" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">phpBB Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">phpBB Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">phpBB Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">phpBB Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPrefix">phpBB Table Prefix (blank for none)</label>
+				<input class="form-control" type="text" id="InputDBPrefix" name="db_prefix" placeholder="Table prefix">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='install.php?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	<?php
+				} else {
+					require 'converters/phpbb.php';
+	?>
+			<div class="alert alert-success">
+				Successfully imported phpBB data. <strong>Important:</strong> Please redefine any private categories in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='install.php?step=finalise'">Proceed</button></center>
+			</div>
+	<?php
+				}
+
+			} else if(strtolower($_GET["from"]) === "mybb"){
+	?>
+			<h4>Converting from MyBB:</h4>
+	<?php
+			}
+	?>
+		</div>
+	<?php
+			} else if(!isset($_GET["convert"]) && !isset($_GET["from"]) && !isset($_GET["action"])){
+	?>
+		<div class="well">
+			<center>
+			  <h3>Convert from another forum software?</h3>
+			  <div class="btn-group">
+				<button class="btn btn-success" onclick="location.href='install.php?step=convert&convert=yes'">Yes</button>
+				<button class="btn btn-primary" onclick="location.href='install.php?step=finalise'">No</button>
+			  </div>
+			</center>
+		</div>
+	<?php
+			}
+		} else if($_GET['step'] === "finalise"){
 	?>
 		<div class="well">
 			<h2>Finalise installation</h2>
 			<p>Installation complete. Please visit the AdminCP to finalise your installation.</p>
-			<div class="alert alert-danger"><strong>Please delete the install.php file before using the board!</strong></div>
 			<center><a href="admin" class="btn btn-primary">Proceed to AdminCP &raquo;</a></center>
 		</div>
 	<?php 
@@ -511,6 +681,5 @@ if(Input::exists()) {
 	?>
     </div> <!-- /container -->
 	<?php include("inc/templates/scripts.php"); ?>
-
   </body>
 </html>
