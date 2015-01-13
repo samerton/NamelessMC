@@ -56,7 +56,7 @@ $modernbb_users = $mysqli->query("SELECT * FROM {$prefix}users");
 $modernbb_users->data_seek(0);
 
 /*
- *  Loop through the users and send an email containing a reset password link
+ *  Loop through the users
  */
 while ($row = $modernbb_users->fetch_assoc()) {
 	if($row["username"] === "Guest"){
