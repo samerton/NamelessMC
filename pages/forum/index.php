@@ -167,29 +167,36 @@ $timeago = new Timeago();
 				 *  Tidy the table up
 				 */
 				?>
-			    <tbody>
-					<?php
-					$list = $forum->listCategories($user->data()->group_id);
-					$n = 0;
-					while ($n < count($list[0])) {
-						$topics = count($forum->listTopics(escape($list[0][$n]))[0]);
-						$posts = $forum->countPosts(escape($list[0][$n]), 'category_id');
-						echo '<tr><td><a href="view_category/?cid=' . $list[0][$n] . '"><strong>' . str_replace("&amp;", "&", $list[1][$n]) . '</strong></a><br />' . $list[2][$n] . '</td><td><strong>' . $topics . '</strong> topics<br /><strong>' . $posts . '</strong> posts</td><td><div class="row"><div class="col-md-2"><div class="frame"><a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">';
-					    if($list[4][$n] !== null){
-							if($queries->getWhere("users", array("id", "=", $list[4][$n]))[0]->has_avatar == '0'){
-							echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/' .  htmlspecialchars($user->IdToMCName($list[4][$n])) . '/30.png" />';
-							} else { 
-							echo '<img class="img-centre img-rounded" style="width:30px; height:30px;" src="' .  $user->getAvatar($list[4][$n], $path) . '" />';
-							}
-						} else {
-							echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/Steve/30.png" />';
-						}
-						echo '</a></div></div><div class="col-md-9"><a href="view_topic/?tid=' . $list[5][$n] . '">' . htmlspecialchars($forum->getTitle($list[5][$n])) . '</a><br />by <a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">' . htmlspecialchars($user->IdToName($list[4][$n])) . '</a><br />' . date("d M Y, H:i", strtotime($list[3][$n])) . '</div></div></td></tr>';
-						$n++;
-						$topics = 0;
-					}
-					?>
-			    </tbody>
+                <tbody>
+                    <?php
+                    $list = $forum->listCategories($user->data()->group_id);
+                    $n = 0;
+                    while ($n < count($list[0])) {
+                        $topics = count($forum->listTopics(escape($list[0][$n]))[0]);
+                        $posts = $forum->countPosts(escape($list[0][$n]), 'category_id');
+                        echo '<tr><td><a href="view_category.php?cid=' . $list[0][$n] . '"><strong>' . str_replace("&amp;", "&", $list[1][$n]) . '</strong></a><br />' . $list[2][$n] . '</td><td><strong>' . $topics . '</strong> topics<br /><strong>' . $posts . '</strong> posts</td><td><div class="row"><div class="col-md-2"><div class="frame">';
+                     
+                        if($topics > 0) {
+                            echo '<a href="../profile.php?user=' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">';
+                            if($list[4][$n] !== null){
+                                if($queries->getWhere("users", array("id", "=", $list[4][$n]))[0]->has_avatar == '0'){
+                                echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/' .  htmlspecialchars($user->IdToMCName($list[4][$n])) . '/30.png" />';
+                                } else {
+                                echo '<img class="img-centre img-rounded" style="width:30px; height:30px;" src="' .  $user->getAvatar($list[4][$n], $path) . '" />';
+                                }
+                            } else {
+                                echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/Steve/30.png" />';
+                            }
+                            echo '</a></div></div><div class="col-md-9"><a href="view_topic.php?tid=' . $list[5][$n] . '">' . htmlspecialchars($forum->getTitle($list[5][$n])) . '</a><br />by <a href="../profile.php?user=' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">' . htmlspecialchars($user->IdToName($list[4][$n])) . '</a><br />' . date("d M Y, H:i", strtotime($list[3][$n])) . '</div></div>';
+                        } else {
+                            echo '<p>No threads</p>';
+                        }
+                        echo '</div></td></tr>';
+                        $n++;
+                        $topics = 0;
+                    }
+                    ?>
+                </tbody>
 		    </table>
 			<div class="panel panel-default">
 				<div class="panel-heading">
