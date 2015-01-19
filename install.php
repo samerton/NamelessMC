@@ -523,7 +523,8 @@ if(Input::exists()) {
 			<h4>Which forum software are you converting from?</h4>
 			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=modernbb'">ModernBB</a><br />
 			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=phpbb'">phpBB</a><br />
-			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=mybb'">MyBB</a><br /><br />
+			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=mybb'">MyBB</a><br />
+			<a href="#" onclick="location.href='install.php?step=convert&convert=yes&from=wordpress'">WordPress</a><br /><br />
 			<button class="btn btn-danger" onclick="location.href='install.php?step=convert'">Cancel</button>
 		</div>
 	<?php
@@ -638,7 +639,71 @@ if(Input::exists()) {
 			</div>
 	<?php
 				}
-
+/* 
+ * ---- NEW, By dwilson390 -----
+ */
+			} else if(strtolower($_GET["from"]) === "wordpress"){
+				if(!Input::exists()){
+	?>
+			<h4>Converting from WordPress:</h4>
+			
+	<?php
+					if(isset($_GET["error"])){
+	?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	<?php
+					}
+	?>
+			<div class="alert alert-success">
+				WordPress conversion script created by dwilson390.<br />
+			</div>	
+			<form action="install.php?step=convert&convert=yes&from=wordpress" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">Wordpress Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">Wordpress Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">Wordpress Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">Wordpress Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPrefix">Wordpress Table Prefix (blank for none) (<strong>Remember the '_'</strong>)</label>
+				<input class="form-control" type="text" id="InputDBPrefix" name="db_prefix" placeholder="Table prefix">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBCheckbox">I have bbPress installed (selecting this option will also import your forums and topics)</label>
+				<input class="form-control" type="checkbox" id="InputDBCheckbox" name="db_checkbox" placeholder="Table prefix">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='install.php?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	<?php
+				} else {
+					require 'converters/wordpress.php';
+	?>
+			<div class="alert alert-success">
+				Successfully imported Wordpress data. <strong>Important:</strong> Please redefine any private categories in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='install.php?step=finalise'">Proceed</button></center>
+			</div>
+	<?php
+				}
+		
+/*
+ * ---- END, By dwilson390 -----
+ */
 			} else if(strtolower($_GET["from"]) === "mybb"){
 	?>
 			<h4>Converting from MyBB:</h4>
