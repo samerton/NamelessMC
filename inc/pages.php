@@ -12,6 +12,7 @@
 
 $pages = array(
 	"", // Index
+	"install",
 	"admin" => array(
 		"buycraft_sync",
 		"documentation",

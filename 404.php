@@ -6,7 +6,7 @@
  *  License: MIT
  */
 
-header("HTTP/1.0 404 Not Found");
+header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found"); 
 
 ?>
 
