@@ -297,8 +297,218 @@ if(isset($_GET["step"])){
 	  <button type="button" onclick="location.href='/install/?step=settings'" class="btn btn-primary">Proceed &raquo;</button>
 	  <?php
 	  } else if($step === "settings"){
+		if(Input::exists()){
+			$validate = new Validate();
+			$validation = $validate->check($_POST, array(
+				'site_name' => array(
+					'required' => true,
+					'min' => 2,
+					'max' => 1024
+				),
+				'outgoing_email' => array(
+					'required' => true,
+					'min' => 2,
+					'max' => 1024
+				)
+			));
+			
+			if($validation->passed()) {
+			
+				if(!isset($queries)){
+					$queries = new Queries(); // Initialise queries
+				}
+				
+				$random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 30);
+				
+				$data = array(
+					0 => array(
+						'name' => 'sitename',
+						'value' => htmlspecialchars(Input::get('site_name'))
+					),
+					1 => array(
+						'name' => 'maintenance',
+						'value' => 'false'
+					),
+					2 => array(
+						'name' => 'vote',
+						'value' => 'false'
+					),
+					3 => array(
+						'name' => 'donate',
+						'value' => 'false'
+					),
+					4 => array(
+						'name' => 'stats',
+						'value' => 'false'
+					),
+					5 => array(
+						'name' => 'buycraft_key',
+						'value' => 'null'
+					),
+					6 => array(
+						'name' => 'youtube_url',
+						'value' => 'null'
+					),
+					7 => array(
+						'name' => 'twitter_url',
+						'value' => 'null'
+					),
+					8 => array(
+						'name' => 'gplus_url',
+						'value' => 'null'
+					),
+					9 => array(
+						'name' => 'fb_url',
+						'value' => 'null'
+					),
+					10 => array(
+						'name' => 'buycraft_sync_key',
+						'value' => $random
+					),
+					11 => array(
+						'name' => 'outgoing_email',
+						'value' => htmlspecialchars(Input::get('outgoing_email'))
+					),
+					12 => array(
+						'name' => 't_and_c',
+						'value' => 'By registering on our website, you agree to the following:<p>This website uses "Nameless" website software. The "Nameless" software creators will not be held responsible for any content that may be experienced whilst browsing this site, nor are they responsible for any loss of data which may come about, for example a hacking attempt. The website is run independently from the software creators, and any content is the responsibility of the website administration.</p><p>You agree to be bound by our website rules and any laws which may apply to this website and your participation.</p><p>The website administration have the right to terminate your account at any time, delete any content you may have posted, and your IP address and any data you input to the website is recorded to assist the site staff with their moderation duties.</p><p>The site administration have the right to change these terms and conditions, and any site rules, at any point without warning. Whilst you may be informed of any changes, it is your responsibility to check these terms and the rules at any point.</p>'
+					),
+					13 => array(
+						'name' => 'recaptcha',
+						'value' => 'false'
+					),
+					14 => array(
+						'name' => 'recaptcha_key',
+						'value' => 'null'
+					),
+					15 => array(
+						'name' => 'twitter_feed_id',
+						'value' => 'null'
+					),
+					16 => array(
+						'name' => 'forum_layout',
+						'value' => '0'
+					),
+					17 => array(
+						'name' => 'bootstrap_theme',
+						'value' => '6'
+					),
+					18 => array(
+						'name' => 'navbar_style',
+						'value' => '0'
+					),
+					19 => array(
+						'name' => 'donation_currency',
+						'value' => '0'
+					),
+					20 => array(
+						'name' => 'vote_message',
+						'value' => ''
+					),
+					21 => array(
+						'name' => 'infractions',
+						'value' => 'false'
+					),
+					22 => array(
+						'name' => 'rules_forum_url',
+						'value' => ''
+					),
+					23 => array(
+						'name' => 'rules_server_url',
+						'value' => ''
+					),
+					24 => array(
+						'name' => 'staff_apps',
+						'value' => 'false'
+					),
+					25 => array(
+						'name' => 'user_avatars',
+						'value' => 'false'
+					),
+					26 => array(
+						'name' => 'displaynames',
+						'value' => 'false'
+					)
+				);
+				
+				if(!empty(Input::get('youtube_url'))){
+					$data[6]["value"] = htmlspecialchars(Input::get('youtube_url'));
+				}
+				if(!empty(Input::get('twitter_url'))){
+					$data[7]["value"] = htmlspecialchars(Input::get('twitter_url'));
+				}
+				if(!empty(Input::get('twitter_feed'))){
+					$data[15]["value"] = htmlspecialchars(Input::get('twitter_feed'));
+				}
+				if(!empty(Input::get('gplus_url'))){
+					$data[8]["value"] = htmlspecialchars(Input::get('gplus_url'));
+				}
+				if(!empty(Input::get('fb_url'))){
+					$data[9]["value"] = htmlspecialchars(Input::get('fb_url'));
+				}
+				if(Input::get('user_usernames') == 1){
+					$data[26]["value"] = "true";
+				}
+				if(Input::get('user_avatars') == 1){
+					$data[25]["value"] = "true";
+				}
+				if(Input::get('page_donate') == 1){
+					$data[3]["value"] = "true";
+				}
+				if(Input::get('page_vote') == 1){
+					$data[2]["value"] = "true";
+				}
+				if(Input::get('page_infractions') == 1){
+					$data[21]["value"] = "true";
+				}
+				if(Input::get('page_staff_app') == 1){
+					$data[24]["value"] = "true";
+				}
+				if(Input::get('page_stats') == 1){
+					$data[4]["value"] = "true";
+				}
+				
+				try {
+					foreach($data as $setting){
+						$queries->create("settings", array(
+							'name' => $setting["name"],
+							'value' => $setting["value"]
+						));
+					}
+					
+					Redirect::to('/?step=settings_extra');
+					die();
+					
+				} catch(Exception $e){
+					die($e->getMessage());
+				}
+				
+			} else {
+				$errors = "";
+				
+				foreach($validation->errors() as $error){
+					if(strstr($error, 'site_name')){
+						$errors .= "Please input a site name<br />";
+					}
+					if(strstr($error, "outgoing_email")){
+						$errors .= "Please input an outgoing email address<br />";
+					}
+				}
+			}
+		}
 	  ?>
 	  <h2>Settings</h2>
+	  <?php
+	    if(isset($errors)){
+	  ?>
+	  <div class="alert alert-danger">
+	  <?php
+	    echo $errors;
+	  ?>
+	  </div>
+	  <?php
+		}
+	  ?>
 	  <small><em>Fields marked with a * are required</em></small>
 	  <form action="?step=settings" method="post">
 	    <h3>General</h3>
@@ -319,7 +529,7 @@ if(isset($_GET["step"])){
 		  <input type="text" class="form-control" name="twitter_url" id="InputTwitter" value="<?php echo Input::get('twitter_url'); ?>" placeholder="Twitter URL">
 	    </div>
 	    <div class="form-group">
-	      <label for="InputTwitterFeed">Twitter Feed ID <a href="#" target="_blank"><span class="label label-info">?</span></a></label>
+	      <label for="InputTwitterFeed">Twitter Feed ID <a data-toggle="modal" href="#twitter_id"><span class="label label-info">?</span></a></label>
 		  <input type="text" class="form-control" name="twitter_feed" id="InputTwitterFeed" value="<?php echo Input::get('twitter_feed'); ?>" placeholder="Twitter Feed ID">
 	    </div>
 	    <div class="form-group">
@@ -331,36 +541,61 @@ if(isset($_GET["step"])){
 		  <input type="text" class="form-control" name="fb_url" id="InputFB" value="<?php echo Input::get('fb_url'); ?>" placeholder="Facebook URL">
 	    </div>
 	    <h3>User Accounts</h3>
+		<input type="hidden" name="user_usernames" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="user_usernames"> Allow registering with non-Minecraft display names
+		    <input type="checkbox" name="user_usernames" value="1"> Allow registering with non-Minecraft display names
 		  </label>
 	    </div>
+		<input type="hidden" name="user_avatars" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="user_avatars"> Allow custom user avatars
+		    <input type="checkbox" name="user_avatars" value="1"> Allow custom user avatars
 		  </label>
 	    </div>
 		<h3>Pages</h3>
+		<input type="hidden" name="page_stats" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="page_donate"> Enable Donate page
+		    <input type="checkbox" name="page_stats" value="1"> Enable Statistics integration (requires <a href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/" target="_blank">Stats</a>)
 		  </label>
 	    </div>
+		<input type="hidden" name="page_donate" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="page_vote"> Enable Vote page
+		    <input type="checkbox" name="page_donate" value="1"> Enable Donate page (requires <a href="http://dev.bukkit.org/bukkit-plugins/buycraft/" target="_blank">Buycraft</a>)
 		  </label>
 	    </div>
+		<input type="hidden" name="page_vote" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="page_vote"> Enable Infractions page (requires <a href="http://www.spigotmc.org/resources/bungee-admin-tools.444/" target="_blank">Bungee Admin Tools</a>)
+		    <input type="checkbox" name="page_vote" value="1"> Enable Vote page
+		  </label>
+	    </div>
+		<input type="hidden" name="page_infractions" value="0" />
+	    <div class="checkbox">
+		  <label>
+		    <input type="checkbox" name="page_infractions" value="1"> Enable Infractions page (requires <a href="http://www.spigotmc.org/resources/bungee-admin-tools.444/" target="_blank">Bungee Admin Tools</a> or <a href="http://dev.bukkit.org/bukkit-plugins/ban-management/" target="_blank">Ban Management</a>)
+		  </label>
+	    </div>
+		<input type="hidden" name="page_staff_app" value="0" />
+	    <div class="checkbox">
+		  <label>
+		    <input type="checkbox" name="page_staff_app" value="1"> Enable Staff Applications
 		  </label>
 	    </div>
 		<br />
 		<input type="submit" class="btn btn-primary" value="Submit">
 	  </form>
 	  <?php
+	  } else if($step === "settings_extra"){
+		//if(){
+			
+		//} else {
+	  ?>
+	  
+	  <?php 
+	    //}
 	  }
 	  ?>
       <hr>
@@ -406,6 +641,7 @@ if(isset($_GET["step"])){
 			  <li><a href="http://www.spigotmc.org/resources/mcmmo.2445/">McMMO</a></li>
 			  <li><a href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/">Stats</a></li>
 			  <li><a href="http://www.spigotmc.org/resources/bukkitgames-hungergames.279/">BukkitGames</a></li>
+			  <li><a href="http://dev.bukkit.org/bukkit-plugins/ban-management/">Ban Management</a></li>
 			</ul>
           </div>
           <div class="modal-footer">
@@ -415,6 +651,25 @@ if(isset($_GET["step"])){
       </div>
     </div>
 
+	<?php
+	}
+	if($step === "settings"){
+	?>
+    <div class="modal fade" id="twitter_id" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Twitter Feed ID</h4>
+          </div>
+          <div class="modal-body">
+			To find your Twitter feed ID, first head into the <a target="_blank" href="https://twitter.com/settings/widgets">Twitter Widgets tab</a> in your settings. Click the "Create new" button in the top right corner of the panel, set the "Height" to "500", and then click Create Widget.<br /><br />Underneath the Preview, a new textarea will appear with some HTML code. You need to find <code>data-widget-id=</code> and copy the number between the "". <br /><br />This is your Twitter feed ID.
+          </div>
+          <div class="modal-footer">
+		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
 	<?php
 	}
 	?>
