@@ -38,7 +38,7 @@ if(isset($_GET["step"])){
 		<li <?php if($step == "requirements"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Requirements</a></li>
 		<li <?php if($step == "configuration"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Configuration</a></li>
 	    <li <?php if($step == "database"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Database</a></li>
-		<li <?php if($step == "settings"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Settings</a></li>
+		<li <?php if($step == "settings" || $step == "settings_extra"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Settings</a></li>
 		<li <?php if($step == "account"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Account</a></li>
 	  </ul>
 
@@ -431,6 +431,8 @@ if(isset($_GET["step"])){
 					)
 				);
 				
+				$c = "false"; // Redirect to the extra settings or not
+				
 				if(!empty(Input::get('youtube_url'))){
 					$data[6]["value"] = htmlspecialchars(Input::get('youtube_url'));
 				}
@@ -454,18 +456,21 @@ if(isset($_GET["step"])){
 				}
 				if(Input::get('page_donate') == 1){
 					$data[3]["value"] = "true";
+					$c = "true";
 				}
 				if(Input::get('page_vote') == 1){
 					$data[2]["value"] = "true";
 				}
 				if(Input::get('page_infractions') == 1){
 					$data[21]["value"] = "true";
+					$c = "true";
 				}
 				if(Input::get('page_staff_app') == 1){
 					$data[24]["value"] = "true";
 				}
 				if(Input::get('page_stats') == 1){
 					$data[4]["value"] = "true";
+					$c = "true";
 				}
 				
 				try {
@@ -476,7 +481,7 @@ if(isset($_GET["step"])){
 						));
 					}
 					
-					Redirect::to('/?step=settings_extra');
+					header('Location: /install/?step=settings_extra&c=' . $c);
 					die();
 					
 				} catch(Exception $e){
@@ -589,13 +594,87 @@ if(isset($_GET["step"])){
 	  </form>
 	  <?php
 	  } else if($step === "settings_extra"){
-		//if(){
-			
-		//} else {
+		if(isset($_GET["c"]) && $_GET["c"] === "true"){
+			$buycraft = $queries->getWhere("settings", array("name", "=", "donate"))[0]->value;
+			$infractions = $queries->getWhere("settings", array("name", "=", "infractions"))[0]->value;
+			$stats = $queries->getWhere("settings", array("name", "=", "stats"))[0]->value;
+	    ?>
+	  <h2>Settings</h2>
+	  <form action="?step=settings_extra&c=true" method="post">
+		<?php 
+		if($buycraft !== "false"){ 
+		?>
+		<h4>Buycraft</h4>
+	    <div class="form-group">
+	      <label for="InputBuycraft">Buycraft API Key</label>
+		  <input type="text" class="form-control" name="buycraft_api" id="InputBuycraft" value="<?php echo Input::get('buycraft_api'); ?>" placeholder="Buycraft API Key">
+	    </div>
+	    <?php 
+		} 
+		if($infractions !== "false"){
+		?>
+		<h4>Infraction Plugin</h4>
+		<div class="btn-group" data-toggle="buttons">
+		  <label class="btn btn-primary active">
+			<input type="radio" name="inf_type" id="InputInfType1" value="bat" autocomplete="off" checked> Bungee Admin Tools
+		  </label>
+		  <label class="btn btn-primary">
+			<input type="radio" name="inf_type" id="InputInfType2" value="bm" autocomplete="off"> Ban Management
+		  </label>
+		</div>
+		<br /><br />
+	    <div class="form-group">
+	      <label for="InputInfMySQLAdd">Infractions MySQL Database Address</label>
+		  <input type="text" class="form-control" name="inf_address" id="InputInfMySQLAdd" value="<?php echo Input::get('inf_address'); ?>" placeholder="Infractions MySQL Address">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputInfMySQLUser">Infractions MySQL Database Username</label>
+		  <input type="text" class="form-control" name="inf_user" id="InputInfMySQLUser" value="<?php echo Input::get('inf_user'); ?>" placeholder="Infractions MySQL Username">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputInfMySQLPass">Infractions MySQL Database Password</label>
+		  <input type="password" class="form-control" name="inf_pass" id="InputInfMySQLPass" value="<?php echo Input::get('inf_pass'); ?>" placeholder="Infractions MySQL Password">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputInfMySQLName">Infractions MySQL Database Name</label>
+		  <input type="text" class="form-control" name="inf_name" id="InputInfMySQLName" value="<?php echo Input::get('inf_name'); ?>" placeholder="Infractions MySQL Database Name">
+	    </div>
+		<?php 
+		}
+		if($stats !== "false"){
+		?>
+		<h4>Stats Plugin</h4>
+	    <div class="form-group">
+	      <label for="InputStatsMySQLAdd">Stats MySQL Database Address</label>
+		  <input type="text" class="form-control" name="stats_address" id="InputStatsMySQLAdd" value="<?php echo Input::get('stats_address'); ?>" placeholder="Stats MySQL Address">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputStatsMySQLUser">Stats MySQL Database Username</label>
+		  <input type="text" class="form-control" name="stats_user" id="InputStatsMySQLUser" value="<?php echo Input::get('stats_user'); ?>" placeholder="Stats MySQL Username">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputStatsMySQLPass">Stats MySQL Database Password</label>
+		  <input type="password" class="form-control" name="stats_pass" id="InputStatsMySQLPass" value="<?php echo Input::get('stats_pass'); ?>" placeholder="Stats MySQL Password">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputStatsMySQLName">Stats MySQL Database Name</label>
+		  <input type="text" class="form-control" name="stats_name" id="InputStatsMySQLName" value="<?php echo Input::get('stats_name'); ?>" placeholder="Stats MySQL Database Name">
+	    </div>
+		<?php 
+		}
+		?>
+		<br />
+		<input type="submit" class="btn btn-primary" value="Submit">
+	  </form>
+	    <?php
+		} else {
+			header('Location: /install/?step=account');
+			die();
+	    }
+	  } else if($step === "account"){
 	  ?>
-	  
+	  <h2>Admin Account</h2>
 	  <?php 
-	    //}
 	  }
 	  ?>
       <hr>
