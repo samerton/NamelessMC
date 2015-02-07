@@ -5,12 +5,13 @@ class DB {
 			$_query, 
 			$_error = false, 
 			$_results, 
+			$_prefix,
 			$_count = 0;
 
 	private function __construct() {
 		try {
 			$this->_pdo = new PDO('mysql:host=' . Config::get('mysql/host') . ';dbname=' . Config::get('mysql/db'), Config::get('mysql/username'), Config::get('mysql/password'));
-
+			$this->_prefix = Config::get('mysql/prefix');
 		} catch(PDOException $e) {
 			die("<strong>Error:<br /></strong><div class=\"alert alert-danger\">" . $e->getMessage() . "</div>Please check your database connection settings.");
 		}
@@ -52,6 +53,7 @@ class DB {
 	}
 
 	public function createTable($name, $table_data, $other){
+		$name = $this->_prefix . $name;
 		$sql = "CREATE TABLE `{$name}` ({$table_data}) {$other}";
 			if(!$this->query($sql)->error()) {
 				return $this;
@@ -66,6 +68,8 @@ class DB {
 			$field 		= $where[0];
 			$operator 	= $where[1];
 			$value 		= $where[2];
+			
+			$table = $this->_prefix . $table;
 			
 			if(in_array($operator, $operators)) {
 				$sql = "{$action} FROM {$table} WHERE {$field} {$operator} ?";
@@ -83,8 +87,8 @@ class DB {
 	}
 	
 	public function like($table, $column, $like) {
+		$table = $this->_prefix . $table;
 		$sql = "SELECT * FROM {$table} WHERE {$column} LIKE '{$like}'";
-		echo $sql;
 
 		if(!$this->query($sql)->error()) {
 			return $this;
@@ -109,7 +113,7 @@ class DB {
 				$x++;
 			}
 			
-			
+			$table = $this->_prefix . $table;
 			$sql = "INSERT INTO {$table} (`" . implode('`,`', $keys) . "`) VALUES ({$values})";
 			
 			if(!$this->query($sql, $fields)->error()){
@@ -130,7 +134,7 @@ class DB {
 			}
 			$x++;
 		}
-				
+		$table = $this->_prefix . $table;
 		$sql = "UPDATE {$table} SET {$set} WHERE id = {$id}";
 		
 		if(!$this->query($sql, $fields)->error()) {
@@ -141,6 +145,7 @@ class DB {
 	}
 	
 	public function increment($table, $id, $field) {
+		$table = $this->_prefix . $table;
 		$sql = "UPDATE {$table} SET {$field} = {$field} + 1 WHERE id = {$id}";
 		
 		if(!$this->query($sql)->error()) {
@@ -151,6 +156,7 @@ class DB {
 	}
 	
 	public function decrement($table, $id, $field) {
+		$table = $this->_prefix . $table;
 		$sql = "UPDATE {$table} SET {$field} = {$field} - 1 WHERE id = {$id}";
 		
 		if(!$this->query($sql)->error()) {
@@ -181,6 +187,7 @@ class DB {
 	}
 	
 	public function orderAll($table, $order, $sort) {
+		$table = $this->_prefix . $table;
 		if(isset($sort)){
 			$sql = "SELECT * FROM {$table} ORDER BY {$order} {$sort}";
 		} else {
@@ -194,6 +201,7 @@ class DB {
 	}
 
 	public function orderWhere($table, $where, $order, $sort) {
+		$table = $this->_prefix . $table;
 		if(isset($sort)){
 			$sql = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$order} {$sort}";
 		} else {
