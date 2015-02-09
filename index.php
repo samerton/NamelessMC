@@ -20,7 +20,7 @@ $directories = split("/", $directory);
  *  Install file check
  */ 
 
-if(file_exists("pages/install.php") && strtolower($directories[1]) !== "install"){
+if(file_exists("pages/install.php") && strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "admin"){
 	header("Location: /install");
 	die();
 }
