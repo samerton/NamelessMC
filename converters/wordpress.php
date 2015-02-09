@@ -186,7 +186,7 @@ $wordpress_posts = null;
   * Only execute the following code if the user said they had bbPress installed in 'install.php'.
   */
 
-if(null !== Input::get('InputDBCheckbox')){
+if(Input::get('InputDBCheckbox') !== null){
 	/*
 	 *  Forums
 	 */
