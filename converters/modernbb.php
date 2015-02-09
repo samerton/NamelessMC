@@ -29,7 +29,7 @@ if(!isset($queries)){
 $mysqli = new mysqli(Input::get("db_address"), Input::get("db_username"), Input::get("db_password"), Input::get("db_name"));
 
 if($mysqli->connect_errno) {
-	Redirect::to('install.php?step=convert&convert=yes&from=modernbb&error=true');
+	header('Location: /install/?step=convert&convert=yes&from=modernbb&error=true');
 	die();
 }
 
@@ -39,8 +39,10 @@ if($mysqli->connect_errno) {
 
 $prefix = '';
 
-if(!empty(Input::get('db_prefix'))){
-	$prefix = escape(Input::get('db_prefix'));
+$inputted_prefix = Input::get('db_prefix');
+
+if(!empty($inputted_prefix)){
+	$prefix = escape($inputted_prefix);
 }
 
 /*
@@ -91,23 +93,20 @@ while ($row = $modernbb_users->fetch_assoc()) {
 		
 		$group = null;
 		
-		$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 60);
-		
 		$queries->create("users", array(
 			"id" => $row["id"],
 			"username" => htmlspecialchars($row["username"]),
 			"password" => htmlspecialchars($row["password"]),
-			"salt" => "modernbb",
+			"pass_method" => "modernbb",
 			"mcname" => htmlspecialchars($row["username"]),
 			"uuid" => "",
-			"joined" => date('Y-m-d H:i:s', $row["registered"]),
+			"joined" => date('U', $row["registered"]),
 			"group_id" => $group_id,
 			"email" => $row["email"],
 			"lastip" => "",
-			"active" => 0,
+			"active" => 1,
 			"signature" => htmlspecialchars($row["signature"]),
-			"reset_code" => $code,
-			"pf_location" => htmlspecialchars($row["location"])
+			"reset_code" => ""
 		));
 	}
 }
@@ -159,10 +158,10 @@ $n = 1;
  *  Loop through the categories
  */
 while ($row = $modernbb_categories->fetch_assoc()) {
-	$queries->create("categories", array(
-		"category_title" => htmlspecialchars($row["cat_name"]),
-		"category_description" => "Parent category",
-		"cat_order" => $n
+	$queries->create("forums", array(
+		"forum_title" => htmlspecialchars($row["cat_name"]),
+		"forum_description" => "Parent category",
+		"forum_order" => $n
 	));
 	$n++;
 }
@@ -193,14 +192,14 @@ while ($row = $modernbb_forums->fetch_assoc()) {
 	
 	$topic = null;
 
-	$queries->create("categories", array(
-		"category_title" => htmlspecialchars($row["forum_name"]),
-		"category_description" => htmlspecialchars($row["forum_desc"]),
+	$queries->create("forums", array(
+		"forum_title" => htmlspecialchars($row["forum_name"]),
+		"forum_description" => htmlspecialchars($row["forum_desc"]),
 		"last_post_date" => date('Y-m-d H:i:s', $row["last_post"]),
 		"last_user_posted" => $row["last_poster_id"],
 		"last_topic_posted" => $topic_id,
 		"parent" => $row["cat_id"],
-		"cat_order" => $n
+		"forum_order" => $n
 	));
 	$n++;
 }
@@ -229,7 +228,8 @@ while ($row = $modernbb_topics->fetch_assoc()) {
 	$category->data_seek(0);
 	$category = $category->fetch_assoc();
 	$category = $category["forum_name"];
-	$category_id = $queries->getWhere("categories", array("category_title", "=", $category))[0]->id;
+	$category_id = $queries->getWhere("forums", array("forum_title", "=", $category));
+	$category_id = $category_id[0]->id;
 
 	// Get original poster's ID
 	$poster = "'" . escape($row["poster"]) . "'";
@@ -242,7 +242,7 @@ while ($row = $modernbb_topics->fetch_assoc()) {
 
 	$queries->create("topics", array(
 		"id" => $row["id"],
-		"category_id" => $category_id,
+		"forum_id" => $category_id,
 		"topic_title" => htmlspecialchars($row["subject"]),
 		"topic_creator" => $poster_id,
 		"topic_last_user" => $row["last_poster_id"],
@@ -280,14 +280,15 @@ while ($row = $modernbb_posts->fetch_assoc()) {
 	$category = $mysqli->query("SELECT * FROM {$prefix}forums WHERE id = {$category}");
 	$category = $category->fetch_assoc();
 	$category = $category["forum_name"];
-	$category_id = $queries->getWhere("categories", array("category_title", "=", $category))[0]->id;
+	$category_id = $queries->getWhere("forums", array("forum_title", "=", $category));
+	$category_id = $category_id[0]->id;
 
 	$topic = null;
 	$category = null;
 
 	$queries->create("posts", array(
 		"id" => $row["id"],
-		"category_id" => $category_id,
+		"forum_id" => $category_id,
 		"topic_id" => $row["topic_id"],
 		"post_creator" => $row["poster_id"],
 		"post_content" => htmlspecialchars($row["message"]),

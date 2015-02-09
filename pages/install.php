@@ -6,6 +6,9 @@
  *  License: MIT
  */
  
+require('inc/includes/password.php'); // Require password compatibility
+require('inc/integration/uuid.php'); // Require UUID integration
+ 
 if(isset($_GET["step"])){
 	$step = strtolower(htmlspecialchars($_GET["step"]));
 } else {
@@ -40,6 +43,8 @@ if(isset($_GET["step"])){
 	    <li <?php if($step == "database"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Database</a></li>
 		<li <?php if($step == "settings" || $step == "settings_extra"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Settings</a></li>
 		<li <?php if($step == "account"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Account</a></li>
+		<li <?php if($step == "convert"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Convert</a></li>
+		<li <?php if($step == "finish"){ ?>class="active"<?php } else { ?>class="disabled"<?php } ?>><a>Finish</a></li>
 	  </ul>
 
 	  <?php
@@ -50,7 +55,7 @@ if(isset($_GET["step"])){
 	  You will need the following:
 	  <ul>
 	    <li>A MySQL database on the webserver</li>
-		<li>PHP version 5.5+</li>
+		<li>PHP version 5.3+</li>
 	  </ul>
 	  <br />
 	  The following are not required, but are recommended:
@@ -80,11 +85,11 @@ if(isset($_GET["step"])){
 	  ?>
 	  <h2>Requirements</h2>
 	  <?php
-		if(version_compare(phpversion(), '5.5', '<')){
-			echo 'PHP 5.5 - ' . $error;
+		if(version_compare(phpversion(), '5.3', '<')){
+			echo 'PHP 5.3 - ' . $error;
 			$php_error = true;
 		} else {
-			echo 'PHP 5.5 - ' . $success;
+			echo 'PHP 5.3 - ' . $success;
 		}
 		if(!extension_loaded('gd')){
 			echo 'PHP GD Extension - ' . $error;
@@ -133,11 +138,15 @@ if(isset($_GET["step"])){
 					$db_prefix .= "_";
 				}
 				
-				if(!empty(Input::get('db_password'))){
+				$db_password = Input::get('db_password');
+				
+				if(!empty($db_password)){
 					$db_password = Input::get('db_password');
 				}
 				
-				if(!empty(Input::get('cookie_name'))){
+				$db_cookie = Input::get('cookie_name');
+				
+				if(!empty($db_cookie)){
 					$cookie_name = Input::get('cookie_name');
 				}
 				
@@ -151,29 +160,28 @@ if(isset($_GET["step"])){
 					/*
 					 *  Write to config file
 					 */
+					$insert = 	'<?php' . PHP_EOL . 
+								'$GLOBALS[\'config\'] = array(' . PHP_EOL . 
+								'	"mysql" => array(' . PHP_EOL . 
+								'		"host" => "' . Input::get('db_address') . '", // Web server database IP (Likely to be 127.0.0.1)' . PHP_EOL . 
+								'		"username" => "' . Input::get('db_username') . '", // Web server database username' . PHP_EOL . 
+								'		"password" => "' . $db_password . '", // Web server database password' . PHP_EOL . 
+								'		"db" => "' . Input::get('db_name') . '", // Web server database name' . PHP_EOL .
+								'		"prefix" => "' . $db_prefix . '" // Web server table prefix' . PHP_EOL .
+								'	),' . PHP_EOL . 
+								'	"remember" => array(' . PHP_EOL . 
+								'		"cookie_name" => "' . $cookie_name . '", // Name for website cookies' . PHP_EOL . 
+								'		"cookie_expiry" => 604800' . PHP_EOL . 
+								'	),' . PHP_EOL . 
+								'	"session" => array(' . PHP_EOL . 
+								'		"session_name" => "user",' . PHP_EOL . 
+								'		"token_name" => "token"' . PHP_EOL . 
+								'	)' . PHP_EOL . 
+								');';
 					
 					if(is_writable('inc/init.php')){
 						$config = file_get_contents('inc/init.php');
 						$config = substr($config, 5);
-						
-						$insert = 	'<?php' . PHP_EOL . 
-									'$GLOBALS[\'config\'] = array(' . PHP_EOL . 
-									'	"mysql" => array(' . PHP_EOL . 
-									'		"host" => "' . Input::get('db_address') . '", // Web server database IP (Likely to be 127.0.0.1)' . PHP_EOL . 
-									'		"username" => "' . Input::get('db_username') . '", // Web server database username' . PHP_EOL . 
-									'		"password" => "' . $db_password . '", // Web server database password' . PHP_EOL . 
-									'		"db" => "' . Input::get('db_name') . '", // Web server database name' . PHP_EOL .
-									'		"prefix" => "' . $db_prefix . '" // Web server table prefix' . PHP_EOL .
-									'	),' . PHP_EOL . 
-									'	"remember" => array(' . PHP_EOL . 
-									'		"cookie_name" => "' . $cookie_name . '", // Name for website cookies' . PHP_EOL . 
-									'		"cookie_expiry" => 604800' . PHP_EOL . 
-									'	),' . PHP_EOL . 
-									'	"session" => array(' . PHP_EOL . 
-									'		"session_name" => "user",' . PHP_EOL . 
-									'		"token_name" => "token"' . PHP_EOL . 
-									'	),' . PHP_EOL . 
-									');';
 						
 						$file = fopen('inc/init.php','w');
 						fwrite($file, $insert . $config);
@@ -187,7 +195,8 @@ if(isset($_GET["step"])){
 						 *  File not writeable, display code to add to file manually
 						 */
 						$config = file_get_contents('inc/init.php');
-						$config = str_replace("&lt;", "<", $config);
+						$config = substr($config, 5);
+						$config = str_replace("&lt;", "<", $insert . $config);
 						?>
 	  Your <strong>inc/init.php</strong> file is not writeable. Please copy/paste the following into your <strong>inc/init.php</strong> file, overwriting all existing text.
 	  <div class="well">
@@ -291,7 +300,7 @@ if(isset($_GET["step"])){
 		}
 		$prefix = Config::get('mysql/prefix');
 		
-		//$queries->dbInitialise($prefix);
+		$queries->dbInitialise($prefix); // Initialise the database
 		
 	  ?>
 	  <button type="button" onclick="location.href='/install/?step=settings'" class="btn btn-primary">Proceed &raquo;</button>
@@ -428,25 +437,34 @@ if(isset($_GET["step"])){
 					26 => array(
 						'name' => 'displaynames',
 						'value' => 'false'
+					),
+					27 => array(
+						'name' => 'infractions_plugin',
+						'value' => 'null'
 					)
 				);
 				
 				$c = "false"; // Redirect to the extra settings or not
 				
-				if(!empty(Input::get('youtube_url'))){
-					$data[6]["value"] = htmlspecialchars(Input::get('youtube_url'));
+				$youtube_url = Input::get('youtube_url');
+				if(!empty($youtube_url)){
+					$data[6]["value"] = htmlspecialchars($youtube_url);
 				}
-				if(!empty(Input::get('twitter_url'))){
-					$data[7]["value"] = htmlspecialchars(Input::get('twitter_url'));
+				$twitter_url = Input::get('twitter_url');
+				if(!empty($twitter_url)){
+					$data[7]["value"] = htmlspecialchars($twitter_url);
 				}
-				if(!empty(Input::get('twitter_feed'))){
-					$data[15]["value"] = htmlspecialchars(Input::get('twitter_feed'));
+				$twitter_feed = Input::get('twitter_feed');
+				if(!empty($twitter_feed)){
+					$data[15]["value"] = htmlspecialchars($twitter_feed);
 				}
-				if(!empty(Input::get('gplus_url'))){
-					$data[8]["value"] = htmlspecialchars(Input::get('gplus_url'));
+				$gplus_url = Input::get('gplus_url');
+				if(!empty($gplus_url)){
+					$data[8]["value"] = htmlspecialchars($gplus_url);
 				}
-				if(!empty(Input::get('fb_url'))){
-					$data[9]["value"] = htmlspecialchars(Input::get('fb_url'));
+				$fb_url = Input::get('fb_url');
+				if(!empty($fb_url)){
+					$data[9]["value"] = htmlspecialchars($fb_url);
 				}
 				if(Input::get('user_usernames') == 1){
 					$data[26]["value"] = "true";
@@ -595,11 +613,157 @@ if(isset($_GET["step"])){
 	  <?php
 	  } else if($step === "settings_extra"){
 		if(isset($_GET["c"]) && $_GET["c"] === "true"){
-			$buycraft = $queries->getWhere("settings", array("name", "=", "donate"))[0]->value;
-			$infractions = $queries->getWhere("settings", array("name", "=", "infractions"))[0]->value;
-			$stats = $queries->getWhere("settings", array("name", "=", "stats"))[0]->value;
+			if(!isset($queries)){
+				$queries = new Queries(); // Initialise queries
+			}
+			if(Input::exists()){
+				
+				$proceed = true; // Proceed to inputting the data
+				
+				$buycraft_key = Input::get('buycraft_api');
+				$infractions_plugin = Input::get('inf_type');
+				
+				$data = array(
+					1 => array(
+						'id' => 6,
+						'name' => 'buycraft_key',
+						'value' => $buycraft_key
+					),
+					2 => array(
+						'id' => 28,
+						'name' => 'infractions_plugin',
+						'value' => $infractions_plugin
+					)
+				);
+				
+				$inf_address_check = Input::get('inf_address');
+				
+				$inf_db = array(
+					$inf_address_check,
+					Input::get('inf_user'),
+					Input::get('inf_pass'),
+					Input::get('inf_name')
+				);
+				
+				$stats_address_check = Input::get('stats_address');
+				
+				$stats_db = array(
+					$stats_address_check,
+					Input::get('stats_user'),
+					Input::get('stats_pass'),
+					Input::get('stats_name')
+				);
+				
+				if(!empty($inf_address_check)){
+					// connect to the infractions database
+					$mysqli = new mysqli($inf_address_check, Input::get('inf_user'), Input::get('inf_pass'), Input::get('inf_name'));
+					if($mysqli->connect_errno) {
+						$mysql_error = $mysqli->connect_errno . ' - ' . $mysqli->connect_error;
+						$proceed = false;
+					}
+				} else {
+					$errors = "Please input Infractions database information";
+					$proceed = false; // Error connecting to the Infractions MySQL database - stop
+				}
+				
+				if(!empty($stats_address_check)){
+					// connect to the stats database
+					$mysqli = new mysqli($stats_address_check, Input::get('stats_user'), Input::get('stats_pass'), Input::get('stats_name'));
+					if($mysqli->connect_errno) {
+						$mysql_error = $mysqli->connect_errno . ' - ' . $mysqli->connect_error;
+						$proceed = false;
+					}
+				} else {
+					$errors = "Please input Stats database information";
+					$proceed = false; // Error connecting to the Stats MySQL database - stop
+				}
+				
+				if($proceed !== false){
+					// write DB connection info to 'inc/ext_conf.php'
+					$insert = 	'<?php' . PHP_EOL . 
+								'$GLOBALS[\'mcdb\'] = array(' . PHP_EOL . 
+								'	"inf_db" => array(' . PHP_EOL . 
+								'		"host" => "' . $inf_address_check . '", // Infractions database address' . PHP_EOL . 
+								'		"username" => "' . Input::get('inf_user') . '", // Infractions database username' . PHP_EOL . 
+								'		"password" => "' . Input::get('inf_pass') . '", // Infractions database password' . PHP_EOL . 
+								'		"db" => "' . Input::get('inf_name') . '" // Infractions database name' . PHP_EOL .
+								'	),' . PHP_EOL . 
+								'	"stats_db" => array(' . PHP_EOL . 
+								'		"host" => "' . $stats_address_check . '", // Stats database address' . PHP_EOL . 
+								'		"username" => "' . Input::get('stats_user') . '", // Stats database username' . PHP_EOL . 
+								'		"password" => "' . Input::get('stats_pass') . '", // Stats database password' . PHP_EOL . 
+								'		"db" => "' . Input::get('stats_name') . '" // Stats database name' . PHP_EOL .
+								'	)' . PHP_EOL . 
+								');';
+					
+					if(is_writable('inc/ext_conf.php')){
+						$file = fopen('inc/ext_conf.php','w');
+						fwrite($file, $insert);
+						fclose($file);
+					} else {
+						/*
+						 *  File not writeable, display code to add to file manually
+						 */
+						$insert = str_replace("&lt;", "<", $insert);
+						?>
+	  Your <strong>inc/ext_conf.php</strong> file is not writeable. Please copy/paste the following into your <strong>inc/ext_conf.php</strong> file, overwriting any existing text.
+	  <div class="well">
+		<?php
+		echo $insert;
+		?>
+	  </div>
+						
+	  <hr>
+
+	  <footer>
+		<p>&copy; NamelessMC <?php echo date("Y"); ?></p>
+	  </footer>
+	</div> <!-- /container -->
+	<!-- Bootstrap core JavaScript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/bootstrap.min.js"></script>
+  </body>
+</html>
+					<?php
+						die();
+					}
+				
+					try {
+						foreach($data as $setting){
+							$id = $setting["id"];
+							$queries->update("settings", $id, array(
+								"name" => $setting["name"],
+								"value" => $setting["value"]
+							));
+						}
+						
+						header('Location: /install/?step=account');
+						die();
+						
+					} catch(Exception $e){
+						die($e->getMessage());
+					}
+				}
+			}
+		
+			$buycraft = $queries->getWhere("settings", array("name", "=", "donate"));
+			$buycraft = $buycraft[0]->value;
+			$infractions = $queries->getWhere("settings", array("name", "=", "infractions"));
+			$infractions = $infractions[0]->value;
+			$stats = $queries->getWhere("settings", array("name", "=", "stats"));
+			$stats = $stats[0]->value;
 	    ?>
 	  <h2>Settings</h2>
+	    <?php
+		if(isset($errors)){
+			echo '<div class="alert alert-danger">' . $errors . '</div>';
+		}
+		if(isset($mysql_error)){
+			echo '<div class="alert alert-danger">' . $mysql_error . '</div>';
+		}
+		?>
 	  <form action="?step=settings_extra&c=true" method="post">
 		<?php 
 		if($buycraft !== "false"){ 
@@ -672,9 +836,399 @@ if(isset($_GET["step"])){
 			die();
 	    }
 	  } else if($step === "account"){
+		if(!isset($queries)){
+			$queries = new Queries(); // Initialise queries 
+		}
+		$allow_mcnames = $queries->getWhere("settings", array("name", "=", "displaynames"));
+		$allow_mcnames = $allow_mcnames[0]->value; // Can the user register with a non-Minecraft username?
+		
+		if(Input::exists()){
+			$validate = new Validate();
+			
+			$data = array(
+				'email' => array(
+					'required' => true,
+					'min' => 2,
+					'max' => 64
+				),
+				'password' => array(
+					'required' => true,
+					'min' => 6,
+					'max' => 64
+				),
+				'password_again' => array(
+					'required' => true,
+					'matches' => 'password'
+				)
+			);
+			
+			if($allow_mcnames === "false"){ // Custom usernames are disabled
+				$data['username'] = array(
+					'min' => 2,
+					'max' => 20,
+					'isvalid' => true
+				);
+			} else { // Custom usernames are enabled
+				$data['username'] = array(
+					'min' => 2,
+					'max' => 20
+				);
+				$data['mcname'] = array(
+					'min' => 2,
+					'max' => 20,
+					'isvalid' => true
+				);
+			}
+			
+			$validation = $validate->check($_POST, $data); // validate
+			
+			if($validation->passed()){
+				$user = new User();
+				
+				// Get Minecraft UUID of user
+				if($allow_mcnames !== "false"){
+					$mcname = Input::get('mcname');
+					$profile = ProfileUtils::getProfile($mcname);
+				} else {
+					$mcname = "";
+					$profile = ProfileUtils::getProfile(Input::get('username'));
+				}
+				$uuid = $profile->getProfileAsArray();
+				$uuid = $uuid['uuid']; 
+				
+				// Hash password
+				$password = password_hash(Input::get('password'), PASSWORD_BCRYPT, array("cost" => 13));
+				
+				// Get current unix time
+				$date = new DateTime();
+				$date = $date->getTimestamp();
+				
+				try {
+					// Create groups
+					$queries->create("groups", array(
+						'id' => 1,
+						'name' => 'Standard',
+						'group_html' => '<span class="label label-success">Member</span>',
+						'group_html_lg' => '<span class="label label-success">Member</span>'
+					));
+					$queries->create("groups", array(
+						'id' => 2,
+						'name' => 'Admin',
+						'group_html' => '<span class="label label-danger">Admin</span>',
+						'group_html_lg' => '<span class="label label-danger">Admin</span>'
+					));
+					$queries->create("groups", array(
+						'id' => 3,
+						'name' => 'Moderator',
+						'group_html' => '<span class="label label-info">Moderator</span>',
+						'group_html_lg' => '<span class="label label-info">Moderator</span>'
+					));
+				
+					// Create admin account
+					$user->create(array(
+						'username' => Input::get('username'),
+						'password' => $password,
+						'mcname' => $mcname,
+						'uuid' => $uuid,
+						'joined' => $date,
+						'group_id' => 2,
+						'email' => Input::get('email'),
+						'lastip' => "",
+						'active' => 1
+					));
+					
+					$login = $user->login(Input::get('username'), Input::get('password'), true);
+					if($login) {					
+						header('Location: /install/?step=finish');
+						die();
+					} else {
+						echo '<p>Sorry, there was an unknown error logging you in. <a href="/install/?step=account">Try again</a></p>';
+						die();
+					}
+				
+				} catch(Exception $e){
+					die($e->getMessage());
+				}
+				
+				
+			} else {
+				Session::flash('admin-acc-error', '
+						<div class="alert alert-danger">
+							Unable to create account. Please check:<br />
+							- You have entered a username between 4 and 20 characters long<br />
+							- Your Minecraft username is a valid account<br />
+							- Your passwords are at between 6 and 64 characters long and they match<br />
+							- Your email address is between 4 and 64 characters<br />
+						</div>');
+			}
+		}
 	  ?>
 	  <h2>Admin Account</h2>
+	  <?php
+		if(Session::exists('admin-acc-error')){
+			echo Session::flash('admin-acc-error');
+		}
+	  ?>
+	  <p>Please enter the admin account details.</p>
+	  <form role="form" action="?step=account" method="post">
+	    <div class="form-group">
+	  	  <label for="InputUsername">Username</label>
+		  <input type="text" class="form-control" id="InputUsername" name="username" placeholder="Username" tabindex="1">
+	    </div>
+		<?php
+		if($allow_mcnames !== "false"){
+		?>
+	    <div class="form-group">
+		  <label for="InputMCUsername">Minecraft Username</label>
+		  <input type="text" class="form-control" id="InputMCUsername" name="mcname" placeholder="Minecraft Username" tabindex="2">
+	    </div>
+		<?php
+		}
+		?>
+	    <div class="form-group">
+		  <label for="InputEmail">Email</label>
+		  <input type="email" name="email" id="InputEmail" class="form-control" placeholder="Email Address" tabindex="3">
+	    </div>
+	    <div class="row">
+		  <div class="col-xs-12 col-sm-6 col-md-6">
+			  <div class="form-group">
+				<label for="InputPassword">Password</label>
+				<input type="password" class="form-control" id="InputPassword" name="password" placeholder="Password" tabindex="4">
+			  </div>
+		  </div>
+		  <div class="col-xs-12 col-sm-6 col-md-6">
+			  <div class="form-group">
+				<label for="InputConfirmPassword">Confirm Password</label>
+				<input type="password" class="form-control" id="InputConfirmPassword" name="password_again" placeholder="Confirm Password" tabindex="5">
+			  </div>
+		  </div>
+	    </div>
+	    <button type="submit" class="btn btn-default">Submit</button>
+	  </form>
 	  <?php 
+	  } else if($_GET['step'] === "convert"){
+		if(!isset($user)){
+			$user = new User();
+		}
+		if(!$user->isLoggedIn() || $user->data()->group_id != 2){
+			header('Location: /install/?step=account');
+			die();
+		}
+		if(isset($_GET["convert"]) && !isset($_GET["from"])){
+	  ?>
+		<div class="well">
+			<h4>Which forum software are you converting from?</h4>
+			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=modernbb'">ModernBB</a><br />
+			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=phpbb'">phpBB</a><br />
+			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=mybb'">MyBB</a><br />
+			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=wordpress'">WordPress</a><br /><br />
+			<button class="btn btn-danger" onclick="location.href='/install/?step=convert'">Cancel</button>
+		</div>
+	  <?php
+		} else if(isset($_GET["convert"]) && isset($_GET["from"])){
+	  ?>
+		<div class="well">
+	  <?php
+		if(strtolower($_GET["from"]) === "modernbb"){
+			if(!Input::exists()){
+	  ?>
+			<h4>Converting from ModernBB:</h4>
+			
+	  <?php
+				if(isset($_GET["error"])){
+	  ?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	  <?php
+				}
+	  ?>
+			
+			<form action="?step=convert&convert=yes&from=modernbb" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">ModernBB Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">ModernBB Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">ModernBB Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">ModernBB Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPrefix">ModernBB Table Prefix (blank for none)</label>
+				<input class="form-control" type="text" id="InputDBPrefix" name="db_prefix" placeholder="Table prefix">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='/install/?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	  <?php
+			} else {
+				require 'converters/modernbb.php';
+	  ?>
+			<div class="alert alert-success">
+				Successfully imported ModernBB data. <strong>Important:</strong> Please redefine any private categories in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='/install/?step=finish'">Proceed</button></center>
+			</div>
+	  <?php
+			}
+		} else if(strtolower($_GET["from"]) === "phpbb"){
+			if(!Input::exists()){
+	  ?>
+			<h4>Converting from phpBB:</h4>
+			
+	  <?php
+				if(isset($_GET["error"])){
+	  ?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	  <?php
+				}
+	  ?>
+			
+			<form action="?step=convert&convert=yes&from=phpbb" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">phpBB Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">phpBB Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">phpBB Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">phpBB Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPrefix">phpBB Table Prefix (blank for none)</label>
+				<input class="form-control" type="text" id="InputDBPrefix" name="db_prefix" placeholder="Table prefix">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='/install/?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	  <?php
+			} else {
+				require 'converters/phpbb.php';
+	  ?>
+			<div class="alert alert-success">
+				Successfully imported phpBB data. <strong>Important:</strong> Please redefine any private categories in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='/install/?step=finish'">Proceed</button></center>
+			</div>
+	  <?php
+			}
+/* 
+ * ---- NEW, By dwilson390 -----
+ */
+		} else if(strtolower($_GET["from"]) === "wordpress"){
+			if(!Input::exists()){
+	  ?>
+			<h4>Converting from WordPress:</h4>
+			
+	  <?php
+				if(isset($_GET["error"])){
+	  ?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	  <?php
+				}
+	  ?>
+			<div class="alert alert-success">
+				WordPress conversion script created by dwilson390.<br />
+			</div>	
+			<form action="?step=convert&convert=yes&from=wordpress" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">Wordpress Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">Wordpress Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">Wordpress Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">Wordpress Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPrefix">Wordpress Table Prefix (blank for none) (<strong>Remember the '_'</strong>)</label>
+				<input class="form-control" type="text" id="InputDBPrefix" name="db_prefix" placeholder="Table prefix">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBCheckbox">I have bbPress installed (selecting this option will also import your forums and topics)</label>
+				<input class="form-control" type="checkbox" id="InputDBCheckbox" name="db_checkbox" placeholder="Table prefix">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='/install/?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	  <?php
+			} else {
+				require 'converters/wordpress.php';
+	  ?>
+			<div class="alert alert-success">
+				Successfully imported Wordpress data. <strong>Important:</strong> Please redefine any private categories in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='/install/?step=finish'">Proceed</button></center>
+			</div>
+	  <?php
+			}
+		
+/*
+ * ---- END, By dwilson390 -----
+ */
+		} else if(strtolower($_GET["from"]) === "mybb"){
+	?>
+			<h4>Converting from MyBB:</h4>
+	<?php
+		}
+	?>
+		</div>
+	<?php
+		} else if(!isset($_GET["convert"]) && !isset($_GET["from"]) && !isset($_GET["action"])){
+	?>
+	  <h2>Convert</h2>
+	  <p>Convert from another forum software?</p>
+	  <div class="btn-group">
+		<button class="btn btn-success" onclick="location.href='/install/?step=convert&convert=yes'">Yes</button>
+		<button class="btn btn-primary" onclick="location.href='/install/?step=finish'">No</button>
+	  </div>
+	<?php
+		}
+	  } else if($step === "finish"){
+	  ?>
+	  <h2>Finish</h2>
+	  <p>Thanks for using NamelessMC website software.</p>
+	  <p>Before you start using the website, please configure the forums and Minecraft servers via the AdminCP.</p>
+	  <p>Links:
+	  <ul>
+	    <li><a target="_blank"href="https://github.com/samerton/NamelessMC">GitHub</a></li>
+	    <li><a target="_blank" href="http://www.spigotmc.org/threads/nameless-minecraft-website-software.34810/">SpigotMC thread</a></li>
+	  </ul>
+	  </p>
+	  <button type="button" onclick="location.href='/admin/?from=install'" class="btn btn-primary">Finish &raquo;</button>
+	  <?php
 	  }
 	  ?>
       <hr>
@@ -697,7 +1251,7 @@ if(isset($_GET["step"])){
           <div class="modal-body">
             NamelessMC includes support for the following BungeeCord plugins:
 			<ul>
-			  <li><a href="http://www.spigotmc.org/resources/bungee-admin-tools.444/">BungeeAdminTools</a> (for infractions)</li>
+			  <li><a target="_blank" href="http://www.spigotmc.org/resources/bungee-admin-tools.444/">BungeeAdminTools</a> (for infractions)</li>
 			</ul>
           </div>
           <div class="modal-footer">
@@ -716,11 +1270,11 @@ if(isset($_GET["step"])){
           <div class="modal-body">
             NamelessMC includes support for the following Bukkit/Spigot plugins:
 			<ul>
-			  <li><a href="http://dev.bukkit.org/bukkit-plugins/buycraft/">Buycraft</a></li>
-			  <li><a href="http://www.spigotmc.org/resources/mcmmo.2445/">McMMO</a></li>
-			  <li><a href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/">Stats</a></li>
-			  <li><a href="http://www.spigotmc.org/resources/bukkitgames-hungergames.279/">BukkitGames</a></li>
-			  <li><a href="http://dev.bukkit.org/bukkit-plugins/ban-management/">Ban Management</a></li>
+			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/buycraft/">Buycraft</a></li>
+			  <li><a target="_blank" href="http://www.spigotmc.org/resources/mcmmo.2445/">McMMO</a></li>
+			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/">Stats</a></li>
+			  <li><a target="_blank" href="http://www.spigotmc.org/resources/bukkitgames-hungergames.279/">BukkitGames</a></li>
+			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/ban-management/">Ban Management</a></li>
 			</ul>
           </div>
           <div class="modal-footer">

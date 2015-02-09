@@ -28,7 +28,7 @@ if(!isset($queries)){
 $mysqli = new mysqli(Input::get("db_address"), Input::get("db_username"), Input::get("db_password"), Input::get("db_name"));
 
 if($mysqli->connect_errno) {
-	Redirect::to('install.php?step=convert&convert=yes&from=wordpress&error=true');
+	header('Location: /install/?step=convert&convert=yes&from=wordpress&error=true');
 	die();
 }
 
@@ -38,8 +38,10 @@ if($mysqli->connect_errno) {
 
 $prefix = '';
 
-if(!empty(Input::get('db_prefix'))){
-	$prefix = escape(Input::get('db_prefix'));
+$inputted_prefix = Input::get('db_prefix');
+
+if(!empty($inputted_prefix)){
+	$prefix = escape($inputted_prefix);
 }
 
 /*
@@ -81,23 +83,24 @@ while ($row = $wordpress_users->fetch_assoc()) {
 		
 		$group = null;
 		
-		$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 60);
+		// Get current unix time
+		$date = new DateTime();
+		$date = $date->getTimestamp();
 		
 		$queries->create("users", array(
 			"id" => $row['ID']+ 1,
 			"username" => htmlspecialchars($row["user_login"]),
 			"password" => htmlspecialchars($row["user_pass"]),
-			"salt" => "wordpress",
+			"pass_method" => "wordpress",
 			"mcname" => htmlspecialchars($row["display_name"]),
 			"uuid" => "",
-			"joined" => "",
+			"joined" => $date,
 			"group_id" => $group_id,
 			"email" => $row["user_email"],
 			"lastip" => "",
-			"active" => 0,
+			"active" => 1,
 			"signature" => "",
-			"reset_code" => $code,
-			"pf_location" => ""
+			"reset_code" => ""
 		));	
 	}
 
@@ -113,25 +116,25 @@ $wordpress_date_registered = NULL;
  * We create a forum to put the posts in
  */
  
-$queries->create("categories", array(
+$queries->create("forums", array(
 	"id" => 1,
-	"category_title" => "Old Wordpress Posts",
-	"category_description" => "These are the old posts imported from WordPress. Please note, this is the parent forum which is required by NamelessMC, if you wish to delete this, please move the posts out of the forum below.",
+	"forum_title" => "Old Wordpress Posts",
+	"forum_description" => "These are the old posts imported from WordPress. Please note, this is the parent forum which is required by NamelessMC, if you wish to delete this, please move the posts out of the forum below.",
 	"last_post_date" => date('Y-m-d H:i:s'),
 	"last_user_posted" => 1,
 	"last_topic_posted" => date('Y-m-d H:i:s'),
 	"parent" => 0,
-	"cat_order" => 1
+	"forum_order" => 1
 ));
-$queries->create("categories", array(
+$queries->create("forums", array(
 	"id" => 2,
-	"category_title" => "Old Wordpress Posts",
-	"category_description" => "These are the old posts imported from WordPress. Feel Free to rename this forum or move the posts accordingly.",
+	"forum_title" => "Old Wordpress Posts",
+	"forum_description" => "These are the old posts imported from WordPress. Feel Free to rename this forum or move the posts accordingly.",
 	"last_post_date" => date('Y-m-d H:i:s'),
 	"last_user_posted" => 1,
 	"last_topic_posted" => date('Y-m-d H:i:s'),
 	"parent" => 1,
-	"cat_order" => 2
+	"forum_order" => 2
 ));
 
 /*
@@ -151,7 +154,7 @@ $loop_no = 1;
 while ($row = $wordpress_posts->fetch_assoc()) {
 	$queries->create("topics", array(
 		"id" => $row["ID"],
-		"category_id" => 2,
+		"forum_id" => 2,
 		"topic_title" => $row['post_title'],
 		"topic_creator" => $row['post_author'] + 1,
 		"topic_last_user" => $row['post_author'],
@@ -160,7 +163,7 @@ while ($row = $wordpress_posts->fetch_assoc()) {
 	));
 	$queries->create("posts", array(
 		"id" => $row["ID"],
-		"category_id" => 2,
+		"forum_id" => 2,
 		"topic_id" => $row['ID'],
 		"post_creator" => $row["post_author"] + 1,
 		"post_content" => $row["post_content"],
@@ -204,15 +207,15 @@ if(Input::get('InputDBCheckbox') !== null){
 	 *  Loop through the forums
 	 */
 	while ($row = $wordpress_forums->fetch_assoc()) {
-		$queries->create("categories", array(
+		$queries->create("forums", array(
 			"id" => $row["ID"],
-			"category_title" => htmlspecialchars($row["post_title"]),
-			"category_description" => htmlspecialchars($row["post_content"]),
+			"forum_title" => htmlspecialchars($row["post_title"]),
+			"forum_description" => htmlspecialchars($row["post_content"]),
 			"last_post_date" => NULL,
 			"last_user_posted" => NULL,
 			"last_topic_posted" => NULL,
 			"parent" => $row["post_parent"],
-			"cat_order" => $n
+			"forum_order" => $n
 		));
 		$n++;
 	}
@@ -254,7 +257,7 @@ if(Input::get('InputDBCheckbox') !== null){
 
 		$queries->create("topics", array(
 			"id" => $row["ID"],
-			"category_id" => $row['post_parent'],
+			"forum_id" => $row['post_parent'],
 			"topic_title" => htmlspecialchars($row['post_title']),
 			"topic_creator" => $row['post_author'] + 1,
 			"topic_last_user" => $row['post_author'],
@@ -263,7 +266,7 @@ if(Input::get('InputDBCheckbox') !== null){
 		));
 		$queries->create("posts", array(
 			"id" => $row["ID"],
-			"category_id" => $row['post_parent'],
+			"forum_id" => $row['post_parent'],
 			"topic_id" => $row['ID'],
 			"post_creator" => $row['post_author'] + 1,
 			"post_content" => $row['post_content'],
@@ -305,7 +308,7 @@ if(Input::get('InputDBCheckbox') !== null){
 		$category = null;
 
 		$queries->create("posts", array(
-			"category_id" => $category_id,
+			"forum_id" => $category_id,
 			"topic_id" => $row["post_parent"],
 			"post_creator" => $row["post_author"] + 1,
 			"post_content" => htmlspecialchars($row["post_content"]),
