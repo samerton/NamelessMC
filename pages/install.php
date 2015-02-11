@@ -175,6 +175,7 @@ if(isset($_GET["step"])){
 								'	),' . PHP_EOL . 
 								'	"session" => array(' . PHP_EOL . 
 								'		"session_name" => "user",' . PHP_EOL . 
+								'		"admin_name" => "admin",' . PHP_EOL .
 								'		"token_name" => "token"' . PHP_EOL . 
 								'	)' . PHP_EOL . 
 								');';
