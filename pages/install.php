@@ -459,6 +459,10 @@ if(isset($_GET["step"])){
 					30 => array(
 						'name' => 'version_checked',
 						'value' => $date
+					),
+					31 => array(
+						'name' => 'version_update',
+						'value' => 'false'
 					)
 				);
 				
