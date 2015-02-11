@@ -329,6 +329,7 @@ if(isset($_GET["step"])){
 				}
 				
 				$random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 30);
+				$uid = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 62);
 				
 				$data = array(
 					0 => array(
@@ -442,6 +443,14 @@ if(isset($_GET["step"])){
 					27 => array(
 						'name' => 'infractions_plugin',
 						'value' => 'null'
+					),
+					28 => array(
+						'name' => 'unique_id',
+						'value' => $uid
+					),
+					29 => array(
+						'name' => 'version',
+						'value' => '0.5'
 					)
 				);
 				
