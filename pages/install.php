@@ -331,6 +331,10 @@ if(isset($_GET["step"])){
 				$random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 30);
 				$uid = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 62);
 				
+				// Get current unix time
+				$date = new DateTime();
+				$date = $date->getTimestamp();
+				
 				$data = array(
 					0 => array(
 						'name' => 'sitename',
@@ -451,6 +455,10 @@ if(isset($_GET["step"])){
 					29 => array(
 						'name' => 'version',
 						'value' => '0.5'
+					),
+					30 => array(
+						'name' => 'version_checked',
+						'value' => $date
 					)
 				);
 				
