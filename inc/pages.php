@@ -28,7 +28,8 @@ $pages = array(
 		"update_mcname",
 		"update_uuid",
 		"users",
-		"vote"
+		"vote",
+		"update"
 	),
 	"credits",
 	"donate",
