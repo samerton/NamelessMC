@@ -14,7 +14,7 @@ require_once 'inc/functions/array_handling.php'; // Custom array functions
  *  Get the directory the user is trying to access
  */ 
 $directory = $_SERVER['REQUEST_URI'];
-$directories = split("/", $directory);
+$directories = explode("/", $directory);
 
 /*
  *  Install file check
@@ -24,10 +24,6 @@ if(file_exists("pages/install.php") && strtolower($directories[1]) !== "install"
 	header("Location: /install");
 	die();
 }
-
-
-//echo '<pre>', print_r($directories), '</pre>';
-
 
 /*
  *  Define some variables..
@@ -71,9 +67,13 @@ if(strtolower($directories[1]) !== "install"){
 				}
 			}
 		}
+		if(isset($directories[2][0]) &&  $directories[2][0] === "?"){ // Get parameters, eg ?action=create
+			$exists = true;
+			$params = true;
+		}
 	} else { // Get parameters, eg ?action=create
 		if(!empty($directories[3])){
-			$params = $_GET;
+			$params = $directories[3];
 		}
 	}
 }
@@ -121,7 +121,11 @@ if(strtolower($directories[1]) !== "install"){
 		if(!isset($key)){
 			require 'pages/' . $directories[1] . '.php';
 		} else {
-			require 'pages/' . $directories[1] . '/' . $directories[2] . '.php';
+			if(!isset($params)){
+				require 'pages/' . $directories[1] . '/' . $directories[2] . '.php';
+			} else {
+				require 'pages/' . $directories[1] . '/index.php';
+			}
 		}
 	}
 } else {
