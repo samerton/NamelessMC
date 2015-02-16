@@ -52,7 +52,7 @@ if(Input::exists()) {
     <meta name="author" content="Samerton">
     <link rel="icon" href="/assets/favicon.ico">
 
-    <title><?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value); ?> &bull; Sign In</title>
+    <title><?php echo $sitename; ?> &bull; Sign In</title>
 	
 	<?php require('inc/templates/header.php'); ?>
 	
@@ -74,27 +74,27 @@ if(Input::exists()) {
 				echo Session::flash('signin_error');
 			}
 			if(Input::exists()) {
-					if($validation->passed()) {	} 
-					else {
-						echo '<div class="alert alert-danger">';
-						foreach($validation->errors() as $error) {
-							if (strpos($error,'is required') !== false) {
-								if (strpos($error,'username') !== false) {
-									echo 'You must input a username.<br />';
-								} else if (strpos($error,'password') !== false) {
-									echo 'You must input a password.<br />';
-								}
-							}
-							if (strpos($error,'active') !== false){
-								echo 'Your account is currently inactive. Did you request a password reset?<br />';
-							}
-							if (strpos($error,'banned') !== false){
-								echo 'Your account has been banned.<br />';
+				if($validation->passed()) {	} 
+				else {
+					echo '<div class="alert alert-danger">';
+					foreach($validation->errors() as $error) {
+						if (strpos($error,'is required') !== false) {
+							if (strpos($error,'username') !== false) {
+								echo 'You must input a username.<br />';
+							} else if (strpos($error,'password') !== false) {
+								echo 'You must input a password.<br />';
 							}
 						}
-						echo '</div>';
+						if (strpos($error,'active') !== false){
+							echo 'Your account is currently inactive. Did you request a password reset?<br />';
+						}
+						if (strpos($error,'banned') !== false){
+							echo 'Your account has been banned.<br />';
+						}
 					}
+					echo '</div>';
 				}
+			}
 			?>
 				<form role="form" action="" method="post">
 					<h2>Sign In</h2>

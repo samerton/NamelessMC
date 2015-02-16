@@ -22,11 +22,11 @@ if($path === ""){
 		require_once 'inc/classes/' . $class . '.php';
 	});
 	require_once 'inc/functions/sanitize.php';
-} else if($path === "../"){
+} else if($path === "../../../"){
 	spl_autoload_register(function($class) {
-		require_once '../inc/classes/' . $class . '.php';
+		require_once '../../classes/' . $class . '.php';
 	});
-	require_once '../inc/functions/sanitize.php';
+	require_once '../../functions/sanitize.php';
 }
 
 if($page !== "install"){
@@ -90,12 +90,20 @@ if($page !== "install"){
 	 */
 	 
 	if($page === "forum"){
-		if($queries->getWhere("settings", array("name", "=", "maintenance"))[0]->value === "true"){
+		$maintenance = $queries->getWhere("settings", array("name", "=", "maintenance"));
+		if($maintenance[0]->value === "true"){
 			if($user->data()->group_id != 2){
 				echo 'Sorry, the forums are in maintenance mode. Please head back to the <a href="../">homepage</a>.';
 				die();
 			}
 		}
 	}
+	
+	/*
+	 *  Get the sitename
+	 */
+	 
+	$sitename = $queries->getWhere("settings", array("name", "=", "sitename"));
+	$sitename = htmlspecialchars($sitename[0]->value);
 	
 }

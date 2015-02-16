@@ -10,15 +10,15 @@ require('inc/includes/password.php'); // Include the password compatibility func
 require('inc/includes/html/library/HTMLPurifier.auto.php'); // For T & Cs
 require('inc/integration/uuid.php'); // For UUID stuff
 
-if(!isset($user)){
-	$user = new User();
-}
-
 // Redirect if logged in
 if($user->isLoggedIn()){
 	Redirect::to("../");
 	die();
 }
+
+// Use recaptcha?
+$recaptcha = $queries->getWhere("settings", array("name", "=", "recaptcha"));
+$recaptcha = $recaptcha[0]->value;
 
 // Validate user input, and register the account
 if(Input::exists()) {
@@ -57,7 +57,8 @@ if(Input::exists()) {
 				'agree' => true
 			)
 		);
-		if($queries->getWhere("settings", array("name", "=", "recaptcha"))[0]->value === "true"){
+		
+		if($recaptcha === "true"){
 			$to_validation['g-recaptcha-response'] = array(
 				'required' => true
 			);
@@ -81,6 +82,9 @@ if(Input::exists()) {
 			}
 			
 			$password = password_hash(Input::get('password'), PASSWORD_BCRYPT, array("cost" => 13));
+			// Get current unix time
+			$date = new DateTime();
+			$date = $date->getTimestamp();
 			
 			try {
 				$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 60);
@@ -89,19 +93,19 @@ if(Input::exists()) {
 					'mcname' => htmlspecialchars(Input::get('mcname')),
 					'uuid' => $uuid,
 					'password' => $password,
-					'joined' => (new DateTime())->format('U'),
+					'pass_method' => 'default',
+					'joined' => $date,
 					'group_id' => 1,
 					'email' => htmlspecialchars(Input::get('email')),
 					'reset_code' => $code,
 					'lastip' => htmlspecialchars($ip)
 				));
 
-				$sitename = $queries->getWhere("settings", array("name", "=", "sitename"))[0]->value;
-				$siteemail = $queries->getWhere("settings", array("name", "=", "outgoing_email"))[0]->value;
-				
+				$siteemail = $queries->getWhere("settings", array("name", "=", "outgoing_email"));
+				$siteemail = $siteemail[0]->value;
 				
 				$to      = Input::get('email');
-				$subject = 'Welcome to ' . htmlspecialchars($sitename) . '!';
+				$subject = 'Welcome to ' . $sitename . '!';
 				$message = 'Hello, ' . htmlspecialchars(Input::get('username')) . '
 
 							Thanks for registering!
@@ -112,7 +116,7 @@ if(Input::exists()) {
 							Please note that your account will not be accessible until this action is complete.
 							
 							Thanks,
-							' . htmlspecialchars($sitename) . ' staff.';
+							' . $sitename . ' staff.';
 				$headers = 'From: ' . $siteemail . "\r\n" .
 					'Reply-To: ' . $siteemail . "\r\n" .
 					'X-Mailer: PHP/' . phpversion();
@@ -121,6 +125,7 @@ if(Input::exists()) {
 				
 				Session::flash('home', '<div class="alert alert-info alert-dismissible">  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>Please check your emails for a validation link. You won\'t be able to log in until this is clicked.</div>');
 				Redirect::to('../');
+				die();
 			
 			} catch(Exception $e){
 				die($e->getMessage());
@@ -140,7 +145,7 @@ if(Input::exists()) {
     <meta name="author" content="Samerton">
     <link rel="icon" href="/assets/favicon.ico">
 
-    <title><?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value); ?> &bull; Register</title>
+    <title><?php echo $sitename; ?> &bull; Register</title>
 	
 	<?php require('inc/templates/header.php'); ?>
 	
@@ -230,10 +235,11 @@ if(Input::exists()) {
 						</div>
 					</div>
 					<?php 
-					if($queries->getWhere("settings", array("name", "=", "recaptcha"))[0]->value === "true"){
+					if($recaptcha === "true"){
+						$recaptcha_key = $queries->getWhere("settings", array("name", "=", "recaptcha_key"));
 					?>
 					<center>
-						<div class="g-recaptcha" data-sitekey="<?php echo $queries->getWhere("settings", array("name", "=", "recaptcha_key"))[0]->value; ?>"></div>
+						<div class="g-recaptcha" data-sitekey="<?php echo $recaptcha_key[0]->value; ?>"></div>
 					</center>
 					<br />
 					<?php 
@@ -278,8 +284,8 @@ if(Input::exists()) {
 						$config->set('CSS.AllowedProperties', array('float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
 						$config->set('HTML.AllowedAttributes', 'src, height, width, alt');
 						$purifier = new HTMLPurifier($config);
-						$t_and_c = $queries->getWhere("settings", array("name", "=", "t_and_c"))[0]->value;
-						echo $purifier->purify(htmlspecialchars_decode($t_and_c));
+						$t_and_c = $queries->getWhere("settings", array("name", "=", "t_and_c"));
+						echo $purifier->purify(htmlspecialchars_decode($t_and_c[0]->value));
 						?>
 					</div>
 					<div class="modal-footer">
@@ -294,9 +300,9 @@ if(Input::exists()) {
 	  <?php include('inc/templates/footer.php'); ?> 
 	  
     </div> <!-- /container -->
-	<?php include('inc/templates/scripts.php'); ?>
 	<?php 
-	if($queries->getWhere("settings", array("name", "=", "recaptcha"))[0]->value === "true"){
+	include('inc/templates/scripts.php'); 
+	if($recaptcha === "true"){
 	?>
 	<script src='https://www.google.com/recaptcha/api.js'></script>
 	<?php 
