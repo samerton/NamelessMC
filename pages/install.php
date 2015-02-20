@@ -93,6 +93,7 @@ if(isset($_GET["step"])){
 		}
 		if(!extension_loaded('gd')){
 			echo 'PHP GD Extension - ' . $error;
+			$php_error = true;
 		} else {
 			echo 'PHP GD Extension - ' . $success;
 		}
@@ -101,6 +102,12 @@ if(isset($_GET["step"])){
 			$php_error = true;
 		} else {
 			echo 'PHP PDO Extension - ' . $success;
+		}
+		if(function_exists("mcrypt_encrypt")) {
+			echo 'mcrypt - ' . $error;
+			$php_error = true;
+		} else {
+			echo 'mcrypt - ' . $success;
 		}
 	  ?>
 	  <br />
@@ -330,7 +337,6 @@ if(isset($_GET["step"])){
 				
 				$random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 30);
 				$uid = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 62);
-				
 				// Get current unix time
 				$date = new DateTime();
 				$date = $date->getTimestamp();

@@ -45,8 +45,10 @@ class MinecraftProfile {
 	* @return MinecraftProfile|null Returns null if fetching of profile failed. Else returns completed user profile.
 	*/
 	public static function getProfile($identifier, $timeout = 5) {
-	if(strlen($identifier) <= 16)
-	$identifier = ProfileUtils::getUUIDFromUsername($identifier, $timeout)['uuid'];
+	if(strlen($identifier) <= 16){
+	$identifier = ProfileUtils::getUUIDFromUsername($identifier, $timeout);
+	$identifier = $identifier['uuid'];
+	}
 	$url = "https://sessionserver.mojang.com/session/minecraft/profile/".$identifier;
 	$ctx = stream_context_create(array(
 	'http' => array(
