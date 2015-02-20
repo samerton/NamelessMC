@@ -38,7 +38,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 	<meta name="robots" content="noindex">
     <link rel="icon" href="/favicon.ico">
 
-    <title><?php echo $sitename; ?> &bull; AdminCP</title>
+    <title><?php echo $sitename; ?> &bull; AdminCP Users</title>
 	
 	<?php require("inc/templates/header.php"); ?>
 
