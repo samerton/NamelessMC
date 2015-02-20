@@ -6,9 +6,6 @@
  *  License: MIT
  */
 
-if(!isset($user)){
-	$user = new User();
-}
 ?>
 
 <!DOCTYPE html>
@@ -18,10 +15,10 @@ if(!isset($user)){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <meta name="author" content="Samerton">
+    <link rel="icon" href="/favicon.ico">
 
-    <title><?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value); ?> &bull; Credits</title>
+    <title><?php echo $sitename; ?> &bull; Credits</title>
 	
 	<!-- Custom style -->
 	<style>
@@ -40,18 +37,21 @@ if(!isset($user)){
 	
 	<div class="container">
 	<h3>Credits</h3>
-	Website software written by <a href="https://worldscapemc.co.uk">Samerton (worldscapemc.co.uk)</a><br /><br />
+	Website software written by <a href="https://worldscapemc.co.uk" target="_blank">Samerton (worldscapemc.co.uk)</a><br /><br />
 	<strong>Contributors</strong>:<br />
 	Wiki created by EvenSafe789<br />
 	WordPress conversion script by dwilson390<br />
-	<br /><br />
-	<a href="https://github.com/ezyang/htmlpurifier">HTMLPurifier</a> - Edward Z. Yang (GNU Lesser General Public License)<br />
-	<a href="https://github.com/summernote/summernote">Summernote Editor</a> - easylogic (MIT License)<br />
-	<a href="http://getbootstrap.com/">Built with Bootstrap</a> - Twitter, Inc (MIT License)<br />
-	<a href="http://bootswatch.com/">Bootswatch themes</a> - Thomas Park (MIT License)<br />
-	<a href="https://github.com/xPaw/PHP-Minecraft-Query">PHP Minecraft Query</a> - xPaw (<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">License</a>)<br />
-	<a href="http://www.white-hat-web-design.co.uk/blog/resizing-images-with-php/">SimpleImage</a> - Simon Jarvis (GNU General Public License)<br />
-	<a href="https://github.com/jimmiw/php-time-ago">PHP Time Ago</a> - Jimmi Westerberg (MIT License)<br />
+	<br />
+	<strong>External libraries</strong>:<br />
+	<a href="https://github.com/ircmaxell/password_compat" target="_blank">PasswordCompat</a> - Anthony Ferrara (MIT License)<br />
+	<a href="https://github.com/ezyang/htmlpurifier" target="_blank">HTMLPurifier</a> - Edward Z. Yang (GNU Lesser General Public License)<br />
+	<a href="https://github.com/summernote/summernote" target="_blank">Summernote Editor</a> - easylogic (MIT License)<br />
+	<a href="http://getbootstrap.com/" target="_blank">Built with Bootstrap</a> - Twitter, Inc (MIT License)<br />
+	<a href="http://bootswatch.com/" target="_blank">Bootswatch themes</a> - Thomas Park (MIT License)<br />
+	<a href="https://github.com/xPaw/PHP-Minecraft-Query" target="_blank">PHP Minecraft Query</a> - xPaw (<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode" target="_blank">License</a>)<br />
+	<a href="http://www.white-hat-web-design.co.uk/blog/resizing-images-with-php/" target="_blank">SimpleImage</a> - Simon Jarvis (GNU General Public License)<br />
+	<a href="https://github.com/jimmiw/php-time-ago" target="_blank">PHP Time Ago</a> - Jimmi Westerberg (MIT License)<br />
+	<a href="https://github.com/onassar/PHP-Pagination" target="_blank">PHP-Pagination</a> - onassar (<a href="https://github.com/onassar/PHP-Pagination/issues/4" target="_blank">Permission</a>)<br />
 	Emoticons - Oscar Gruno and Andy Fedosjeenko
 		<hr>
 	  <?php include("inc/templates/footer.php"); ?> 
