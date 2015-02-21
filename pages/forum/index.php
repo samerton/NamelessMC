@@ -173,7 +173,8 @@ $timeago = new Timeago();
 					$list = $forum->listCategories($user->data()->group_id);
 					$n = 0;
 					while ($n < count($list[0])) {
-						$topics = count($forum->listTopics(escape($list[0][$n]))[0]);
+						$topics = $forum->listTopics(escape($list[0][$n]));
+						$topics = count($topics[0]);
 						$posts = $forum->countPosts(escape($list[0][$n]), 'forum_id');
 						echo '<tr><td><a href="view_forum/?fid=' . $list[0][$n] . '"><strong>' . str_replace("&amp;", "&", $list[1][$n]) . '</strong></a><br />' . $list[2][$n] . '</td><td><strong>' . $topics . '</strong> topics<br /><strong>' . $posts . '</strong> posts</td><td><div class="row"><div class="col-md-2"><div class="frame"><a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">';
 					    if($list[4][$n] !== null){

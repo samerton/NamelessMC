@@ -11,8 +11,9 @@ if(!isset($user)){
 }
 
 if($user->isLoggedIn()){
+	$user->admLogout();
 	$user->logout();
-
+	
 	Session::flash('home', '<div class="alert alert-info alert-dismissible">  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>You have been logged out.</div>');
 	Redirect::to('/');
 } else {

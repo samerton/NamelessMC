@@ -322,7 +322,7 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 				{"name":"about","groups":["about"]}
 			],
 			// Remove the redundant buttons from toolbar groups defined above.
-			removeButtons: 'Anchor,Styles,Specialchar,Font,About,Flash'
+			removeButtons: 'Anchor,Styles,Specialchar,Font,About,Flash,Iframe'
 		} );
 	</script>
   </body>

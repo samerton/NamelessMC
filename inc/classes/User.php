@@ -4,18 +4,29 @@ class User {
 			$_data,
 			$_sessionName,
 			$_cookieName,
-			$_isLoggedIn;
+			$_isLoggedIn,
+			$_admSessionName,
+			$_isAdmLoggedIn;
 	
 	public function __construct($user = null) {
 		$this->_db = DB::getInstance();
 		$this->_sessionName = Config::get('session/session_name');
 		$this->_cookieName = Config::get('remember/cookie_name');
+		$this->_admSessionName = Config::get('session/admin_name');
 		
 		if(!$user) {
 			if(Session::exists($this->_sessionName)) {
 				$user = Session::get($this->_sessionName);
 				if($this->find($user)){
 					$this->_isLoggedIn = true;
+				} else {
+					// process logout
+				}
+			}
+			if(Session::exists($this->_admSessionName)) {
+				$user = Session::get($this->_admSessionName);
+				if($this->find($user)){
+					$this->_isAdmLoggedIn = true;
 				} else {
 					// process logout
 				}
@@ -29,7 +40,8 @@ class User {
 	public function getGroupName($group_id) {
 		$data = $this->_db->get('groups', array('id', '=', $group_id));
 		if($data->count()) {
-			return htmlspecialchars($data->results()[0]->name);
+			$results = $data->results();
+			return htmlspecialchars($results[0]->name);
 		} else {
 			return false;
 		}
@@ -64,9 +76,11 @@ class User {
 			$no = 0;
 			$finalno = 0;
 			while ($no < $numrows) {
-				$isfriend = $data->results()[$no]->friend_id;
+				$results = $data->results();
+				$isfriend = $results[$no]->friend_id;
 					if ($isfriend == $user2) {
-						$finalno = $data->results()[$no]->id;
+						$results = $data->results();
+						$finalno = $results[$no]->id;
 						$no = ($numrows + 1);
 					}
 				$no = ($no + 1);
@@ -80,9 +94,11 @@ class User {
 			$no = 0;
 			$finalno = 0;
 			while ($no < $numrows) {
-				$isfriend = $data->results()[$no]->friend_id;
+				$results = $data->results();
+				$isfriend = $results[$no]->friend_id;
 					if ($isfriend == $user1) {
-						$finalno = $data->results()[$no]->id;
+						$results = $data->results();
+						$finalno = $results[$no]->id;
 						$no = ($numrows + 1);
 					}
 				$no = ($no + 1);
@@ -99,7 +115,8 @@ class User {
 			$numrows = (count($data->results()));
 			$no = 0;
 			while ($no < $numrows) {
-				$isfriend = $data->results()[$no]->friend_id;
+				$results = $data->results();
+				$isfriend = $results[$no]->friend_id;
 					if ($isfriend == $user2) {
 						$returnbool = 1;
 						$no = ($numrows + 1);
@@ -154,7 +171,8 @@ class User {
 			$data = $this->_db->get('users', array('id', '=', $id));
 			
 			if($data->count()) {
-				return $data->results()[0]->username;
+				$results = $data->results();
+				return $results[0]->username;
 			}
 		}
 		return false;
@@ -165,15 +183,14 @@ class User {
 			$data = $this->_db->get('users', array('id', '=', $id));
 			
 			if($data->count()) {
-				return $data->results()[0]->mcname;
+				$results = $data->results();
+				return $results[0]->mcname;
 			}
 		}
 		return false;
 	}
 	
 	public function login($username = null, $password = null, $remember = false) {
-		
-		
 		if(!$username && !$password && $this->exists()){
 			Session::put($this->_sessionName, $this->data()->id);
 		} else {
@@ -206,6 +223,37 @@ class User {
 		return false;
 	}
 	
+	public function adminLogin($username = null, $password = null) {
+		if(!$username && !$password && $this->exists()){
+			Session::put($this->_admSessionName, $this->data()->id);
+		} else {
+			$user = $this->find($username);
+			if($user){
+				if(password_verify($password, $this->data()->password)) {
+					Session::put($this->_admSessionName, $this->data()->id);
+
+					$hash = Hash::unique();
+					$hashCheck = $this->_db->get('users_admin_session', array('user_id', '=', $this->data()->id));
+				
+					if(!$hashCheck->count()) {
+						$this->_db->insert('users_admin_session', array(
+							'user_id' => $this->data()->id,
+							'hash' => $hash
+						));
+					} else {
+						$hash = $hashCheck->first()->hash;
+					}
+				
+					Cookie::put($this->_cookieName . "_adm", $hash, 3600);
+
+				
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public function hasPermission($key) {
 		$group = $this->_db->get('groups', array('id', '=', $this->data()->group));
 		
@@ -224,31 +272,36 @@ class User {
 		$data = $this->_db->get('users', array('id', '=', $id));
 		if($html === null){
 			if($large === null){
-				return $data->results()[0]->group_id;
+				$results = $data->results();
+				return $results[0]->group_id;
 			} else {
-				$data = $this->_db->get('groups', array('id', '=', $data->results()[0]->group_id));
-				return $data->results()[0]->group_html_lg;
+				$data = $this->_db->get('groups', array('id', '=', $results[0]->group_id));
+				$results = $data->results();
+				return $results[0]->group_html_lg;
 			}
 		} else {
-			$data = $this->_db->get('groups', array('id', '=', $data->results()[0]->group_id));
-			return $data->results()[0]->group_html;
+			$results = $data->results();
+			$data = $this->_db->get('groups', array('id', '=', $results[0]->group_id));
+			$results = $data->results();
+			return $results[0]->group_html;
 		}
 	}
 	
 	public function getSignature($id) {
 		$data = $this->_db->get('users', array('id', '=', $id));
-		if(!empty($data->results()[0]->signature)){
-			return $data->results()[0]->signature;
+		$results = $data->results();
+		if(!empty($results[0]->signature)){
+			return $results[0]->signature;
 		} else {
 		return "";
 		}
 	}
 	
-	public function getAvatar($id, $path) {
+	public function getAvatar($id) {
 		$exts = array('gif','png','jpg');
 		foreach($exts as $ext) {
-			if(file_exists($path . "user/avatars/" . $id . "." . $ext)){
-				$avatar_path = $path . "user/avatars/" . $id . "." . $ext;
+			if(file_exists("avatars/" . $id . "." . $ext)){
+				$avatar_path = "avatars/" . $id . "." . $ext;
 				break;
 			}
 		}
@@ -291,12 +344,183 @@ class User {
 		Cookie::delete($this->_cookieName);
 	}
 	
+	// Process logout if user is admin
+	public function admLogout() {
+		
+		$this->_db->delete('users_admin_session', array('user_id', '=', $this->data()->id));
+		
+		Session::delete($this->_admSessionName);
+		Cookie::delete($this->_cookieName . "_adm");
+	}
+	
+	// Returns the currently logged in user's data
 	public function data() {
 		return $this->_data;
 	}
 	
+	// Returns true if the current user is logged in
 	public function isLoggedIn() {
 		return $this->_isLoggedIn;
 	}
 	
+	// Returns true if the current user is authenticated as an administrator
+	public function isAdmLoggedIn() {
+		return $this->_isAdmLoggedIn;
+	}
+	
+	// Return a comma separated string of all users - this is for the new private message dropdown
+	public function listAllUsers() {
+		$data = $this->_db->get('users', array('id', '<>', '0'))->results();
+		$return = "";
+		$i = 1;
+		
+		foreach($data as $item){
+			if($i != count($data)){
+				$return .= '"' . $item->username . '",';
+			} else {
+				$return .= '"' . $item->username . '"';
+			}
+			$i++;
+		}
+		return $return;
+	}
+	
+	// Return an ID from a username
+	public function NameToId($name = null){
+		if($name){
+			$data = $this->_db->get('users', array('username', '=', $name));
+			
+			if($data->count()){
+				$results = $data->results();
+				return $results[0]->id;
+			}
+		}
+		return false;
+	}
+	
+	// Get a list of PMs a user has access to
+	public function listPMs($user_id = null){
+		if($user_id){
+			$return = array(); // Array to return containing info of PMs
+			
+			// First, get a list of PMs the user has created themselves
+			$data = $this->_db->get('private_messages', array('author_id', '=', $user_id));
+			
+			if($data->count()){
+				$data = $data->results();
+				foreach($data as $result){
+					// Get a list of users who are in this conversation and return them as an array
+					$pms = $this->_db->get('private_messages_users', array('pm_id', '=', $result->id))->results();
+					$users = array(); // Array containing users with permission
+					foreach($pms as $pm){
+						$users[] = $pm->user_id;
+					}
+					$users[] = $result->author_id; // Don't forget the author!
+					
+					$return[$result->id]['id'] = $result->id;
+					$return[$result->id]['title'] = $result->title;
+					$return[$result->id]['date'] = $result->sent_date;
+					$return[$result->id]['users'] = $users;
+				}
+			}
+			
+			// Next, get a list of PMs which the user has been added to
+			$data = $this->_db->get('private_messages_users', array('user_id', '=', $user_id));
+			
+			if($data->count()){
+				$data = $data->results();
+				foreach($data as $result){
+					// Get a list of users who are in this conversation and return them as an array
+					$pms = $this->_db->get('private_messages_users', array('pm_id', '=', $result->pm_id))->results();
+					$users = array(); // Array containing users with permission
+					foreach($pms as $pm){
+						$users[] = $pm->user_id;
+					}
+					
+					// Get the PM data
+					$pm = $this->_db->get('private_messages', array('id', '=', $result->pm_id))->results();
+					$pm = $pm[0];
+					
+					$users[] = $pm->author_id; // Don't forget the author!
+					
+					$return[$pm->id]['id'] = $pm->id;
+					$return[$pm->id]['title'] = $pm->title;
+					$return[$pm->id]['date'] = $pm->sent_date;
+					$return[$pm->id]['users'] = $users;
+				}
+			}
+			return $return;
+		}
+		return false;
+	}
+
+	// Get a specific private message, and see if the user actually has permission to view it
+	public function getPM($pm_id = null, $user_id = null){
+		if($user_id && $pm_id){
+			// Get the PM - is the user the author?
+			$data = $this->_db->get('private_messages', array('id', '=', $pm_id));
+			if($data->count()){
+				$data = $data->results();
+				$data = $data[0];
+				if($data->author_id != $user_id){
+					// User is not the author, do they have permission to view the PM?
+					$pms = $this->_db->get('private_messages_users', array('pm_id', '=', $pm_id))->results();
+					foreach($pms as $pm){
+						if($pm->user_id == $user_id){
+							$has_permission = true;
+							break;
+						}
+					}
+					if($has_permission != true){
+						return false; // User doesn't have permission
+					}
+				}
+				// User has permission, return the PM information
+				// Get a list of users in the conversation
+				if(!isset($pms)){
+					$pms = $this->_db->get('private_messages_users', array('pm_id', '=', $pm_id))->results();
+				}
+				
+				$users = array(); // Array to store users
+				foreach($pms as $pm){
+					$users[] = $pm->user_id;
+				}
+				
+				$users[] = $data->author_id; // Don't forget the author!
+				
+				return array($data, $users);
+			}
+		}
+		return false;
+	}
+	
+	// Delete a user's access to view the PM, or if they're the author, the PM itself
+	public function deletePM($pm_id = null, $user_id = null){
+		if($user_id && $pm_id){
+			// Is the user the author?
+			$data = $this->_db->get('private_messages', array('id', '=', $pm_id));
+			if($data->count()){
+				$data = $data->results();
+				$data = $data[0];
+				if($data->author_id != $user_id){
+					// User is not the author, only delete 
+					$pms = $this->_db->get('private_messages_users', array('pm_id', '=', $pm_id))->results();
+					foreach($pms as $pm){
+						if($pm->user_id == $user_id){
+							// get the ID and delete
+							$id = $pm->id;
+							$this->_db->delete('private_messages_users', array('id', '=', $id));
+							return true;
+						}
+					}
+				} else {
+					// User is the author, delete the PM altogether
+					$this->_db->delete('private_messages_users', array('pm_id', '=', $pm_id));
+					$this->_db->delete('private_messages', array('id', '=', $pm_id));
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

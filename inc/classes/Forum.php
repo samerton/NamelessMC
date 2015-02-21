@@ -1,4 +1,14 @@
 <?php
+/* 
+ *	Made by Samerton
+ *  http://worldscapemc.co.uk
+ *
+ *  License: MIT
+ */
+ 
+/*
+ *  Note: this is going to be rewritten soon, it's a mess at the moment
+ */
 class Forum {
 	private $_db,
 			$_data;
@@ -8,7 +18,7 @@ class Forum {
 	}
 	
 	public function getCategories($group_id = null) {
-		$data = $this->_db->orderAll('categories', "cat_order", "ASC")->results();
+		$data = $this->_db->orderAll('forums', "cat_order", "ASC")->results();
 		if(!empty($data)){
 			$results = array();
 			$n = 0;
@@ -96,7 +106,8 @@ class Forum {
 		}
 		
 		while ($i < $max){
-			$topic_category = $this->_db->get('categories', array('id', '=', $data[$n]->category_id))->results()[0];
+			$topic_category = $this->_db->get('forums', array('id', '=', $data[$n]->category_id))->results();
+			$topic_category = $topic_category[0];
 			$posts = count($this->_db->get('posts', array('topic_id', '=', $data[$n]->id))->results());
 			if($group_id !== null){
 				if($group_id == 1){
@@ -172,7 +183,7 @@ class Forum {
 	}
 	
 	public function listCategories($group_id = null) {
-		$data = $this->_db->orderAll('categories', "cat_order", "ASC");
+		$data = $this->_db->orderAll('forums', "forum_order", "ASC");
 		if($data->count()) {
 			$numrows = (count($data->results()));
 			$no = 0;
@@ -223,7 +234,7 @@ class Forum {
 	}
 	
 	public function catExist($cat_id) {
-		$data = $this->_db->get('categories', array('id', '=', $cat_id));
+		$data = $this->_db->get('forums', array('id', '=', $cat_id));
 		if($data->count()) {
 			return true;
 		}
@@ -231,7 +242,7 @@ class Forum {
 	}
 	
 	public function listTopics($cat_id) {
-		$data = $this->_db->orderWhere('topics', 'category_id = ' . $cat_id, 'topic_reply_date', 'DESC');
+		$data = $this->_db->orderWhere('topics', 'forum_id = ' . $cat_id, 'topic_reply_date', 'DESC');
 		if($data->count()) {
 			$numrows = (count($data->results()));
 			$no = 0;
@@ -271,7 +282,7 @@ class Forum {
 	}
 	
 	public function updateCategories($cid, $fields = array()) {
-		if(!$this->_db->update('categories', $cid, $fields)) {
+		if(!$this->_db->update('forums', $cid, $fields)) {
 			throw new Exception('There was a problem creating your post. Please try again later.');
 		}
 	}
@@ -328,70 +339,8 @@ class Forum {
 	}
 	
 	public function getCategoryTitle($cat_id) {
-		$data = $this->_db->get('categories', array('id', '=', $cat_id));
-		return $data->results()[0]->category_title;
-	}
-	
-	public function updateCatLatestPosts(){
-		$categories = $this->_db->get('categories', array('id', '<>', 0))->results();
-		$latest_posts = array();
-		$n = 0;
-		
-		foreach($categories as $category){
-			if($category->parent != 0){
-				$latest_post = $this->_db->orderWhere('posts', 'category_id = ' . $category->id, 'post_date', 'DESC LIMIT 1')->results()[0];
-				
-				$latest_posts[$n]["cat_id"] = $category->id;
-				$latest_posts[$n]["date"] = $latest_post->post_date;
-				$latest_posts[$n]["author"] = $latest_post->post_creator;
-				$latest_posts[$n]["topic_id"] = $latest_post->topic_id;
-				
-				$n++;
-			}
-		};
-		
-		$categories = null;
-		
-		foreach($latest_posts as $latest_post){
-			if(!empty($latest_post["date"])){
-				$this->_db->update('categories', $latest_post["cat_id"],  array(
-					'last_post_date' => $latest_post["date"],
-					'last_user_posted' => $latest_post["author"],
-					'last_topic_posted' => $latest_post["topic_id"]
-				));
-			}
-		}
-		
-		$latest_posts = null;
-		
-		return true;
-	}
-	
-	public function updateTopicLatestPosts(){
-		$topics = $this->_db->get('topics', array('id', '<>', 0))->results();
-		$latest_posts = array();
-		$n = 0;
-		
-		foreach($topics as $topic){
-			$latest_post = $this->_db->orderWhere('posts', 'topic_id = ' . $topic->id, 'post_date', 'DESC LIMIT 1')->results()[0];
-			
-			$latest_posts[$n]["topic_id"] = $topic->id;
-			$latest_posts[$n]["date"] = $latest_post->post_date;
-			$latest_posts[$n]["author"] = $latest_post->post_creator;
-			
-			$n++;
-		};
-		
-		foreach($latest_posts as $latest_post){
-			if(!empty($latest_post["date"])){
-				$this->_db->update('topics', $latest_post["topic_id"],  array(
-					'topic_reply_date' => $latest_post["date"],
-					'topic_last_user' => $latest_post["author"]
-				));
-			}
-		}
-		
-		return true;
+		$data = $this->_db->get('forums', array('id', '=', $cat_id))->results();
+		return $data[0]->forum_title;
 	}
 	
 	public function isLocked($topic_id) {
@@ -425,59 +374,6 @@ class Forum {
 	public function getReputation($post_id) {
 		$data = $this->_db->get('reputation', array('post_id', '=', $post_id));
 		return $data->results();
-	}
-	
-	public function hasUnreadMessages($user_id){
-		$messages = $this->_db->get('private_messages', array('id', '<>', 0))->results();
-		$has_messages = false;
-		foreach($messages as $message){
-			$parts = explode('_', $message->user_1);
-			$message_user_id = $parts[0];
-			$message_is_read = $parts[1];
-			if($message_user_id == $user_id && $message_is_read == 0){
-				$has_messages = true;
-				break;
-			}
-			
-			$parts = explode('_', $message->user_2);
-			$message_user_id = $parts[0];
-			$message_is_read = $parts[1];
-			if($message_user_id == $user_id && $message_is_read == 0){
-				$has_messages = true;
-				break;
-			}
-		}
-		return $has_messages;
-	}
-	
-	public function getAllMessages($user_id){
-		$messages = $this->_db->orderWhere('private_messages', 'id <> 0', 'sent_date', 'DESC')->results();
-		$return = array();
-		$i = 0;
-		foreach($messages as $message){
-			$parts = explode('_', $message->user_1);
-			$message_user_id = $parts[0];
-			if($message_user_id == $user_id){
-				$return[$i]["id"] = $message->id;
-				$return[$i]["direction"] = "To";
-				$return[$i]["title"] = htmlspecialchars($message->title);
-				$return[$i]["other_user"] = htmlspecialchars(explode('_', $message->user_2)[0]);
-				$return[$i]["date"] = $message->sent_date;
-				$i++;
-			}
-			
-			$parts = explode('_', $message->user_2);
-			$message_user_id = $parts[0];
-			if($message_user_id == $user_id){
-				$return[$i]["id"] = $message->id;
-				$return[$i]["direction"] = "From";
-				$return[$i]["title"] = htmlspecialchars($message->title);
-				$return[$i]["other_user"] = htmlspecialchars(explode('_', $message->user_1)[0]);
-				$return[$i]["date"] = $message->sent_date;
-				$i++;
-			}
-		}
-		return $return;
 	}
 	
 }

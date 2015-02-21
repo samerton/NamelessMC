@@ -460,7 +460,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 				{"name":"about","groups":["about"]}
 			],
 			// Remove the redundant buttons from toolbar groups defined above.
-			removeButtons: 'Anchor,Styles,Specialchar,Font,About,Flash'
+			removeButtons: 'Anchor,Styles,Specialchar,Font,About,Flash,Iframe'
 		} );
 	</script>
   </body>
