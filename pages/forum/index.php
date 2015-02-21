@@ -1,12 +1,15 @@
 <?php 
-/*
+/* 
  *	Made by Samerton
  *  http://worldscapemc.co.uk
+ *
+ *  License: MIT
  */
 
+// Set the page name for the active link in navbar
 $page = "forum";
 
-$user = new User();
+// Initialise
 $forum = new Forum();
 $timeago = new Timeago();
 ?>
@@ -17,12 +20,12 @@ $timeago = new Timeago();
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="<?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value); ?> Forum">
+    <meta name="description" content="<?php echo $sitename; ?> Forum Index">
     <meta name="author" content="Samerton">
 
-    <title><?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value); ?> &bull; Forum</title>
+    <title><?php echo $sitename; ?> &bull; Forum Index</title>
 	
-	<?php include("inc/templates/header.php"); ?>
+	<?php require("inc/templates/header.php"); ?>
 
 	<!-- Custom style -->
 	<style>
@@ -52,7 +55,7 @@ $timeago = new Timeago();
 
   <body>
 
-	<?php include("inc/templates/navbar.php"); ?>
+	<?php require("inc/templates/navbar.php"); ?>
 
     <div class="container">
 	  <?php
@@ -66,7 +69,9 @@ $timeago = new Timeago();
 	  </div>
 	  <?php 
 	    }
-		if($queries->getWhere("settings", array("name", "=", "forum_layout"))[0]->value == '1'){
+		$forum_layout = $queries->getWhere("settings", array("name", "=", "forum_layout"));
+		$forum_layout = $forum_layout[0]->value;
+		if($forum_layout == '1'){
 		$categories = $forum->getCategories($user->data()->group_id);
 	  ?>
 	  <div class="row">
@@ -97,11 +102,15 @@ $timeago = new Timeago();
 				  <div class="col-md-3">
 				    <div class="frame">
 					  <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($discussion["last_user"])); ?>">
-					  <?php if($queries->getWhere("users", array("id", "=", $discussion["last_user"]))[0]->has_avatar == '0'){ ?>
+					  <?php 
+					  $last_user_avatar = $queries->getWhere("users", array("id", "=", $discussion["last_user"]));
+					  $last_user_avatar = $last_user_avatar[0]->has_avatar;
+					  if($last_user_avatar == '0'){ 
+					  ?>
 					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($discussion["last_user"])); ?>/30.png" />
 					  <?php } else { 
 					  ?>
-					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($discussion["last_user"], $path); ?>" />
+					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($discussion["last_user"]); ?>" />
 					  <?php } ?>
 					  </a>
 					</div>
@@ -119,10 +128,10 @@ $timeago = new Timeago();
 		 </div>
 		<div class="col-md-3">
 		  <div class="well">
-			<h4>Categories</h4>
+			<h4>Forums</h4>
 			<ul class="nav nav-list">
 			  <li class="nav-header">Overview</li>
-			  <li class="active"><a href="./">Latest Discussions</a></li>
+			  <li class="active"><a href="/forum">Latest Discussions</a></li>
 			  <?php 
 				foreach($categories as $category){
 				  if($category["parent"] == "true"){
@@ -131,7 +140,7 @@ $timeago = new Timeago();
 					<?php 
 				  } else {
 				    ?>
-					<li><a href="view_category/?cid=<?php echo $category["id"]; ?>"><?php echo str_replace("&amp;", "&", $category["title"]); ?></a></li>
+					<li><a href="view_forum/?fid=<?php echo $category["id"]; ?>"><?php echo str_replace("&amp;", "&", $category["title"]); ?></a></li>
 			        <?php 
 				  }
 			    }
@@ -165,13 +174,15 @@ $timeago = new Timeago();
 					$n = 0;
 					while ($n < count($list[0])) {
 						$topics = count($forum->listTopics(escape($list[0][$n]))[0]);
-						$posts = $forum->countPosts(escape($list[0][$n]), 'category_id');
-						echo '<tr><td><a href="view_category/?cid=' . $list[0][$n] . '"><strong>' . str_replace("&amp;", "&", $list[1][$n]) . '</strong></a><br />' . $list[2][$n] . '</td><td><strong>' . $topics . '</strong> topics<br /><strong>' . $posts . '</strong> posts</td><td><div class="row"><div class="col-md-2"><div class="frame"><a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">';
+						$posts = $forum->countPosts(escape($list[0][$n]), 'forum_id');
+						echo '<tr><td><a href="view_forum/?fid=' . $list[0][$n] . '"><strong>' . str_replace("&amp;", "&", $list[1][$n]) . '</strong></a><br />' . $list[2][$n] . '</td><td><strong>' . $topics . '</strong> topics<br /><strong>' . $posts . '</strong> posts</td><td><div class="row"><div class="col-md-2"><div class="frame"><a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">';
 					    if($list[4][$n] !== null){
-							if($queries->getWhere("users", array("id", "=", $list[4][$n]))[0]->has_avatar == '0'){
+							$has_avatar = $queries->getWhere("users", array("id", "=", $list[4][$n]));
+							$has_avatar = $has_avatar[0]->has_avatar;
+							if($has_avatar == '0'){
 							echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/' .  htmlspecialchars($user->IdToMCName($list[4][$n])) . '/30.png" />';
 							} else { 
-							echo '<img class="img-centre img-rounded" style="width:30px; height:30px;" src="' .  $user->getAvatar($list[4][$n], $path) . '" />';
+							echo '<img class="img-centre img-rounded" style="width:30px; height:30px;" src="' .  $user->getAvatar($list[4][$n]) . '" />';
 							}
 						} else {
 							echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/Steve/30.png" />';
@@ -200,79 +211,7 @@ $timeago = new Timeago();
 					Latest Posts
 				</div>
 				<div class="panel-body">
-					<?php 
-						$latest = $forum->getLatestPosts('posts', 'post_date', 'DESC');
-						$outputted_posts = array();
-						foreach($latest as $post){
-							if(isset($user->data()->group_id)){
-								if($user->data()->group_id == 2){
-									if(!in_array($post->topic_id, $outputted_posts)){
-										$outputted_posts[] = $post->topic_id;
-								?>
-					<div class="row"><div class="col-md-2"><div class="frame-sidebar"><a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->idToMCName($post->post_creator); ?>/30.png" /></a></div></div><div class="col-md-9"><a href="view_topic/?tid=<?php echo $post->topic_id; ?>&pid=<?php echo $post->id; ?>"><?php echo $forum->getTitle($post->topic_id); ?></a><br />by <a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><?php echo $user->idToName($post->post_creator); ?></a><br /><?php echo date("d M Y, H:i", strtotime($post->post_date)); ?></div></div>
-								<?php 
-										if(count($outputted_posts) !== 3){ 
-								?>
-					<hr>
-								<?php 
-										}
-									}
-									if(count($outputted_posts) === 3){
-										break;
-									}
-								} else if($user->data()->group_id == 3){
-									if($queries->getWhere("categories", array("id", "=", $post->category_id))[0]->view_access == 0 || $queries->getWhere("categories", array("id", "=", $post->category_id))[0]->view_access == 1){
-										if(!in_array($post->topic_id, $outputted_posts)){
-											$outputted_posts[] = $post->topic_id;
-								?>
-					<div class="row"><div class="col-md-2"><div class="frame-sidebar"><a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->idToMCName($post->post_creator); ?>/30.png" /></a></div></div><div class="col-md-9"><a href="view_topic/?tid=<?php echo $post->topic_id; ?>&pid=<?php echo $post->id; ?>"><?php echo $forum->getTitle($post->topic_id); ?></a><br />by <a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><?php echo $user->idToName($post->post_creator); ?></a><br /><?php echo date("d M Y, H:i", strtotime($post->post_date)); ?></div></div>
-								<?php 
-											if(count($outputted_posts) !== 3){ 
-								?>
-					<hr>
-								<?php 
-											}
-										}
-										if(count($outputted_posts) === 3){
-											break;
-										}
-									}
-								} else {
-									if($queries->getWhere("categories", array("id", "=", $post->category_id))[0]->view_access == 0){
-										if(!in_array($post->topic_id, $outputted_posts)){
-									?>
-						<div class="row"><div class="col-md-2"><div class="frame-sidebar"><a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->idToMCName($post->post_creator); ?>/30.png" /></a></div></div><div class="col-md-9"><a href="view_topic/?tid=<?php echo $post->topic_id; ?>&pid=<?php echo $post->id; ?>"><?php echo $forum->getTitle($post->topic_id); ?></a><br />by <a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><?php echo $user->idToName($post->post_creator); ?></a><br /><?php echo date("d M Y, H:i", strtotime($post->post_date)); ?></div></div>
-									<?php 
-											if(count($outputted_posts) !== 3){ 
-									?>
-						<hr>
-									<?php 
-											}
-										}
-										if(count($outputted_posts) === 3){
-											break;
-										}
-									}
-								}
-							} else {
-								if($queries->getWhere("categories", array("id", "=", $post->category_id))[0]->view_access == 0){
-									if(!in_array($post->topic_id, $outputted_posts)){
-								?>
-					<div class="row"><div class="col-md-2"><div class="frame-sidebar"><a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->idToMCName($post->post_creator); ?>/30.png" /></a></div></div><div class="col-md-9"><a href="view_topic/?tid=<?php echo $post->topic_id; ?>&pid=<?php echo $post->id; ?>"><?php echo $forum->getTitle($post->topic_id); ?></a><br />by <a href="/profile/<?php echo $user->idToMCName($post->post_creator); ?>"><?php echo $user->idToName($post->post_creator); ?></a><br /><?php echo date("d M Y, H:i", strtotime($post->post_date)); ?></div></div>
-								<?php 
-										if(count($outputted_posts) !== 3){ 
-								?>
-					<hr>
-								<?php 
-										}
-									}
-									if(count($outputted_posts) === 3){
-										break;
-									}
-								}
-							}
-						}
-					?>
+					Coming soon
 				</div>
 			</div>
 		</div>
@@ -282,11 +221,11 @@ $timeago = new Timeago();
 	  ?>
       <hr>
 
-	  <?php include("inc/templates/footer.php"); ?> 
+	  <?php require("inc/templates/footer.php"); ?> 
 	  
     </div> <!-- /container -->
 		
-	<?php include("inc/templates/scripts.php"); ?>
+	<?php require("inc/templates/scripts.php"); ?>
 	<script>
 	$(document).ready(function(){
 		$("[rel=tooltip]").tooltip({ placement: 'top'});
