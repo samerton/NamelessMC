@@ -419,6 +419,13 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 					  <input type="submit" value="Submit Changes" class="btn btn-default">
 					</form>
 					<br />
+					<?php
+					// Is avatar uploading enabled?
+					$avatar_enabled = $queries->getWhere('settings', array('name', '=', 'user_avatars'));
+					$avatar_enabled = $avatar_enabled[0]->value;
+
+					if($avatar_enabled === "true"){
+					?>
 					<strong>Other actions:</strong><br />
 					<form role="form" action="" method="post">
 					  <input type="hidden" name="token" value="<?php echo $token; ?>">
@@ -426,6 +433,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 					  <input type="submit" value="Disable avatar" class="btn btn-danger">
 					</form>
 					<?php 
+					}
 				}
 			}
 			?>

@@ -25,8 +25,8 @@ $pages = array(
 		"pages",
 		"reset_password",
 		"search_users",
-		"update_mcname",
-		"update_uuid",
+		"update_mcnames",
+		"update_uuids",
 		"users",
 		"vote",
 		"update"
@@ -61,7 +61,8 @@ $pages = array(
 	"user" => array(
 		"acknowledge",
 		"messaging",
-		"settings"
+		"settings",
+		"avatar_upload"
 	),
 	"vote",
 	"change_password",
