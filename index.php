@@ -5,7 +5,7 @@
  *
  *  License: MIT
  */
- 
+
 require_once 'inc/pages.php'; // Load an array containing the pages that exist
 require_once 'inc/functions/array_handling.php'; // Custom array functions
 
@@ -36,7 +36,7 @@ $exists = false;
  *  Does the directory the user is trying to access exist as a page?
  */
 
-if(strtolower($directories[1]) !== "install"){
+if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "install_stats"){
 	if($lim == 2){
 		if(in_array($directories[1], $pages)){ // Is it an element?
 			$exists = true;
@@ -66,6 +66,10 @@ if(strtolower($directories[1]) !== "install"){
 					$exists = false;
 				}
 			}
+		} else {
+			if($directories[1] == "profile" && $directories[2] !== ""){
+				$profile = htmlspecialchars($directories[2]); // The user's profile we're viewing - escape it now so we don't have to later
+			}
 		}
 		if(isset($directories[2][0]) &&  $directories[2][0] === "?"){ // Get parameters, eg ?action=create
 			$exists = true;
@@ -82,7 +86,7 @@ if(strtolower($directories[1]) !== "install"){
  *  If the page does not exist, display the 404 error
  */
 
-if(strtolower($directories[1]) !== "install"){
+if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "install_stats"){
 	if($exists !== true){
 		require("404.php");
 		die();
@@ -102,7 +106,7 @@ $path = "";
 
 require_once 'inc/init.php';
 
-if(strtolower($directories[1]) !== "install"){
+if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "install_stats"){
 	/*
 	 *  Include the page itself
 	 */
@@ -129,7 +133,11 @@ if(strtolower($directories[1]) !== "install"){
 		}
 	}
 } else {
-	require('pages/install.php');
+	if(strtolower($directories[1]) === "install"){
+		require('pages/install.php');
+	} else {
+		require('pages/install_stats.php');
+	}
 }
 
 ?>

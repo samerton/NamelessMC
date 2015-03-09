@@ -204,7 +204,7 @@ if(isset($_GET["step"])){
 						 */
 						$config = file_get_contents('inc/init.php');
 						$config = substr($config, 5);
-						$config = str_replace("&lt;", "<", $insert . $config);
+						$config = nl2br(str_replace("&lt;", "<", $insert . $config));
 						?>
 	  Your <strong>inc/init.php</strong> file is not writeable. Please copy/paste the following into your <strong>inc/init.php</strong> file, overwriting all existing text.
 	  <div class="well">
@@ -212,6 +212,7 @@ if(isset($_GET["step"])){
 		echo $config;
 		?>
 	  </div>
+	  <a href="/install/?step=database" class="btn btn-primary">Continue</a>
 						
       <hr>
 
@@ -469,6 +470,14 @@ if(isset($_GET["step"])){
 					31 => array(
 						'name' => 'version_update',
 						'value' => 'false'
+					),
+					32 => array(
+						'name' => 'server_stats',
+						'value' => 'false'
+					),
+					33 => array(
+						'name' => 'ingame_register',
+						'value' => 'false'
 					)
 				);
 				
@@ -722,7 +731,7 @@ if(isset($_GET["step"])){
 								'		"password" => "' . Input::get('stats_pass') . '", // Stats database password' . PHP_EOL . 
 								'		"db" => "' . Input::get('stats_name') . '" // Stats database name' . PHP_EOL .
 								'	)' . PHP_EOL . 
-								');';
+								');' . PHP_EOL . ' ';
 					
 					if(is_writable('inc/ext_conf.php')){
 						$file = fopen('inc/ext_conf.php','w');
@@ -732,7 +741,7 @@ if(isset($_GET["step"])){
 						/*
 						 *  File not writeable, display code to add to file manually
 						 */
-						$insert = str_replace("&lt;", "<", $insert);
+						$insert = nl2br(str_replace("&lt;", "<", $insert));
 						?>
 	  Your <strong>inc/ext_conf.php</strong> file is not writeable. Please copy/paste the following into your <strong>inc/ext_conf.php</strong> file, overwriting any existing text.
 	  <div class="well">
@@ -740,7 +749,7 @@ if(isset($_GET["step"])){
 		echo $insert;
 		?>
 	  </div>
-						
+	  <a href="/install/?step=account" class="btn btn-primary">Continue</a>
 	  <hr>
 
 	  <footer>
@@ -755,6 +764,17 @@ if(isset($_GET["step"])){
   </body>
 </html>
 					<?php
+						try {
+							foreach($data as $setting){
+								$id = $setting["id"];
+								$queries->update("settings", $id, array(
+									"name" => $setting["name"],
+									"value" => $setting["value"]
+								));
+							}
+						} catch(Exception $e){
+							die($e->getMessage());
+						}
 						die();
 					}
 				

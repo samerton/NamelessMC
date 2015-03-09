@@ -13,6 +13,7 @@
 $pages = array(
 	"", // Index
 	"install",
+	"install_stats",
 	"admin" => array(
 		"buycraft_sync",
 		"documentation",
@@ -22,6 +23,7 @@ $pages = array(
 		"general",
 		"groups",
 		"minecraft",
+		"stats",
 		"pages",
 		"reset_password",
 		"search_users",
@@ -44,7 +46,7 @@ $pages = array(
 		"move_thread",
 		"report_post",
 		"reputation",
-		"view_category",
+		"view_forum",
 		"view_topic"
 	),
 	"help" => array(

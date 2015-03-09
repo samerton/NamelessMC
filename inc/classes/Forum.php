@@ -6,9 +6,6 @@
  *  License: MIT
  */
  
-/*
- *  Note: this is going to be rewritten soon, it's a mess at the moment
- */
 class Forum {
 	private $_db,
 			$_data;
@@ -17,363 +14,66 @@ class Forum {
 		$this->_db = DB::getInstance();
 	}
 	
-	public function getCategories($group_id = null) {
-		$data = $this->_db->orderAll('forums', "cat_order", "ASC")->results();
-		if(!empty($data)){
-			$results = array();
-			$n = 0;
-			foreach($data as $category){
-				if($category->parent == 0){
-					if($group_id !== null){
-						if($group_id == 1){
-							if($category->view_access == '0'){
-								$results[$n]["id"] = $category->id;
-								$results[$n]["title"] = htmlspecialchars($category->category_title);
-								$results[$n]["parent"] = "true";
-							}
-						} else if($group_id == 2){
-							$results[$n]["id"] = $category->id;
-							$results[$n]["title"] = htmlspecialchars($category->category_title);
-							$results[$n]["parent"] = "true";
-						} else if($group_id == 3){
-							if($category->view_access == '0' || $category->view_access = '1'){
-								$results[$n]["id"] = $category->id;
-								$results[$n]["title"] = htmlspecialchars($category->category_title);
-								$results[$n]["parent"] = "true";
-							}
-						}
-					} else {
-						if($category->view_access == '0'){
-							$results[$n]["id"] = $category->id;
-							$results[$n]["title"] = htmlspecialchars($category->category_title);
-							$results[$n]["parent"] = "true";
-						}
-					}
-				} else {
-					if($group_id !== null){
-						if($group_id == 1){
-							if($category->view_access == '0'){
-								$results[$n]["id"] = $category->id;
-								$results[$n]["title"] = htmlspecialchars($category->category_title);
-								$results[$n]["description"] = htmlspecialchars($category->category_description);
-								$results[$n]["last_post_date"] = $category->last_post_date;
-								$results[$n]["last_post_user"] = $category->last_user_posted;
-								$results[$n]["last_post_topic"] = $category->last_topic_posted;
-							}
-						} else if($group_id == 2){
-							$results[$n]["id"] = $category->id;
-							$results[$n]["title"] = htmlspecialchars($category->category_title);
-							$results[$n]["description"] = htmlspecialchars($category->category_description);
-							$results[$n]["last_post_date"] = $category->last_post_date;
-							$results[$n]["last_post_user"] = $category->last_user_posted;
-							$results[$n]["last_post_topic"] = $category->last_topic_posted;
-						} else if($group_id == 3){
-							if($category->view_access == '0' || $category->view_access == '1'){
-								$results[$n]["id"] = $category->id;
-								$results[$n]["title"] = htmlspecialchars($category->category_title);
-								$results[$n]["description"] = htmlspecialchars($category->category_description);
-								$results[$n]["last_post_date"] = $category->last_post_date;
-								$results[$n]["last_post_user"] = $category->last_user_posted;
-								$results[$n]["last_post_topic"] = $category->last_topic_posted;
-							}
-						}
-					} else {
-						if($category->view_access == '0'){
-							$results[$n]["id"] = $category->id;
-							$results[$n]["title"] = htmlspecialchars($category->category_title);
-							$results[$n]["description"] = htmlspecialchars($category->category_description);
-							$results[$n]["last_post_date"] = $category->last_post_date;
-							$results[$n]["last_post_user"] = $category->last_user_posted;
-							$results[$n]["last_post_topic"] = $category->last_topic_posted;
-						}
-					}
-				}
-				$n++;
-			}
+	// Returns an array of forums a user can access
+	// Params: $group_id (integer) - group id of the user
+	public function listAllForums($group_id = null) {
+		if($group_id == null){
+			$group_id = 0;
 		}
-		return $results;
-	}
-	
-	public function getLatestDiscussions($group_id = null){
-		$data = $this->_db->orderAll('topics', 'topic_reply_date', 'DESC LIMIT 50')->results();
-		$n = 0;
-		$i = 0;
+		// Get the forums the user can view based on their group ID
+		$access = $this->_db->get("forums_permissions", array("group_id", "=", $group_id))->results();
 		
-		if(count($data) < 10){
-			$max = count($data);
-		} else {
-			$max = 10;
-		}
+		$return = array(); // Array to return containing forums
 		
-		while ($i < $max){
-			$topic_category = $this->_db->get('forums', array('id', '=', $data[$n]->category_id))->results();
-			$topic_category = $topic_category[0];
-			$posts = count($this->_db->get('posts', array('topic_id', '=', $data[$n]->id))->results());
-			if($group_id !== null){
-				if($group_id == 1){
-					if($topic_category->view_access == '0'){
-						$discussion[$i]["category_id"] = $topic_category->id;
-						$discussion[$i]["category"] = htmlspecialchars($topic_category->category_title);
-						$discussion[$i]["id"] = $data[$n]->id;
-						$discussion[$i]["title"] = htmlspecialchars($data[$n]->topic_title);
-						$discussion[$i]["creator"] = htmlspecialchars($data[$n]->topic_creator);
-						$discussion[$i]["last_user"] = htmlspecialchars($data[$n]->topic_last_user);
-						$discussion[$i]["date"] = $data[$n]->topic_date;
-						$discussion[$i]["reply_date"] = $data[$n]->topic_reply_date;
-						$discussion[$i]["views"] = $data[$n]->topic_views;
-						$discussion[$i]["locked"] = $data[$n]->locked;
-						$discussion[$i]["replies"] = $posts;
-						$i++;
-					}
-				} else if($group_id == 2){
-					$discussion[$i]["category_id"] = $topic_category->id;
-					$discussion[$i]["category"] = htmlspecialchars($topic_category->category_title);
-					$discussion[$i]["id"] = $data[$n]->id;
-					$discussion[$i]["title"] = htmlspecialchars($data[$n]->topic_title);
-					$discussion[$i]["creator"] = htmlspecialchars($data[$n]->topic_creator);
-					$discussion[$i]["last_user"] = htmlspecialchars($data[$n]->topic_last_user);
-					$discussion[$i]["date"] = $data[$n]->topic_date;
-					$discussion[$i]["reply_date"] = $data[$n]->topic_reply_date;
-					$discussion[$i]["views"] = $data[$n]->topic_views;
-					$discussion[$i]["locked"] = $data[$n]->locked;
-					$discussion[$i]["replies"] = $posts;
-					$i++;
-				} else if($group_id == 3){
-					if($topic_category->view_access == '0' || $topic_category->view_access == '1'){
-						$discussion[$i]["category_id"] = $topic_category->id;
-						$discussion[$i]["category"] = htmlspecialchars($topic_category->category_title);
-						$discussion[$i]["id"] = $data[$n]->id;
-						$discussion[$i]["title"] = htmlspecialchars($data[$n]->topic_title);
-						$discussion[$i]["creator"] = htmlspecialchars($data[$n]->topic_creator);
-						$discussion[$i]["last_user"] = htmlspecialchars($data[$n]->topic_last_user);
-						$discussion[$i]["date"] = $data[$n]->topic_date;
-						$discussion[$i]["reply_date"] = $data[$n]->topic_reply_date;
-						$discussion[$i]["views"] = $data[$n]->topic_views;
-						$discussion[$i]["locked"] = $data[$n]->locked;
-						$discussion[$i]["replies"] = $posts;
-						$i++;
-					}
-				}
-			} else {
-				if($topic_category->view_access == '0'){
-					$discussion[$i]["category_id"] = $topic_category->id;
-					$discussion[$i]["category"] = htmlspecialchars($topic_category->category_title);
-					$discussion[$i]["id"] = $data[$n]->id;
-					$discussion[$i]["title"] = htmlspecialchars($data[$n]->topic_title);
-					$discussion[$i]["creator"] = htmlspecialchars($data[$n]->topic_creator);
-					$discussion[$i]["last_user"] = htmlspecialchars($data[$n]->topic_last_user);
-					$discussion[$i]["date"] = $data[$n]->topic_date;
-					$discussion[$i]["reply_date"] = $data[$n]->topic_reply_date;
-					$discussion[$i]["views"] = $data[$n]->topic_views;
-					$discussion[$i]["locked"] = $data[$n]->locked;
-					$discussion[$i]["replies"] = $posts;
-					$i++;
-				}
-			}
-			$n++;
-			if($n > $max){
-				return $discussion;
-			}
-		}
-		if(isset($discussion)){
-			return $discussion;
-		} else {
-			return false;
-		}
-	}
-	
-	public function listCategories($group_id = null) {
-		$data = $this->_db->orderAll('forums', "forum_order", "ASC");
-		if($data->count()) {
-			$numrows = (count($data->results()));
-			$no = 0;
-			while ($no < $numrows) {
-				if($group_id !== null){
-					if($group_id == 2){
-						if($data->results()[$no]->parent !== '0'){
-							$categories_id[] = $data->results()[$no]->id;
-							$categories_titles[] = htmlspecialchars($data->results()[$no]->category_title);
-							$categories_desc[] = htmlspecialchars($data->results()[$no]->category_description);
-							$categories_last_post_date[] = $data->results()[$no]->last_post_date;
-							$categories_last_user_posted[] = $data->results()[$no]->last_user_posted;
-							$categories_last_topic_posted[] = $data->results()[$no]->last_topic_posted;
-						}
-					} else if($group_id == 3){
-						if(($data->results()[$no]->parent !== '0') && ($data->results()[$no]->view_access == 0 || $data->results()[$no]->view_access == 1)){
-							$categories_id[] = $data->results()[$no]->id;
-							$categories_titles[] = htmlspecialchars($data->results()[$no]->category_title);
-							$categories_desc[] = htmlspecialchars($data->results()[$no]->category_description);
-							$categories_last_post_date[] = $data->results()[$no]->last_post_date;
-							$categories_last_user_posted[] = $data->results()[$no]->last_user_posted;
-							$categories_last_topic_posted[] = $data->results()[$no]->last_topic_posted;
-						}
-					} else {
-						if($data->results()[$no]->parent !== '0' && $data->results()[$no]->view_access == 0){
-							$categories_id[] = $data->results()[$no]->id;
-							$categories_titles[] = htmlspecialchars($data->results()[$no]->category_title);
-							$categories_desc[] = htmlspecialchars($data->results()[$no]->category_description);
-							$categories_last_post_date[] = $data->results()[$no]->last_post_date;
-							$categories_last_user_posted[] = $data->results()[$no]->last_user_posted;
-							$categories_last_topic_posted[] = $data->results()[$no]->last_topic_posted;
-						}
-					}
-				} else {
-					if($data->results()[$no]->parent !== '0' && $data->results()[$no]->view_access == 0){
-						$categories_id[] = $data->results()[$no]->id;
-						$categories_titles[] = htmlspecialchars($data->results()[$no]->category_title);
-						$categories_desc[] = htmlspecialchars($data->results()[$no]->category_description);
-						$categories_last_post_date[] = $data->results()[$no]->last_post_date;
-						$categories_last_user_posted[] = $data->results()[$no]->last_user_posted;
-						$categories_last_topic_posted[] = $data->results()[$no]->last_topic_posted;
-					}
-				}
-				$no++;
-			}
-		}
-		return array($categories_id, $categories_titles, $categories_desc, $categories_last_post_date, $categories_last_user_posted, $categories_last_topic_posted);
-	}
-	
-	public function catExist($cat_id) {
-		$data = $this->_db->get('forums', array('id', '=', $cat_id));
-		if($data->count()) {
-			return true;
-		}
-		return false;
-	}
-	
-	public function listTopics($cat_id) {
-		$data = $this->_db->orderWhere('topics', 'forum_id = ' . $cat_id, 'topic_reply_date', 'DESC');
-		if($data->count()) {
-			$numrows = (count($data->results()));
-			$no = 0;
-			while ($no < $numrows) {
-				$topics_id[] = $data->results()[$no]->id;
-				$topics_titles[] = $data->results()[$no]->topic_title;
-				$topics_creator[] = $data->results()[$no]->topic_creator;
-				$topics_last_user[] = $data->results()[$no]->topic_last_user;
-				$topics_date[] = $data->results()[$no]->topic_date;
-				$topics_reply_date[] = $data->results()[$no]->topic_reply_date;
-				$topics_views[] = $data->results()[$no]->topic_views;
-				$no = ($no + 1);
-			}
-			return array($topics_id, $topics_titles, $topics_creator, $topics_last_user, $topics_date, $topics_reply_date, $topics_views);
-		}
-		return false;
-	}
-	
-	public function countPosts($cat_id, $from) {
-		$data = $this->_db->get('posts', array($from, '=', $cat_id));
-		if($data->count()) {
-			$numrows = (count($data->results()));
-			$no = 0;
-			while ($no < $numrows) {
-				$posts_id[] = $data->results()[$no]->id;
-				$no = ($no + 1);
-			}
-			return count($posts_id);
-		}
-		return 0;
-	}
+		// Get the forum names
+		foreach($access as $forum){
+			// Can they view it?
+			if($forum->view == 1){
+				// Get the name..
+				$forum_query = $this->_db->get("forums", array("id", "=", $forum->forum_id))->results();
+				$forum_title = $forum_query[0]->forum_title;
 
-	public function newThread($fields = array()) {
-		if(!$this->_db->insert('topics', $fields)) {
-			throw new Exception('There was a problem creating your topic. Please try again later.');
-		}
-	}
-	
-	public function updateCategories($cid, $fields = array()) {
-		if(!$this->_db->update('forums', $cid, $fields)) {
-			throw new Exception('There was a problem creating your post. Please try again later.');
-		}
-	}
-	
-	public function updateTopic($tid, $fields = array()) {
-		if(!$this->_db->update('topics', $tid, $fields)) {
-			throw new Exception('There was a problem creating your post. Please try again later.');
-		}
-	}
-	
-	public function newPost($fields = array()) {
-		if(!$this->_db->insert('posts', $fields)) {
-			throw new Exception('There was a problem creating your post. Please try again later.');
-		}
-	}
-	
-	public function lastId() {
-		return $this->_db->lastid();
-	}
-	
-	public function getPost($topic_id) {
-		$data = $this->_db->get('posts', array('topic_id', '=', $topic_id));
-		if($data->count()) {
-			$numrows = (count($data->results()));
-			$no = 0;
-			while ($no < $numrows) {
-				$post_id[] = $data->results()[$no]->id;
-				$post_creator[] = $data->results()[$no]->post_creator;
-				$post_content[] = $data->results()[$no]->post_content;
-				$post_date[] = $data->results()[$no]->post_date;
-				$cat_id[] = $data->results()[$no]->category_id;
-				$no = ($no + 1);
+				// Is it a parent category?
+				if($forum_query[0]->parent == 0){ // Yes
+					$return[$forum_title][] = "";
+					
+				} else { // No
+					// Get the name of the parent category
+					$parent_name = $this->_db->get("forums", array("id", "=", $forum->forum_id))->results();
+					$parent_name = $parent_name[0]->forum_title;
+					
+					$return[$parent_name][] = $forum_title;
+					
+				}
 			}
-			return array($post_id, $post_creator, $post_content, $post_date, $cat_id);
 		}
-		return false;
+		
+		return $return;
 	}
 	
-	public function getIndividualPost($post_id) {
-		$data = $this->_db->get('posts', array('id', '=', $post_id));
-		if($data->count()) {
-			$post_creator[] = $data->results()[0]->post_creator;
-			$post_content[] = $data->results()[0]->post_content;
-			$post_date[] = $data->results()[0]->post_date;
-			$cat_id[] = $data->results()[0]->category_id;
-			return array($post_creator, $post_content, $post_date, $cat_id);
+	// Returns an array of the latest discussions a user can access (10 from each category)
+	// Params: $group_id (integer) - group id of the user
+	public function getLatestDiscussions($group_id = null) {
+		if($group_id == null){
+			$group_id = 0;
 		}
-		return false;
-	}
-	
-	public function getTitle($topic_id) {
-		$data = $this->_db->get('topics', array('id', '=', $topic_id));
-		return $data->results()[0]->topic_title;
-	}
-	
-	public function getCategoryTitle($cat_id) {
-		$data = $this->_db->get('forums', array('id', '=', $cat_id))->results();
-		return $data[0]->forum_title;
-	}
-	
-	public function isLocked($topic_id) {
-		$data = $this->_db->get('topics', array('id', '=', $topic_id));
-		if($data->results()[0]->locked == 1){
-			return true;
-		} else {
-			return false;
+		// Get the forums the user can view based on their group ID
+		$access = $this->_db->get("forums_permissions", array("group_id", "=", $group_id))->results();
+		
+		$return = array(); // Array to return containing discussions
+		
+		// Get the discussions
+		foreach($access as $forum){
+			// Can they view it?
+			if($forum->view == 1){
+				// Get a list of discussions
+				$discussions_query = $this->_db->get("topics", array("forum_id", "=", $forum->forum_id . " ORDER BY `topic_reply_date` LIMIT 10"))->results();
+				foreach($discussions_query as $discussion){
+					$return[] = (array) $discussion;
+				}
+			}
 		}
-	}
-	
-	public function getQuote($post_id) {
-		$data = $this->_db->get('posts', array('id', '=', $post_id));
-		$user = $data->results()[0]->post_creator;
-		$date = $data->results()[0]->post_date;
-		$content = $data->results()[0]->post_content;
-		return array($user, $date, $content);
-	}
-	
-	public function deletePost($post_id, $fields = array()){
-		if(!$this->_db->update('posts', $post_id, $fields)) {
-			throw new Exception('There was a problem deleting the post.');
-		}
-	}
-	
-	public function getLatestPosts($table, $order, $sort) {
-		$data = $this->_db->orderAll($table, $order, $sort);
-		return $data->results();
-	}
-	
-	public function getReputation($post_id) {
-		$data = $this->_db->get('reputation', array('post_id', '=', $post_id));
-		return $data->results();
+		return $return;
 	}
 	
 }

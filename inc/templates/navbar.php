@@ -8,11 +8,23 @@
 		$queries = new Queries();
 	}
 	if(!isset($forum)){
-		$forum = new Forum();
+		//$forum = new Forum();
 	}
+	$navbar_style = $queries->getWhere("settings", array("name", "=", "navbar_style"));
+	$navbar_style = $navbar_style[0]->value;
+	
+	$sitename = $queries->getWhere("settings", array("name", "=", "sitename"));
+	$sitename = $sitename[0]->value;
+	
+	$donate = $queries->getWhere("settings", array("name", "=", "donate"));
+	$donate = $donate[0]->value;
+	
+	$vote = $queries->getWhere("settings", array("name", "=", "vote"));
+	$vote = $vote[0]->value;
+	
 	?>
 	<!-- Static navbar -->
-    <div class="navbar navbar-<?php if($queries->getWhere("settings", array("name", "=", "navbar_style"))[0]->value === "0"){ ?>default<?php } else { ?>inverse<?php } ?> navbar-static-top" role="navigation">
+    <div class="navbar navbar-<?php if($navbar_style === "0"){ ?>default<?php } else { ?>inverse<?php } ?> navbar-static-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -21,17 +33,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/"><?php echo htmlspecialchars($queries->getWhere("settings", array("name", "=", "sitename"))[0]->value); ?></a>
+          <a class="navbar-brand" href="/"><?php echo htmlspecialchars($sitename); ?></a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li<?php if($page === "home"){?> class="active"<?php } ?>><a href="/">Home</a></li>
             <li<?php if($page === "play"){?> class="active"<?php } ?>><a href="/play">Play</a></li>
             <li<?php if($page === "forum"){?> class="active"<?php } ?>><a href="/forum">Forum</a></li>
-			<?php if($queries->getWhere("settings", array("name", "=", "donate"))[0]->value !== "false"){ ?>
+			<?php if($donate !== "false"){ ?>
             <li<?php if($page === "donate"){?> class="active"<?php } ?>><a href="/donate">Donate</a></li>
 			<?php } ?>
-			<?php if($queries->getWhere("settings", array("name", "=", "vote"))[0]->value !== "false"){ ?>
+			<?php if($vote !== "false"){ ?>
             <li<?php if($page === "vote"){?> class="active"<?php } ?>><a href="/vote">Vote</a></li>
 			<?php } ?>
             <li class="dropdown">
@@ -39,17 +51,14 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a href="#">Players</a></li>
                 <li><a href="#">Staff</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Live Maps</li>
-                <li><a href="#">Survival</a></li>
-                <li><a href="#">Creative</a></li>
               </ul>
             </li>
           </ul>
 		  <?php 
 		  if($page != "signin" && $page != "register"){
 			if($user->isLoggedIn()) { 
-				$messages = $forum->hasUnreadMessages($user->data()->id);
+				$messages = false;
+				//$messages = $forum->hasUnreadMessages($user->data()->id);
 				$exclaim = false;
 				if($user->data()->group_id == 2 || $user->data()->group_id == 3){
 					if($reports = $queries->getWhere("reports", array('status' , '<>', '1')) != false){ 

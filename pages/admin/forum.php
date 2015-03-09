@@ -386,16 +386,57 @@ if($user->isAdmLoggedIn()){
 									die($e->getMessage());
 								}
 								
-								foreach($groups as $group){ // Group forum permissions
+								// Guest forum permissions
+								$view = Input::get('perm-view-0');
+								$create = Input::get('perm-topic-0');
+								$post = Input::get('perm-post-0');
+								
+								$forum_perm_exists = 0;
+								
+								$forum_perm_query = $queries->getWhere('forums_permissions', array('forum_id', '=', $_GET["forum"]));
+								// Todo: change to an AND query, then remove the foreach within the group forum permissions (*)
+								if(count($forum_perm_query)){ 
+									foreach($forum_perm_query as $query){
+										if($query->group_id == 0){
+											$forum_perm_exists = 1;
+											$update_id = $query->id;
+											break;
+										}
+									}
+								}
+								
+								try {
+									if($forum_perm_exists != 0){ // Permission already exists, update
+									
+										// Update the forum
+										$queries->update('forums_permissions', $update_id, array(
+											'view' => $view,
+											'create_topic' => $create,
+											'create_post' => $post
+										));
+									} else { // Permission doesn't exist, create
+										$queries->create('forums_permissions', array(
+											'group_id' => 0,
+											'forum_id' => $_GET["forum"],
+											'view' => $view,
+											'create_topic' => $create,
+											'create_post' => $post
+										));
+									}
+									
+								} catch(Exception $e) {
+									die($e->getMessage());
+								}
+								
+								// Group forum permissions
+								foreach($groups as $group){ 
 									$view = Input::get('perm-view-' . $group->id);
 									$create = Input::get('perm-topic-' . $group->id);
 									$post = Input::get('perm-post-' . $group->id);
 									
 									$forum_perm_exists = 0;
-
-									$forum_perm_query = $queries->getWhere('forums_permissions', array('forum_id', '=', $_GET["forum"]));
-									// Todo: change to an AND query, then remove the following foreach
 									
+									// *
 									if(count($forum_perm_query)){ 
 										foreach($forum_perm_query as $query){
 											if($query->group_id == $group->id){
@@ -482,30 +523,39 @@ if($user->isAdmLoggedIn()){
 					  <div class="form-group">
 						<strong>Forum Permissions</strong><br />
 						<?php
+						// Get all forum permissions
+						$group_perms = $queries->getWhere('forums_permissions', array('forum_id', '=', $_GET["forum"]));
+						// Todo: change to an AND query and remove the later foreach (*)
+						?>
+						<strong>Guests:</strong><br />
+						<?php
+						foreach($group_perms as $group_perm){
+							if($group_perm->group_id == 0){
+								$view = $group_perm->view;
+								break;
+							}
+						}
+						?>
+					    <input type="hidden" name="perm-view-0" value="0" />
+					    <label for="Input-view-0">Can view forum:</label>
+					    <input name="perm-view-0" id="Input-view-0" value="1" type="checkbox"<?php if(isset($view) && $view == 1){ echo ' checked'; } ?>><br />
+					    
+						<input type="hidden" name="perm-topic-0" value="0" />
+						<input type="hidden" name="perm-post-0" value="0" />
+						<br />
+						<?php
 						foreach($groups as $group){
 							// Get the existing group permissions
-							$group_perms = $queries->getWhere('forums_permissions', array('forum_id', '=', $_GET["forum"]));
-							// Todo: change to an AND query and remove the following foreach
 							
-							$perms = "";
-							
+							// *
 							foreach($group_perms as $group_perm){
 								if($group_perm->group_id == $group->id){
-									$perms["view"] = $group_perm->view;
-									$perms["create_topic"] = $group_perm->create_topic;
-									$perms["create_post"] = $group_perm->create_post;
+									$view = $group_perm->view;
+									$topic = $group_perm->create_topic;
+									$post = $group_perm->create_post;
 									break;
 								}
 							}
-							
-							$group_perms = "";
-							
-							if($perms != ""){
-								$view = $perms["view"];
-								$topic = $perms["create_topic"];
-								$post = $perms["create_post"];
-							}
-						
 						?>
 						<strong><?php echo htmlspecialchars($group->name); ?>:</strong><br />
 						

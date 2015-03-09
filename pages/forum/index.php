@@ -72,13 +72,14 @@ $timeago = new Timeago();
 		$forum_layout = $queries->getWhere("settings", array("name", "=", "forum_layout"));
 		$forum_layout = $forum_layout[0]->value;
 		if($forum_layout == '1'){
-		$categories = $forum->getCategories($user->data()->group_id);
+			$discussions = $forum->getLatestDiscussions($user->data()->group_id);
+			// Order the discussions by date
+			usort($discussions, function($a, $b) {
+				return $a['topic_reply_date'] - $b['topic_reply_date'];
+			});
 	  ?>
 	  <div class="row">
 		<div class="col-md-9">
-		<?php 
-		$latest_discussions = $forum->getLatestDiscussions($user->data()->group_id);
-		?>
 		  <table class="table table-striped">
 			<tr>
 			  <th>Discussion</th>
@@ -86,42 +87,58 @@ $timeago = new Timeago();
 			  <th>Last Reply</th>
 			</tr>
 			<?php
-			foreach($latest_discussions as $discussion){
+			$n = 0;
+			// Calculate the number of discussions to display (10 max)
+			if(count($discussions) <= 10){
+				$limit = count($discussions);
+			} else {
+				$limit = 10;
+			}
+			
+			
+			while ($n < $limit) { 
+				// Get the name of the forum from the ID
+				$forum_name = $queries->getWhere('forums', array('id', '=', $discussions[$n]['forum_id']));
+				$forum_name = htmlspecialchars($forum_name[0]->forum_title);
+				
+				// Get the number of replies
+				$posts = $queries->getWhere('posts', array('topic_id', '=', $discussions[$n]['id']));
+				$posts = count($posts);
 			?>
 			<tr>
 			  <td>
-			    <a href="view_topic/?tid=<?php echo $discussion["id"]; ?>"><?php echo $discussion["title"]; ?></a>
-				<br /><small><span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', strtotime($discussion["date"])); ?>"><?php echo $timeago->inWords($discussion["date"]); ?> ago</span> by <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($discussion["creator"])); ?>"><?php echo htmlspecialchars($user->IdToName($discussion["creator"])); ?></a> in <a href="view_category/?cid=<?php echo $discussion["category_id"]; ?>"><?php echo str_replace("&amp;", "&", $discussion["category"]); ?></a></small>
+			    <a href="/forum/view_topic/?tid=<?php echo $discussions[$n]['id']; ?>"><?php echo htmlspecialchars($discussions[$n]['topic_title']); ?></a>
+				<br /><small><span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', $discussions[$n]['topic_date']); ?>"><?php echo $timeago->inWords(date('d M Y, H:i', $discussions[$n]['topic_date'])); ?> ago</span> by <a href="/profile/<?php echo $user->IdToMCName($discussions[$n]['topic_creator']); ?>"><?php echo $user->IdToName($discussions[$n]['topic_creator']); ?></a> in <a href="/forum/view_forum/?fid=<?php echo $discussions[$n]['forum_id']; ?>"><?php echo $forum_name; ?></a></small>
 			  </td>
 			  <td>
-				<b><?php echo $discussion["views"]; ?></b> views<br />
-				<b><?php echo $discussion["replies"]; ?></b> posts
+				<b><?php echo $discussions[$n]['topic_views']; ?></b> views<br />
+				<b><?php echo $posts; ?></b> posts
 			  </td>
 			  <td>
 				<div class="row">
 				  <div class="col-md-3">
 				    <div class="frame">
-					  <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($discussion["last_user"])); ?>">
+					  <a href="/profile/<?php echo $user->IdToMCName($discussions[$n]['topic_last_user']); ?>">
 					  <?php 
-					  $last_user_avatar = $queries->getWhere("users", array("id", "=", $discussion["last_user"]));
+					  $last_user_avatar = $queries->getWhere("users", array("id", "=", $discussions[$n]['topic_last_user']));
 					  $last_user_avatar = $last_user_avatar[0]->has_avatar;
 					  if($last_user_avatar == '0'){ 
 					  ?>
-					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($discussion["last_user"])); ?>/30.png" />
-					  <?php } else { 
-					  ?>
-					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($discussion["last_user"]); ?>" />
+					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->IdToMCName($discussions[$n]['topic_last_user']); ?>/30.png" />
+					  <?php } else { ?>
+					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($discussions[$n]['topic_last_user'], "../"); ?>" />
 					  <?php } ?>
 					  </a>
 					</div>
 				  </div>
 				  <div class="col-md-9">
-				    <span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', strtotime($discussion["reply_date"])); ?>"><?php echo $timeago->inWords($discussion["reply_date"]); ?> ago</span><br />by <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($discussion["last_user"])); ?>"><?php echo htmlspecialchars($user->IdToName($discussion["last_user"])); ?></a>
+				    <span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', $discussions[$n]['topic_reply_date']); ?>"><?php echo $timeago->inWords(date('d M Y, H:i', $discussions[$n]['topic_reply_date'])); ?> ago</span><br />by <a href="/profile/<?php echo $user->IdToMCName($discussions[$n]['topic_last_user']); ?>"><?php echo $user->IdToName($discussions[$n]['topic_last_user']); ?></a>
 				  </div>
 				</div>
 			  </td>
 			</tr>
-			<?php 
+			<?php
+				$n++;
 			}
 			?>
 		  </table>
@@ -132,19 +149,26 @@ $timeago = new Timeago();
 			<ul class="nav nav-list">
 			  <li class="nav-header">Overview</li>
 			  <li class="active"><a href="/forum">Latest Discussions</a></li>
-			  <?php 
-				foreach($categories as $category){
-				  if($category["parent"] == "true"){
-				    ?>
-					<li class="nav-header"><?php echo $category["title"]; ?></li>
-					<?php 
-				  } else {
-				    ?>
-					<li><a href="view_forum/?fid=<?php echo $category["id"]; ?>"><?php echo str_replace("&amp;", "&", $category["title"]); ?></a></li>
-			        <?php 
+			  <?php
+			  $forums = $forum->listAllForums($user->data()->group_id);
+			  foreach($forums as $item => $value){ 
+			    $value = array_filter($value);
+				if(empty($value)){
+			  ?>
+			  <li class="nav-header"><?php echo htmlspecialchars($item); ?></li>
+			  <?php
+			    } else {
+				  foreach($value as $sub_forum){
+					// Get the forum ID
+					$forum_id = $queries->getWhere("forums", array("forum_title", "=", $sub_forum));
+					$forum_id = $forum_id[0]->id;
+			  ?>
+			  <li><a href="/forum/view_forum/?fid=<?php echo $forum_id; ?>"><?php echo htmlspecialchars($sub_forum); ?></a></li>
+			  <?php
 				  }
-			    }
-		      ?>
+				}
+			  }
+			  ?>
 			</ul>
 		  </div>
 		  <div class="well">
@@ -169,30 +193,23 @@ $timeago = new Timeago();
 					</tr>
 			    </thead>
 			    <tbody>
-					<?php
-					$list = $forum->listCategories($user->data()->group_id);
-					$n = 0;
-					while ($n < count($list[0])) {
-						$topics = $forum->listTopics(escape($list[0][$n]));
-						$topics = count($topics[0]);
-						$posts = $forum->countPosts(escape($list[0][$n]), 'forum_id');
-						echo '<tr><td><a href="view_forum/?fid=' . $list[0][$n] . '"><strong>' . str_replace("&amp;", "&", $list[1][$n]) . '</strong></a><br />' . $list[2][$n] . '</td><td><strong>' . $topics . '</strong> topics<br /><strong>' . $posts . '</strong> posts</td><td><div class="row"><div class="col-md-2"><div class="frame"><a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">';
-					    if($list[4][$n] !== null){
-							$has_avatar = $queries->getWhere("users", array("id", "=", $list[4][$n]));
-							$has_avatar = $has_avatar[0]->has_avatar;
-							if($has_avatar == '0'){
-							echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/' .  htmlspecialchars($user->IdToMCName($list[4][$n])) . '/30.png" />';
-							} else { 
-							echo '<img class="img-centre img-rounded" style="width:30px; height:30px;" src="' .  $user->getAvatar($list[4][$n]) . '" />';
-							}
-						} else {
-							echo '<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/Steve/30.png" />';
-						}
-						echo '</a></div></div><div class="col-md-9"><a href="view_topic/?tid=' . $list[5][$n] . '">' . htmlspecialchars($forum->getTitle($list[5][$n])) . '</a><br />by <a href="/profile/' . htmlspecialchars($user->IdToMCName($list[4][$n])) . '">' . htmlspecialchars($user->IdToName($list[4][$n])) . '</a><br />' . date("d M Y, H:i", strtotime($list[3][$n])) . '</div></div></td></tr>';
-						$n++;
-						$topics = 0;
-					}
-					?>
+					<tr>
+					  <td><a href="/forum/view_forum/?fid=1">General Discussion</a><br />General server discussion</td>
+					  <td><strong>1</strong> topic<br /><strong>1</strong> post</td>
+					  <td>
+					  <div class="row">
+					    <div class="col-md-2">
+						  <div class="frame">
+						    <a href="/profile/Samerton"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/Samerton/30.png" /></a>
+						  </div>
+						</div>
+					    <div class="col-md-9">
+						  <a href="/forum/view_topic/?tid=2">Website Rules</a><br />
+						  by <a href="/profile/Samerton">Samerton</a><br />17 Jan 2015, 19:03
+						</div>
+					  </div>
+					  </td>
+					</tr>
 			    </tbody>
 		    </table>
 			<div class="panel panel-default">

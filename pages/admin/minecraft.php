@@ -90,6 +90,11 @@ if($user->isAdmLoggedIn()){
 					$servers = $queries->getWhere("mc_servers", array("id", "<>", 0));
 					$number = count($servers);
 					$i = 1;
+					
+					// Are stats enabled?
+					$stats_enabled = $queries->getWhere("settings", array("id", "=", 33));
+					$stats_enabled = $stats_enabled[0]->value;
+					
 					foreach($servers as $server){
 					?>
 					<div class="row">
@@ -98,7 +103,7 @@ if($user->isAdmLoggedIn()){
 						</div>
 						<div class="col-md-6">
 							<span class="pull-right">
-								<a href="#" disabled="disabled" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-globe"></span></a>
+								<a href="/admin/stats/?sid=<?php echo $server->id; ?>" <?php if($stats_enabled === "false"){ ?>disabled="disabled" <?php } ?>class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-globe"></span></a>
 								<a onclick="return confirm('Are you sure you want to delete this server?');" href="/admin/minecraft/?action=delete_server&sid=<?php echo $server->id; ?>" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span></a>
 							</span>
 						</div>
