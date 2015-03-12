@@ -103,7 +103,7 @@ if(isset($_GET["step"])){
 		} else {
 			echo 'PHP PDO Extension - ' . $success;
 		}
-		if(function_exists("mcrypt_encrypt")) {
+		if(!function_exists("mcrypt_encrypt")) {
 			echo 'mcrypt - ' . $error;
 			$php_error = true;
 		} else {
