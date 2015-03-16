@@ -114,7 +114,7 @@ if(isset($_GET["step"])){
 	  <?php
 	    if(isset($php_error)){
 	  ?>
-	  <div class="alert alert-danger">You must be running at least PHP version 5.5 with the PDO extension enabled in order to proceed with installation.</div>
+	  <div class="alert alert-danger">You must be running at least PHP version 5.5 with the PDO and mcrypt extensions enabled in order to proceed with installation.</div>
 	  <?php
 		} else {
 	  ?>
@@ -135,7 +135,7 @@ if(isset($_GET["step"])){
 					'required' => true
 				)
 			));
-			
+
 			if($validation->passed()) {
 				$db_password = "";
 				$db_prefix = Input::get('db_prefix');
@@ -156,7 +156,7 @@ if(isset($_GET["step"])){
 				if(!empty($db_cookie)){
 					$cookie_name = Input::get('cookie_name');
 				}
-				
+
 				/*
 				 *  Test connection - use MySQLi here, as the config for PDO is not written
 				 */
@@ -204,7 +204,7 @@ if(isset($_GET["step"])){
 						 */
 						$config = file_get_contents('inc/init.php');
 						$config = substr($config, 5);
-						$config = nl2br(str_replace("&lt;", "<", $insert . $config));
+						$config = nl2br(htmlspecialchars($insert . $config));
 						?>
 	  Your <strong>inc/init.php</strong> file is not writeable. Please copy/paste the following into your <strong>inc/init.php</strong> file, overwriting all existing text.
 	  <div class="well">
@@ -270,7 +270,7 @@ if(isset($_GET["step"])){
 		}
 	  ?>
 	  <small><em>Fields marked with a * are required</em></small>
-	  <form action="?step=configuration" method="post">
+	  <form action="" method="post">
 	    <div class="form-group">
 	      <label for="InputDBIP">Database Address * </label>
 		  <input type="text" class="form-control" name="db_address" id="InputDBIP" value="<?php echo Input::get('db_address'); ?>" placeholder="Database Address">
@@ -653,6 +653,14 @@ if(isset($_GET["step"])){
 			if(!isset($queries)){
 				$queries = new Queries(); // Initialise queries
 			}
+
+			$buycraft = $queries->getWhere("settings", array("name", "=", "donate"));
+			$buycraft = $buycraft[0]->value;
+			$infractions = $queries->getWhere("settings", array("name", "=", "infractions"));
+			$infractions = $infractions[0]->value;
+			$stats = $queries->getWhere("settings", array("name", "=", "stats"));
+			$stats = $stats[0]->value;
+
 			if(Input::exists()){
 				
 				$proceed = true; // Proceed to inputting the data
@@ -699,8 +707,10 @@ if(isset($_GET["step"])){
 						$proceed = false;
 					}
 				} else {
-					$errors = "Please input Infractions database information";
-					$proceed = false; // Error connecting to the Infractions MySQL database - stop
+					if($infractions !== "false"){
+						$errors = "Please input Infractions database information";
+						$proceed = false; // Error connecting to the Infractions MySQL database - stop
+					}
 				}
 				
 				if(!empty($stats_address_check)){
@@ -711,8 +721,10 @@ if(isset($_GET["step"])){
 						$proceed = false;
 					}
 				} else {
-					$errors = "Please input Stats database information";
-					$proceed = false; // Error connecting to the Stats MySQL database - stop
+					if($stats !== "false"){
+						$errors = "Please input Stats database information";
+						$proceed = false; // Error connecting to the Stats MySQL database - stop
+					}
 				}
 				
 				if($proceed !== false){
@@ -741,7 +753,7 @@ if(isset($_GET["step"])){
 						/*
 						 *  File not writeable, display code to add to file manually
 						 */
-						$insert = nl2br(str_replace("&lt;", "<", $insert));
+						$insert = nl2br(htmlspecialchars($insert));
 						?>
 	  Your <strong>inc/ext_conf.php</strong> file is not writeable. Please copy/paste the following into your <strong>inc/ext_conf.php</strong> file, overwriting any existing text.
 	  <div class="well">
@@ -795,13 +807,6 @@ if(isset($_GET["step"])){
 					}
 				}
 			}
-		
-			$buycraft = $queries->getWhere("settings", array("name", "=", "donate"));
-			$buycraft = $buycraft[0]->value;
-			$infractions = $queries->getWhere("settings", array("name", "=", "infractions"));
-			$infractions = $infractions[0]->value;
-			$stats = $queries->getWhere("settings", array("name", "=", "stats"));
-			$stats = $stats[0]->value;
 	    ?>
 	  <h2>Settings</h2>
 	    <?php
