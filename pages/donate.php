@@ -204,6 +204,7 @@ if(!$user->isLoggedIn()){
 				  </div>
 				  <div class="panel-body">
 					<?php echo $purifier->purify(htmlspecialchars_decode($package->description)); ?>
+					<center><button data-toggle="modal" href="#package<?php echo $n; ?>" class="btn btn-primary">Select &raquo;</button></center>
 				  </div>
 				</div>
 			  </div>
@@ -226,6 +227,40 @@ if(!$user->isLoggedIn()){
 	  <?php require("inc/templates/footer.php"); ?> 
 	  
     </div> <!-- /container -->
+
+	<?php
+	$n = 0;
+	$buycraft_url = $queries->getWhere("settings", array("name", "=", "buycraft_url"));
+	$buycraft_url = $buycraft_url[0]->value;
+	foreach($packages as $package){
+	?>
+    <div class="modal fade" id="package<?php echo $n; ?>" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title"><?php echo htmlspecialchars($package->name); ?><span class="pull-right"><?php echo $queries->convertCurrency($currency); echo htmlspecialchars($package->cost); ?></span></h4>
+          </div>
+          <div class="modal-body">
+          By donating, you agree with the <a href="/help/terms">Terms and Conditions</a>
+          </div>
+          <div class="modal-footer">
+          
+            <form method="get" action="<?php echo htmlspecialchars($buycraft_url); ?>/checkout/packages">
+		    <input type="hidden" name="direct" value="true">
+		    <input type="text" class="form-control" placeholder="Minecraft Username" name="ign" value="" required autofocus>
+		    <input type="hidden" name="action" value="add">
+		    <input type="hidden" name="package" value="<?php echo $package->package_id; ?>"><br />
+		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    <button type="submit" class="btn btn-primary btn-large">Donate &raquo;</button>	
+		    </form>
+          </div>
+        </div>
+      </div>
+    </div>
+	<?php
+		$n++;
+	}
+	?>
 		
 	<?php require("inc/templates/scripts.php"); ?>	
   </body>
