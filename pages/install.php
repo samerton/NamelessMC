@@ -478,6 +478,10 @@ if(isset($_GET["step"])){
 					33 => array(
 						'name' => 'ingame_register',
 						'value' => 'false'
+					),
+					34 => array(
+						'name' => 'buycraft_url',
+						'value' => ''
 					)
 				);
 				
@@ -666,6 +670,7 @@ if(isset($_GET["step"])){
 				$proceed = true; // Proceed to inputting the data
 				
 				$buycraft_key = Input::get('buycraft_api');
+				$buycraft_url = Input::get('buycraft_url');
 				$infractions_plugin = Input::get('inf_type');
 				
 				$data = array(
@@ -678,6 +683,11 @@ if(isset($_GET["step"])){
 						'id' => 28,
 						'name' => 'infractions_plugin',
 						'value' => $infractions_plugin
+					),
+					3 => array(
+						'id' => 35,
+						'name' => 'buycraft_url',
+						'value' => $buycraft_url
 					)
 				);
 				
@@ -825,6 +835,10 @@ if(isset($_GET["step"])){
 	    <div class="form-group">
 	      <label for="InputBuycraft">Buycraft API Key</label>
 		  <input type="text" class="form-control" name="buycraft_api" id="InputBuycraft" value="<?php echo Input::get('buycraft_api'); ?>" placeholder="Buycraft API Key">
+	    </div>
+	    <div class="form-group">
+	      <label for="InputBuycraftUrl">Buycraft Store URL</label>
+		  <input type="text" class="form-control" name="buycraft_url" id="InputBuycraftUrl" value="<?php echo Input::get('buycraft_url'); ?>" placeholder="Buycraft Store URL">
 	    </div>
 	    <?php 
 		} 
