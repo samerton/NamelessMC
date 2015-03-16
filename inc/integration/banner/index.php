@@ -121,7 +121,7 @@ if($Info){ // If the server's up..
 	$purple = imagecolorallocate($im, 0xAA, 0x00, 0xAA);
 
 	// Font
-	$font = "minecraft.ttf";
+	$font = __DIR__ . "/minecraft.ttf";
 
 	// IP to display
 	if($default_port == ("25565")){
@@ -250,7 +250,7 @@ if($Info){ // If the server's up..
 	$red = imagecolorallocate($im, 0xAA, 0x00, 0x00);
 
 	// Font
-	$font = "minecraft.ttf";
+	$font = __DIR__ . "/minecraft.ttf";
 
 	// Make the image!
 	$serverpic = imagecreatefrompng("favicon.png");
