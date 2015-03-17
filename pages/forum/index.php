@@ -153,11 +153,10 @@ $timeago = new Timeago();
 			  $forums = $forum->listAllForums($user->data()->group_id);
 			  foreach($forums as $item => $value){ 
 			    $value = array_filter($value);
-				if(empty($value)){
+				if(!empty($value)){
 			  ?>
 			  <li class="nav-header"><?php echo htmlspecialchars($item); ?></li>
 			  <?php
-			    } else {
 				  foreach($value as $sub_forum){
 					// Get the forum ID
 					$forum_id = $queries->getWhere("forums", array("forum_title", "=", $sub_forum));
@@ -181,6 +180,8 @@ $timeago = new Timeago();
 	  </div>
 	  <?php 
 		} else {
+			$forums = $forum->orderAllForums($user->data()->group_id);
+
 	  ?>
 	  <div class="row">
 	    <div class="col-md-9">
@@ -193,23 +194,52 @@ $timeago = new Timeago();
 					</tr>
 			    </thead>
 			    <tbody>
+				<?php 
+				foreach($forums as $item){ 
+					// How many topics and posts are in this forum?
+					$topics = $queries->getWhere("topics", array("forum_id", "=", $item["id"]));
+					$topics_count = count($topics);
+					$posts = $queries->getWhere("posts", array("forum_id", "=", $item["id"]));
+					$posts_count = count($posts);
+					
+					if($item["last_topic_posted"] !== null){
+						// Get the name of the last topic posted in
+						$last_topic = $queries->getWhere("topics", array("id", "=", $item["last_topic_posted"]));
+						$last_topic = $last_topic[0]->topic_title;
+					}
+				?>
 					<tr>
-					  <td><a href="/forum/view_forum/?fid=1">General Discussion</a><br />General server discussion</td>
-					  <td><strong>1</strong> topic<br /><strong>1</strong> post</td>
+					  <td><a href="/forum/view_forum/?fid=<?php echo $item["id"]; ?>"><?php echo htmlspecialchars($item["forum_title"]); ?></a><br /><?php echo htmlspecialchars($item["forum_description"]); ?></td>
+					  <td><strong><?php echo $topics_count; ?></strong> topics<br /><strong><?php echo $posts_count; ?></strong> posts</td>
 					  <td>
 					  <div class="row">
+					    <?php
+						if($item["last_topic_posted"] !== null){
+						?>
 					    <div class="col-md-2">
 						  <div class="frame">
-						    <a href="/profile/Samerton"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/Samerton/30.png" /></a>
+						    <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["last_user_posted"])); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["last_user_posted"])); ?>/30.png" /></a>
 						  </div>
 						</div>
 					    <div class="col-md-9">
-						  <a href="/forum/view_topic/?tid=2">Website Rules</a><br />
-						  by <a href="/profile/Samerton">Samerton</a><br />17 Jan 2015, 19:03
+						  <a href="/forum/view_topic/?tid=<?php echo $item["last_topic_posted"]; ?>"><?php echo htmlspecialchars($last_topic); ?></a><br />
+						  by <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["last_user_posted"])); ?>"><?php echo htmlspecialchars($user->IdToName($item["last_user_posted"])); ?></a><br /><?php echo date("jS M Y, g:iA", strtotime($item["last_post_date"])); ?>
 						</div>
+						<?php
+						} else {
+						?>
+						<div class="col-md-11">
+						No posts here yet
+						</div>
+						<?php
+						}
+						?>
 					  </div>
 					  </td>
 					</tr>
+				<?php 
+				} 
+				?>
 			    </tbody>
 		    </table>
 			<div class="panel panel-default">
@@ -229,7 +259,31 @@ $timeago = new Timeago();
 					Latest Posts
 				</div>
 				<div class="panel-body">
-					Coming soon
+					<?php
+					// Here we can use the getLatestDiscussions function
+					$latest = $forum->getLatestDiscussions($user->data()->group_id);
+					$n = 0;
+					foreach($latest as $item){
+						if($n >= 5){
+							break;
+						}
+					?>
+				  <div class="row">
+					<div class="col-md-2">
+					  <div class="frame">
+					    <a href="/profile/<?php echo $user->IdToMCName($item["topic_last_user"]); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->IdToMCName($item["topic_last_user"]); ?>/30.png" /></a>
+					  </div>
+					</div>
+					<div class="col-md-9">
+					  <a href="/forum/view_topic/?tid=<?php echo $item["id"]; ?>"><?php echo htmlspecialchars($item["topic_title"]); ?></a><br />
+					  by <a href="/profile/<?php echo $user->IdToMCName($item["topic_last_user"]); ?>"><?php echo $user->IdToName($item["topic_last_user"]); ?></a><br /><?php echo date("jS M Y, g:iA", $item["topic_reply_date"]); ?>
+					</div>
+				  </div>
+				  <hr>
+					<?php
+						$n++;
+					}
+					?>
 				</div>
 			</div>
 		</div>
