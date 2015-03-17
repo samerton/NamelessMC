@@ -114,7 +114,7 @@ if(isset($_GET["step"])){
 	  <?php
 	    if(isset($php_error)){
 	  ?>
-	  <div class="alert alert-danger">You must be running at least PHP version 5.5 with the PDO and mcrypt extensions enabled in order to proceed with installation.</div>
+	  <div class="alert alert-danger">You must be running at least PHP version 5.3 with the PDO and mcrypt extensions enabled in order to proceed with installation.</div>
 	  <?php
 		} else {
 	  ?>
