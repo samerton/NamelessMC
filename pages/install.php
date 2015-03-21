@@ -68,6 +68,9 @@ if(isset($_GET["step"])){
 	  <ul>
 	    <li>ModernBB</li>
 		<li>Wordpress and bbPress</li>
+	  </ul>
+	  Coming soon:
+	  <ul>
 		<li>phpBB</li>
 		<li>XenForo</li>
 		<li>IPBoard</li>
@@ -461,7 +464,7 @@ if(isset($_GET["step"])){
 					),
 					29 => array(
 						'name' => 'version',
-						'value' => '0.5'
+						'value' => '0.1'
 					),
 					30 => array(
 						'name' => 'version_checked',
@@ -539,6 +542,12 @@ if(isset($_GET["step"])){
 							'value' => $setting["value"]
 						));
 					}
+
+					$queries->create("custom_pages", array(
+						'url' => '/help',
+						'title' => 'Help',
+						'content' => 'Default help page. Customise in the admin panel.'
+					));
 					
 					header('Location: /install/?step=settings_extra&c=' . $c);
 					die();
@@ -1338,6 +1347,9 @@ if(isset($_GET["step"])){
             NamelessMC includes support for the following Bukkit/Spigot plugins:
 			<ul>
 			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/buycraft/">Buycraft</a></li>
+			</ul>
+			Coming soon:
+			<ul>
 			  <li><a target="_blank" href="http://www.spigotmc.org/resources/mcmmo.2445/">McMMO</a></li>
 			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/">Stats</a></li>
 			  <li><a target="_blank" href="http://www.spigotmc.org/resources/bukkitgames-hungergames.279/">BukkitGames</a></li>
