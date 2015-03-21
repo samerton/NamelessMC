@@ -1161,6 +1161,7 @@ if(isset($_GET["step"])){
 			if(!Input::exists()){
 	  ?>
 			<h4>Converting from phpBB:</h4>
+			Coming soon. This won't work yet!
 			
 	  <?php
 				if(isset($_GET["error"])){
