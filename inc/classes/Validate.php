@@ -5,7 +5,10 @@ class Validate {
 			$_db = null;
 			
 	public function __construct() {
-		$this->_db = DB::getInstance();
+		$host = Config::get('mysql/host');
+		if(!empty($host)){
+			$this->_db = DB::getInstance();
+		}
 	}
 	
 	public function check($source, $items = array()) {

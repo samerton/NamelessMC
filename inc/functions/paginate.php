@@ -9,3 +9,4 @@ function PaginateArray($p) { // Input page number
 	}
 	return array($s, $f);
 }
+?>

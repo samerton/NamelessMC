@@ -73,9 +73,9 @@ $timeago = new Timeago();
 		$forum_layout = $forum_layout[0]->value;
 		if($forum_layout == '1'){
 			$discussions = $forum->getLatestDiscussions($user->data()->group_id);
-			// Order the discussions by date
+			// Order the discussions by date - most recent first
 			usort($discussions, function($a, $b) {
-				return $a['topic_reply_date'] - $b['topic_reply_date'];
+				return $b['topic_reply_date'] - $a['topic_reply_date'];
 			});
 	  ?>
 	  <div class="row">
@@ -249,7 +249,7 @@ $timeago = new Timeago();
 				<div class="panel-body">
 					<?php $user_stats = $queries->orderAll("users", "joined", "DESC"); ?>
 					<strong>Users registered:</strong> <?php echo count($user_stats); ?><br />
-					<strong>Latest member:</strong> <a href="/profile/<?php echo $user_stats[0]->mcname; ?>"><?php echo $user_stats[0]->username; ?></a>
+					<strong>Latest member:</strong> <a href="/profile/<?php echo htmlspecialchars($user_stats[0]->mcname); ?>"><?php echo htmlspecialchars($user_stats[0]->username); ?></a>
 				</div>
 			</div>
 	    </div>
@@ -271,12 +271,12 @@ $timeago = new Timeago();
 				  <div class="row">
 					<div class="col-md-2">
 					  <div class="frame">
-					    <a href="/profile/<?php echo $user->IdToMCName($item["topic_last_user"]); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->IdToMCName($item["topic_last_user"]); ?>/30.png" /></a>
+					    <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>/30.png" /></a>
 					  </div>
 					</div>
 					<div class="col-md-9">
 					  <a href="/forum/view_topic/?tid=<?php echo $item["id"]; ?>"><?php echo htmlspecialchars($item["topic_title"]); ?></a><br />
-					  by <a href="/profile/<?php echo $user->IdToMCName($item["topic_last_user"]); ?>"><?php echo $user->IdToName($item["topic_last_user"]); ?></a><br /><?php echo date("jS M Y, g:iA", $item["topic_reply_date"]); ?>
+					  by <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>"><?php echo htmlspecialchars($user->IdToName($item["topic_last_user"])); ?></a><br /><span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', $item["topic_reply_date"]); ?>"><?php echo $timeago->inWords(date('d M Y, H:i', $item["topic_reply_date"])); ?> ago</span>
 					</div>
 				  </div>
 				  <hr>

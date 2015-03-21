@@ -37,24 +37,25 @@
 	<?php include("inc/templates/navbar.php"); ?>
 	
 	<div class="container">
-	<h3>Credits</h3>
-	Website software written by <a href="https://worldscapemc.co.uk" target="_blank">Samerton (worldscapemc.co.uk)</a><br /><br />
-	<strong>Contributors</strong>:<br />
-	Wiki created by EvenSafe789<br />
-	WordPress conversion script by dwilson390<br />
-	<br />
-	<strong>External libraries</strong>:<br />
-	<a href="https://github.com/ircmaxell/password_compat" target="_blank">PasswordCompat</a><br />
-	<a href="https://github.com/ezyang/htmlpurifier" target="_blank">HTMLPurifier</a><br />
-	<a href="http://ckeditor.com/" target="_blank">CKEditor</a><br />
-	<a href="http://getbootstrap.com/" target="_blank">Built with Bootstrap</a><br />
-	<a href="http://bootswatch.com/" target="_blank">Bootswatch themes</a><br />
-	<a href="https://github.com/xPaw/PHP-Minecraft-Query" target="_blank">xPaw Minecraft Query</a><br />
-	<a href="http://www.white-hat-web-design.co.uk/blog/resizing-images-with-php/" target="_blank">SimpleImage</a><br />
-	<a href="https://github.com/jimmiw/php-time-ago" target="_blank">PHP Time Ago</a><br />
-	<a href="https://github.com/onassar/PHP-Pagination" target="_blank">PHP-Pagination</a><br />
-	<a href="https://github.com/bassjobsen/Bootstrap-3-Typeahead" target="_blank">Bootstrap 3 Typeahead</a><br />
-	<a href="https://github.com/flot/flot" target="_blank">Flot charts</a><br />
+	  <h3>Credits</h3>
+	  Website software written by <a href="https://worldscapemc.co.uk" target="_blank">Samerton (worldscapemc.co.uk)</a> (<a href="https://raw.githubusercontent.com/samerton/NamelessMC/master/LICENSE" target="_blank">License</a>) <br /><br />
+	  <strong>Contributors</strong>:<br />
+	  Wiki created by EvenSafe789<br />
+	  WordPress conversion script by dwilson390<br />
+	  <br />
+	  <strong>External libraries</strong>:<br />
+	  <a href="https://github.com/ircmaxell/password_compat" target="_blank">PasswordCompat</a><br />
+	  <a href="https://github.com/ezyang/htmlpurifier" target="_blank">HTMLPurifier</a><br />
+	  <a href="http://ckeditor.com/" target="_blank">CKEditor</a><br />
+	  <a href="http://getbootstrap.com/" target="_blank">Built with Bootstrap</a><br />
+	  <a href="http://bootswatch.com/" target="_blank">Bootswatch themes</a><br />
+	  <a href="https://github.com/xPaw/PHP-Minecraft-Query" target="_blank">xPaw Minecraft Query</a><br />
+	  <a href="http://www.white-hat-web-design.co.uk/blog/resizing-images-with-php/" target="_blank">SimpleImage</a><br />
+	  <a href="https://github.com/jimmiw/php-time-ago" target="_blank">PHP Time Ago</a><br />
+	  <a href="https://github.com/onassar/PHP-Pagination" target="_blank">PHP-Pagination</a><br />
+	  <a href="https://github.com/bassjobsen/Bootstrap-3-Typeahead" target="_blank">Bootstrap 3 Typeahead</a><br />
+	  <a href="https://github.com/flot/flot" target="_blank">Flot charts</a><br />
+	  <a href="https://jquery.com/" target="_blank">jQuery</a>, <a href="https://jqueryui.com/">jQuery UI</a><br />
 	  <hr>
 	  <?php include("inc/templates/footer.php"); ?> 
 	  

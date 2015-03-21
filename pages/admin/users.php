@@ -68,6 +68,11 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 					if (!is_numeric($_GET['p'])){
 						Redirect::to("/admin/users");
 					} else {
+						if($_GET['p'] == 1){ 
+							// Avoid bug in pagination class
+							Redirect::to('/admin/users/');
+							die();
+						}
 						$p = $_GET['p'];
 					}
 				} else {
@@ -123,7 +128,6 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 				</thead>
 				<tbody>
 				<?php 
-				$n = 0;
 				while ($n < $d) {
 					$i = 0;
 					$user_group = "";
@@ -272,12 +276,10 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 									'max' => 20
 								),
 								'MCUsername' => array(
-									'required' => true,
 									'isvalid' => true
 								),
 								'UUID' => array(
-									'max' => 32,
-									'required' => true
+									'max' => 32
 								),
 								'signature' => array(
 									'max' => 256
@@ -339,13 +341,14 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 				if(count($user)){
 					$token = Token::generate();
 					
+				    // Initialise HTML Purifier
 					$config = HTMLPurifier_Config::createDefault();
 					$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
 					$config->set('URI.DisableExternalResources', false);
 					$config->set('URI.DisableResources', false);
 					$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
-					$config->set('CSS.AllowedProperties', array('float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
-					$config->set('HTML.AllowedAttributes', 'src, height, width, alt, class, *.style');
+					$config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
+					$config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
 					$purifier = new HTMLPurifier($config);
 					
 					$signature = $purifier->purify(htmlspecialchars_decode($user[0]->signature));

@@ -222,7 +222,7 @@ if($user->isAdmLoggedIn()){
 						$n = 0;
 						foreach($previous_forums as $previous_forum){
 							if($previous_forum->id == $_GET["fid"]){
-								$previous_fid = $previous_forum[$n - 1]->id;
+								$previous_fid = $previous_forums[$n - 1]->id;
 								$previous_f_order = $previous_forums[$n - 1]->forum_order;
 								break;
 							}

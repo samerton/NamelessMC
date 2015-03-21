@@ -46,6 +46,7 @@
 			<?php if($vote !== "false"){ ?>
             <li<?php if($page === "vote"){?> class="active"<?php } ?>><a href="/vote">Vote</a></li>
 			<?php } ?>
+			<!-- Coming soon 
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">More <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -53,6 +54,7 @@
                 <li><a href="#">Staff</a></li>
               </ul>
             </li>
+			-->
           </ul>
 		  <?php 
 		  if($page != "signin" && $page != "register"){

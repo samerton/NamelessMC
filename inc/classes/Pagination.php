@@ -56,7 +56,7 @@
             'classes' => array('clearfix', 'pagination', 'pagination-sm'),
             'crumbs' => 5,
             'rpp' => 10,
-            'key' => 'page',
+            'key' => 'p',
             'target' => '',
             'next' => '&raquo;',
             'previous' => '&laquo;',

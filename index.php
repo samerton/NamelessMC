@@ -1,4 +1,8 @@
 <?php 
+ini_set('display_startup_errors',1);
+ini_set('display_errors',1);
+error_reporting(-1);
+
 /*
  *	Made by Samerton
  *  http://worldscapemc.co.uk
@@ -82,19 +86,9 @@ if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== 
 	}
 }
 
-/*
- *  If the page does not exist, display the 404 error
- */
-
-if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "install_stats"){
-	if($exists !== true){
-		require("404.php");
-		die();
-	}
-}
 
 /*
- *  If it does, initialise the page load, and display the page
+ *  Start to display the page
  */ 
 
 $page = $directories[1];
@@ -105,6 +99,34 @@ $path = "";
  */
 
 require_once 'inc/init.php';
+
+/*
+ *  If the page does not exist, check for custom pages, and if there aren't any with the defined URL, display the 404 error
+ */
+
+if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "install_stats"){
+	/*
+	 *  Check custom pages
+	 */
+
+	$custom_pages = $queries->getWhere('custom_pages', array('url', '=', $directory));
+
+	if(count($custom_pages)){
+		$page_title = $custom_pages[0]->title;
+		$page_content = $custom_pages[0]->content;
+
+		// Include the page
+		require 'pages/extra.php';
+
+		// Kill the page 
+		die();
+	}
+
+	if($exists !== true){
+		require("404.php");
+		die();
+	}
+}
 
 if(strtolower($directories[1]) !== "install" && strtolower($directories[1]) !== "install_stats"){
 	/*

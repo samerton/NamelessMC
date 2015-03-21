@@ -8,6 +8,8 @@
 
 // Set the page name for the active link in navbar
 $page = "home";
+
+require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTML Purifier for news items
  
 // Get the default server IP
 $default_server = $queries->getWhere("mc_servers", array("is_default", "=", "1"));
@@ -66,7 +68,7 @@ if( $Query !== null ){
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
+    <meta name="description" content="The homepage for the <?php echo $sitename; ?> online community.">
     <meta name="author" content="Samerton">
     <link rel="icon" href="/assets/favicon.ico">
 
@@ -155,7 +157,57 @@ if( $Query !== null ){
 		<div class="col-md-9">
 			<h2>News</h2>
 			<?php
-			// Todo: Redo news system
+			$forum = new Forum(); // Initialise the forum to get the latest news
+			$latest_news = $forum->getLatestNews(5); // Get latest 5 items
+
+			// Display the news
+			if(count($latest_news)){
+
+			    // Initialise HTML Purifier
+				$config = HTMLPurifier_Config::createDefault();
+				$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
+				$config->set('URI.DisableExternalResources', false);
+				$config->set('URI.DisableResources', false);
+				$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+				$config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
+				$config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
+				$purifier = new HTMLPurifier($config);
+				
+				foreach($latest_news as $item){
+				?>
+		  <div class="panel panel-primary">
+		    <div class="panel-heading">
+		      <a class="white-text" href="/forum/view_topic/?tid=<?php echo $item["topic_id"]; ?>"><?php echo htmlspecialchars($item["topic_title"]); ?></a>
+		      <span class="pull-right">
+		        <a href="/profile/<?php echo htmlspecialchars($user->idToMCName($item["author"])); ?>"><?php echo htmlspecialchars($user->idToName($item["author"])); ?></a>
+  	      	    <?php 
+  	      	    // Avatar
+  	      	    $post_user = $queries->getWhere("users", array("id", "=", $item["author"]));
+  	      	    $has_avatar = $post_user[0]->has_avatar;
+				if($has_avatar == '0'){ 
+				?>
+				<img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->idToMCName($item["author"])); ?>/25.png" />
+				<?php } else { ?>
+				<img class="img-rounded" style="width:25px; height:25px;" src="<?php echo $user->getAvatar($item["author"], ""); ?>" />
+				<?php } ?>
+		      </span>
+		    </div>
+		    <div class="panel-body">
+		      <?php echo $purifier->purify(htmlspecialchars_decode($item["content"])); ?>
+		      <br />
+		      <span class="label label-info"><?php echo date('d M Y, H:i', $item["topic_date"]); ?></span>
+		      <span class="pull-right">
+		        <span class="label label-danger"><span class="glyphicon glyphicon-comment"></span> <?php echo $item["replies"]; ?> | <span class="glyphicon glyphicon-eye-open"></span> <?php echo $item["topic_views"]; ?></span>
+		      </span>
+		    </div>
+		  </div>
+				<?php 
+				}
+			} else {
+			?>
+			<strong>No news items yet</strong>
+			<?php 
+			}
 			?>
 		</div>
 		<div class="col-md-3">
@@ -173,7 +225,7 @@ if( $Query !== null ){
 			<a class="twitter-timeline" data-dnt="true" href="<?php echo htmlspecialchars($twitter_url); ?>"  data-widget-id="<?php echo htmlspecialchars($twitter_feed); ?>">Tweets</a>
 			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 			<?php } else {	?>
-			<div class="alert alert-warning">Under construction</div>
+			<div class="alert alert-warning">Twitter feed not enabled</div>
 			<?php } ?>
 		</div>
       </div>

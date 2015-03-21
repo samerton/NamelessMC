@@ -103,6 +103,7 @@ $token = Token::generate();
 		<div class="col-md-9">
 			<div class="well">
 				<h2>Page Settings</h2>
+				<a href="/admin/custom_pages" class="btn btn-primary">Edit custom pages</a><br /><br />
 				<?php $pages = $queries->getAll("settings", array("name", "<>", "")); ?>
 				<strong>Forum maintenance mode:</strong>
 				<?php 

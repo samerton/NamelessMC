@@ -16,6 +16,7 @@ $pages = array(
 	"install_stats",
 	"admin" => array(
 		"buycraft_sync",
+		"custom_pages",
 		"documentation",
 		"donate",
 		"execute_buycraft_sync",
@@ -25,6 +26,7 @@ $pages = array(
 		"minecraft",
 		"stats",
 		"pages",
+		"phpinfo",
 		"reset_password",
 		"search_users",
 		"update_mcnames",
@@ -37,20 +39,19 @@ $pages = array(
 	"donate",
 	"forum" => array(
 		"create_post",
-		"create_topic",
 		"delete_post",
 		"delete_thread",
 		"edit_post",
+		"error",
 		"lock_thread",
 		"merge_thread",
 		"move_thread",
+		"new_topic",
 		"report_post",
 		"reputation",
+		"sticky_thread",
 		"view_forum",
 		"view_topic"
-	),
-	"help" => array(
-		"terms"
 	),
 	"mod" => array(
 		"announcements",

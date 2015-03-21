@@ -84,7 +84,7 @@ class Queries {
 			echo '<div class="alert alert-info">';
 			$data = $this->_db->createTable("buycraft_data", " `id` int(11) NOT NULL AUTO_INCREMENT, `time` datetime NOT NULL, `uuid` varchar(32) NOT NULL, `ign` varchar(20) NOT NULL, `price` varchar(5) NOT NULL, `package` int(11) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo '<strong>Buycraft data</strong> table successfully initialised<br />';
-			$data = $this->_db->createTable("custom_pages", " `id` int(11) NOT NULL AUTO_INCREMENT, `url` varchar(20) NOT NULL, `content` mediumtext NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+			$data = $this->_db->createTable("custom_pages", " `id` int(11) NOT NULL AUTO_INCREMENT, `url` varchar(20) NOT NULL, `title` varchar(30) NOT NULL, `content` mediumtext NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo '<strong>Custom pages</strong> table successfully initialised<br />';
 			$data = $this->_db->createTable("donation_packages", " `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(64) NOT NULL, `description` varchar(2048) NOT NULL, `cost` varchar(8) NOT NULL, `package_id` int(8) NOT NULL, `active` tinyint(4) NOT NULL DEFAULT '0', `package_order` int(11) NOT NULL, `category` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo '<strong>Donation packages</strong> table successfully initialised<br />';

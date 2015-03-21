@@ -14,3 +14,5 @@ function in_array_r($needle, $haystack, $strict = false){
     }
     return false;
 }
+
+?>

@@ -275,6 +275,7 @@ class User {
 				$results = $data->results();
 				return $results[0]->group_id;
 			} else {
+				$results = $data->results();
 				$data = $this->_db->get('groups', array('id', '=', $results[0]->group_id));
 				$results = $data->results();
 				return $results[0]->group_html_lg;
@@ -297,11 +298,12 @@ class User {
 		}
 	}
 	
-	public function getAvatar($id) {
+	public function getAvatar($id, $path = null) {
 		$exts = array('gif','png','jpg');
+		echo $path . "avatars/1.png";
 		foreach($exts as $ext) {
-			if(file_exists("avatars/" . $id . "." . $ext)){
-				$avatar_path = "avatars/" . $id . "." . $ext;
+			if(file_exists($path . "avatars/" . $id . "." . $ext)){
+				$avatar_path = $path . "avatars/" . $id . "." . $ext;
 				break;
 			}
 		}

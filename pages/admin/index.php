@@ -37,6 +37,7 @@ if($last_checked < strtotime('-1 day', $date)){
 	$version = htmlspecialchars($version[0]->value);
 
 	$latest_version = file_get_contents("https://worldscapemc.co.uk/nl_core/stats.php?uid=" . $uid . "&version=" . $version);
+	echo $latest_version;
 	if($latest_version !== "failed"){
 		if($version < $latest_version){
 			// Need to update!
@@ -108,7 +109,7 @@ if($user->isAdmLoggedIn()){
 			<div class="alert alert-warning">
 			A new update is available. Latest version: <?php echo htmlspecialchars($need_update); ?><br />
 			Download from <a class="white-text" style="text-decoration: underline;" href="https://github.com/samerton/NamelessMC/archive/master.zip" target="_blank">GitHub</a><br />
-			<a class="white-text" style="text-decoration: underline;" href="/admin/update">Update guide</a>
+			<a class="white-text" style="text-decoration: underline;" href="http://www.spigotmc.org/threads/nameless-minecraft-website-software.34810/">Update guide</a>
 			</div>
 			<?php
 			}
@@ -120,8 +121,8 @@ if($user->isAdmLoggedIn()){
 		  </div>
 		  <div class="col-md-9">
 			<div class="well well-sm">
-				<b>WorldscapeMC website version:</b> 0.5<br />
-				<b>Webserver PHP version:</b> <?php echo phpversion(); ?><br /><br />
+				<b>WorldscapeMC website version:</b> <?php $version = $queries->getWhere("settings", array("name", "=", "version")); echo htmlspecialchars($version[0]->value); ?><br />
+				<b>Webserver PHP version:</b> <?php echo phpversion(); ?> <a href="/admin/phpinfo" target="_blank">(Full PHP information)</a><br /><br />
 				<b>Server banner:</b><br />
 				<img src="/inc/integration/banner"/><br />
 				<small>URL:</small>
