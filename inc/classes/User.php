@@ -196,27 +196,76 @@ class User {
 		} else {
 			$user = $this->find($username);
 			if($user){
-				if(password_verify($password, $this->data()->password)) {
-					Session::put($this->_sessionName, $this->data()->id);
-				
-					if($remember) {
-						$hash = Hash::unique();
-						$hashCheck = $this->_db->get('users_session', array('user_id', '=', $this->data()->id));
+				if($this->data()->pass_method == "default"){ // Default, use password_verify
+					if(password_verify($password, $this->data()->password)) {
+						Session::put($this->_sessionName, $this->data()->id);
 					
-						if(!$hashCheck->count()) {
-							$this->_db->insert('users_session', array(
-								'user_id' => $this->data()->id,
-								'hash' => $hash
-							));
-						} else {
-							$hash = $hashCheck->first()->hash;
+						if($remember) {
+							$hash = Hash::unique();
+							$hashCheck = $this->_db->get('users_session', array('user_id', '=', $this->data()->id));
+						
+							if(!$hashCheck->count()) {
+								$this->_db->insert('users_session', array(
+									'user_id' => $this->data()->id,
+									'hash' => $hash
+								));
+							} else {
+								$hash = $hashCheck->first()->hash;
+							}
+						
+							Cookie::put($this->_cookieName, $hash, Config::get('remember/cookie_expiry'));
+						
 						}
 					
-						Cookie::put($this->_cookieName, $hash, Config::get('remember/cookie_expiry'));
-					
+						return true;
 					}
-				
-					return true;
+				} else if($this->data()->pass_method == "wordpress"){ // Use phpass
+					$phpass = new PasswordHash(8, FALSE);
+					if($phpass->CheckPassword($password, $this->data()->password)){
+						Session::put($this->_sessionName, $this->data()->id);
+					
+						if($remember) {
+							$hash = Hash::unique();
+							$hashCheck = $this->_db->get('users_session', array('user_id', '=', $this->data()->id));
+						
+							if(!$hashCheck->count()) {
+								$this->_db->insert('users_session', array(
+									'user_id' => $this->data()->id,
+									'hash' => $hash
+								));
+							} else {
+								$hash = $hashCheck->first()->hash;
+							}
+						
+							Cookie::put($this->_cookieName, $hash, Config::get('remember/cookie_expiry'));
+						
+						}
+					
+						return true;
+					}
+				} else if($this->data()->pass_method == "modernbb"){ // Use sha
+					if(sha1($password) == $this->data()->password){
+						Session::put($this->_sessionName, $this->data()->id);
+					
+						if($remember) {
+							$hash = Hash::unique();
+							$hashCheck = $this->_db->get('users_session', array('user_id', '=', $this->data()->id));
+						
+							if(!$hashCheck->count()) {
+								$this->_db->insert('users_session', array(
+									'user_id' => $this->data()->id,
+									'hash' => $hash
+								));
+							} else {
+								$hash = $hashCheck->first()->hash;
+							}
+						
+							Cookie::put($this->_cookieName, $hash, Config::get('remember/cookie_expiry'));
+						
+						}
+					
+						return true;
+					}
 				}
 			}
 		}
