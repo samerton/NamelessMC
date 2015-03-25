@@ -485,6 +485,10 @@ if(isset($_GET["step"])){
 					34 => array(
 						'name' => 'buycraft_url',
 						'value' => ''
+					),
+					35 => array(
+						'name' => 'store_type',
+						'value' => ''
 					)
 				);
 				
@@ -681,6 +685,7 @@ if(isset($_GET["step"])){
 				$buycraft_key = Input::get('buycraft_api');
 				$buycraft_url = Input::get('buycraft_url');
 				$infractions_plugin = Input::get('inf_type');
+				$store_type = Input::get('store_type');
 				
 				$data = array(
 					1 => array(
@@ -697,6 +702,11 @@ if(isset($_GET["step"])){
 						'id' => 35,
 						'name' => 'buycraft_url',
 						'value' => $buycraft_url
+					),
+					4 => array(
+						'id' => 36,
+						'name' => 'store_type',
+						'value' => $store_type
 					)
 				);
 				
@@ -840,14 +850,24 @@ if(isset($_GET["step"])){
 		<?php 
 		if($buycraft !== "false"){ 
 		?>
-		<h4>Buycraft</h4>
+		<h4>Donation Store</h4>
+		<strong>Store Type</strong><br />
+		<div class="btn-group" data-toggle="buttons">
+		  <label class="btn btn-primary active">
+			<input type="radio" name="store_type" id="InputStoreType1" value="bc" autocomplete="off" checked> Buycraft
+		  </label>
+		  <label class="btn btn-primary">
+			<input type="radio" name="store_type" id="InputStoreType2" value="mm" autocomplete="off"> Minecraft Market
+		  </label>
+		</div>
+		<br /><br />
 	    <div class="form-group">
-	      <label for="InputBuycraft">Buycraft API Key</label>
-		  <input type="text" class="form-control" name="buycraft_api" id="InputBuycraft" value="<?php echo Input::get('buycraft_api'); ?>" placeholder="Buycraft API Key">
+	      <label for="InputBuycraft">API Key</label>
+		  <input type="text" class="form-control" name="buycraft_api" id="InputBuycraft" value="<?php echo Input::get('buycraft_api'); ?>" placeholder="API Key">
 	    </div>
 	    <div class="form-group">
-	      <label for="InputBuycraftUrl">Buycraft Store URL</label>
-		  <input type="text" class="form-control" name="buycraft_url" id="InputBuycraftUrl" value="<?php echo Input::get('buycraft_url'); ?>" placeholder="Buycraft Store URL">
+	      <label for="InputBuycraftUrl">Store URL</label>
+		  <input type="text" class="form-control" name="buycraft_url" id="InputBuycraftUrl" value="<?php echo Input::get('buycraft_url'); ?>" placeholder="Store URL">
 	    </div>
 	    <?php 
 		} 
@@ -1162,7 +1182,6 @@ if(isset($_GET["step"])){
 	  ?>
 			<h4>Converting from phpBB:</h4>
 			Coming soon. This won't work yet!
-			
 	  <?php
 				if(isset($_GET["error"])){
 	  ?>
@@ -1278,6 +1297,7 @@ if(isset($_GET["step"])){
 		} else if(strtolower($_GET["from"]) === "mybb"){
 	?>
 			<h4>Converting from MyBB:</h4>
+			Coming soon.
 	<?php
 		}
 	?>
