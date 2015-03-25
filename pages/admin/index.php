@@ -37,7 +37,7 @@ if($last_checked < strtotime('-1 day', $date)){
 	$version = htmlspecialchars($version[0]->value);
 
 	$latest_version = file_get_contents("https://worldscapemc.co.uk/nl_core/stats.php?uid=" . $uid . "&version=" . $version);
-	echo $latest_version;
+
 	if($latest_version !== "failed"){
 		if($version < $latest_version){
 			// Need to update!
