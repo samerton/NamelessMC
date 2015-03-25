@@ -102,7 +102,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 				}
 			?>
 			<a href="/admin/users/?action=new" class="btn btn-default">New User</a>
-			<a href="/admin/buycraft_sync" class="btn btn-default">Synchronise with Buycraft</a>
+			<a href="/admin/donate_sync" class="btn btn-default">Synchronise with web store</a>
 			<span class="pull-right">
 				<form class="form-inline" role="form" action="/admin/search_users" method="post">
 				  <div class="form-group">

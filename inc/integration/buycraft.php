@@ -12,7 +12,13 @@ if(!isset($queries)){
 $API = $queries->getWhere("settings", array("name", "=", "buycraft_key"));
 $API = $API[0]->value;
  
-$buycraft = file_get_contents('https://api.buycraft.net/v3?action=payments&secret='.$API);
+$bc_payments = file_get_contents('https://api.buycraft.net/v4?action=payments&secret=' . $API);
+$bc_payments = json_decode($bc_payments, true);
 
-$buycraft = (json_decode($buycraft, true));
+$bc_packages = file_get_contents('https://api.buycraft.net/v4?action=packages&secret=' . $API);
+$bc_packages = json_decode($bc_packages, true);
+
+$bc_categories = file_get_contents('https://api.buycraft.net/v4?action=categories&secret=' . $API);
+$bc_categories = json_decode($bc_categories, true);
+
 ?>

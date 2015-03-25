@@ -187,6 +187,15 @@ class DB {
 		return $this->_pdo->lastInsertId();
 	}
 	
+	public function alterTable($name, $column, $attributes) {
+		$name = $this->_prefix . $name;
+		$sql = "ALTER TABLE `{$name}` ADD {$column} {$attributes}";
+			if(!$this->query($sql)->error()) {
+				return $this;
+			}
+		return false;
+	}
+	
 	public function orderAll($table, $order, $sort) {
 		$table = $this->_prefix . $table;
 		if(isset($sort)){

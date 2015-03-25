@@ -464,7 +464,7 @@ if(isset($_GET["step"])){
 					),
 					29 => array(
 						'name' => 'version',
-						'value' => '0.1'
+						'value' => '0.2'
 					),
 					30 => array(
 						'name' => 'version_checked',
@@ -1182,6 +1182,7 @@ if(isset($_GET["step"])){
 	  ?>
 			<h4>Converting from phpBB:</h4>
 			Coming soon. This won't work yet!
+			
 	  <?php
 				if(isset($_GET["error"])){
 	  ?>
@@ -1297,7 +1298,7 @@ if(isset($_GET["step"])){
 		} else if(strtolower($_GET["from"]) === "mybb"){
 	?>
 			<h4>Converting from MyBB:</h4>
-			Coming soon.
+			Coming Soon
 	<?php
 		}
 	?>

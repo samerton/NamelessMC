@@ -12,5 +12,31 @@ if(!isset($page) || !isset($queries) || !$user->isAdmLoggedIn() || $user->data()
 }
 
 // Proceed with the upgrade
-// This is where the upgrade script will run
+if($version == 0.1){
+	// Check to see if there's already a database entry for this update somehow
+	$query = $queries->getWhere("settings", array("name", "=", "store_type"));
+	if(count($query)){
+		die('Error - database is already up to date!');
+	}
+	
+	// Insert new store type row into database settings table
+	$queries->create("settings", array(
+		"name" => "store_type",
+		"value" => "bc"
+	));
+	
+	// Create table for donation categories, which will be implemented in a future release
+	$data = $queries->createTable("donation_categories", " `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(64) NOT NULL, `cid` int(11) NOT NULL, `order` int(11) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+	
+	// Add column to donation packages which will contain the URL for the package (for MM)
+	$data = $queries->alterTable("donation_packages", "url", "VARCHAR(255) NOT NULL");
+	
+	// Update version name
+	$queries->update("settings", 30, array(
+		"value" => "0.2"
+	));
+	$queries->update("settings", 32, array(
+		"value" => "false"
+	));
+}
 ?>

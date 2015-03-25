@@ -62,6 +62,12 @@ class Queries {
 		}
 	}
 	
+	public function createTable($table, $columns, $other) {
+		if(!$this->_db->createTable($table, $columns, $other)) {
+			throw new Exception('There was a problem performing that action.');
+		}
+	}
+	
 	public function convertCurrency($id) {
 		if($id == "0"){
 			return '$';
@@ -74,6 +80,12 @@ class Queries {
 	
 	public function getLastId() {
 		return $this->_db->lastid();
+	}
+	
+	public function alterTable($table, $column, $attributes){
+		if(!$this->_db->alterTable($table, $column, $attributes)) {
+			throw new Exception('There was a problem performing that action.');
+		}
 	}
 	
 	public function dbInitialise(){

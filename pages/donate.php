@@ -62,7 +62,7 @@ if(!$user->isLoggedIn()){
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Samerton">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/assets/favicon.ico">
 
     <title><?php echo $sitename; ?> &bull; Donate</title>
 	
@@ -230,10 +230,17 @@ if(!$user->isLoggedIn()){
 
 	<?php
 	$n = 0;
-	$buycraft_url = $queries->getWhere("settings", array("name", "=", "buycraft_url"));
-	$buycraft_url = $buycraft_url[0]->value;
-	foreach($packages as $package){
-	?>
+	
+	$store_type = $queries->getWhere('settings', array('name', '=', 'store_type'));
+	$store_type = $store_type[0]->value;
+	
+	if($store_type == "bc"){
+	
+		$buycraft_url = $queries->getWhere("settings", array("name", "=", "buycraft_url"));
+		$buycraft_url = $buycraft_url[0]->value;
+		
+		foreach($packages as $package){
+		?>
     <div class="modal fade" id="package<?php echo $n; ?>" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -257,8 +264,32 @@ if(!$user->isLoggedIn()){
         </div>
       </div>
     </div>
-	<?php
-		$n++;
+		<?php
+			$n++;
+		}
+	} else {
+		foreach($packages as $package){
+		?>
+    <div class="modal fade" id="package<?php echo $n; ?>" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title"><?php echo htmlspecialchars($package->name); ?><span class="pull-right"><?php echo $queries->convertCurrency($currency); echo htmlspecialchars($package->cost); ?></span></h4>
+          </div>
+          <div class="modal-body">
+          By donating, you agree with the <a href="/help/terms">Terms and Conditions</a>
+          </div>
+          <div class="modal-footer">
+		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    <a href="<?php echo htmlspecialchars($package->url); ?>" class="btn btn-primary btn-large">Donate &raquo;</a>	
+		    </form>
+          </div>
+        </div>
+      </div>
+    </div>
+		<?php
+			$n++;
+		}
 	}
 	?>
 		

@@ -88,11 +88,6 @@ if(Input::exists()) {
 					'number' => 1,
 					'value' => htmlspecialchars(Input::get('sitename'))
 				),
-				1 => array(
-					'name' => 'buycraft_key',
-					'number' => 6,
-					'value' => htmlspecialchars(Input::get('buycraftapi'))
-				),
 				2 => array(
 					'name' => 'youtube_url',
 					'number' => 7,
@@ -147,11 +142,6 @@ if(Input::exists()) {
 					'name' => 'displaynames',
 					'number' => 27,
 					'value' => $displaynames
-				),
-				13 => array(
-					'name' => 'buycraft_url',
-					'number' => 35,
-					'value' => htmlspecialchars(Input::get('buycrafturl'))
 				)
 			);
 			try {
@@ -212,14 +202,6 @@ if(Input::exists()) {
 					<div class="form-group">
 						<label for="InputSiteName">Site Name</label>
 						<input type="text" name="sitename" class="form-control" id="InputSiteName" placeholder="Site Name" value="<?php echo $settings[0]->value; ?>">
-					</div>
-					<div class="form-group">
-						<label for="InputBuycraftAPI">Buycraft API Key</label>
-						<input type="text" name="buycraftapi" class="form-control" id="InputBuycraftAPI" placeholder="Buycraft API Key" value="<?php echo $settings[5]->value; ?>">
-					</div>
-					<div class="form-group">
-						<label for="InputBuycraftUrl">Buycraft Store URL</label>
-						<input type="text" name="buycrafturl" class="form-control" id="InputBuycraftUrl" placeholder="Buycraft Store URL" value="<?php echo htmlspecialchars($settings[34]->value); ?>">
 					</div>
 					<input type="hidden" name="enable_recaptcha" value="0" />
 					<label>Recaptcha Site Key</label>

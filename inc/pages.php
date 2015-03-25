@@ -15,11 +15,11 @@ $pages = array(
 	"install",
 	"install_stats",
 	"admin" => array(
-		"buycraft_sync",
+		"donate_sync",
 		"custom_pages",
 		"documentation",
 		"donate",
-		"execute_buycraft_sync",
+		"execute_donate_sync",
 		"forum",
 		"general",
 		"groups",

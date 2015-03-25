@@ -29,9 +29,9 @@ if($user->isAdmLoggedIn()){
     <meta name="description" content="">
     <meta name="author" content="Samerton">
 	<meta name="robots" content="noindex">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/assets/favicon.ico">
 
-    <title><?php echo $sitename; ?> &bull; AdminCP Buycraft Sync</title>
+    <title><?php echo $sitename; ?> &bull; AdminCP Donation Sync</title>
 	
 	<?php require("inc/templates/header.php"); ?>
 
@@ -53,23 +53,23 @@ if($user->isAdmLoggedIn()){
 		</div>
 		<div class="col-md-9">
 			<div class="well">
-				<h2>Synchronise Buycraft</h2>
-				The following will synchronise Buycraft with your site database. Please be patient, this process may take a while...
+				<h2>Synchronise with Web Store</h2>
+				The following will synchronise your web store with your site database. Please be patient, this process may take a while...
 				<br /><br />
-				<center><button onclick="syncBuycraft();" class="btn btn-primary">Synchronise</button></center>
+				<center><button onclick="syncDonate();" class="btn btn-primary">Synchronise</button></center>
 				<h3>Automating the synchronisation</h3>
 				In order to automate the synchronisation, you will need to set up a cron job on your webserver. It will need to load the following URL:
 				<br />
 				<?php
-				// Get Buycraft sync code
+				// Get the sync code
 				$buycraft_code = $queries->getWhere("settings", array("name", "=", "buycraft_sync_key"));
 				$buycraft_code = $buycraft_code[0]->value;
 				?>
-				<code>http://<?php echo $_SERVER['SERVER_NAME']; ?>/admin/execute_buycraft_sync/?key=<?php echo $buycraft_code; ?></code>
+				<code>http://<?php echo $_SERVER['SERVER_NAME']; ?>/admin/execute_donate_sync/?key=<?php echo $buycraft_code; ?></code>
 				<br /><br />
 				<strong>Please keep the above URL a secret!</strong>
 				<br /><br />
-				To avoid using the Buycraft API too often, please leave a reasonable time period between running the cron job.
+				To avoid using the API too often, please leave a reasonable time period between running the cron job.
 			</div>
 		</div>
       </div>	  
@@ -100,13 +100,13 @@ if($user->isAdmLoggedIn()){
 	</div>		
 
 	<script type="text/javascript">
-	function syncBuycraft()
+	function syncDonate()
 	{
 		$('#loadingModal').modal('show');
 		$.ajax(
 			{
 				   type: "POST",
-				   url: "/admin/execute_buycraft_sync",
+				   url: "/admin/execute_donate_sync",
 				   cache: false,
 
 				   success: function(response)
