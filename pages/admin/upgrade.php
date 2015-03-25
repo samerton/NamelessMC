@@ -92,7 +92,7 @@ $latest_version = null;
 				  <h2>Upgrade</h2>
 				  <p>Click "Start" to upgrade your installation from version <?php echo $version; ?> to version <?php echo htmlspecialchars($need_update); ?>.</p>
 				  <p>Please create a backup of your database and files before proceeding.</p>
-				  <p><a target="_blank" href="https://github.com/samerton/NamelessMC/releases/tag/v0.1.0">Changelog</a></p>
+				  <p><a target="_blank" href="https://github.com/samerton/NamelessMC/releases/tag/v0.2.0">Changelog</a></p>
 				  <a href="/admin/upgrade/?go" class="btn btn-primary">Start</a>
 				</div>
 				<?php
