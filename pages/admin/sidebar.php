@@ -17,6 +17,7 @@
 				  <li<?php if($page === "admin-minecraft"){ ?> class="active"<?php } ?>><a href="/admin/minecraft">Minecraft</a></li>
 				  <li<?php if($page === "admin-donate"){ ?> class="active"<?php } ?>><a href="/admin/donate">Donate</a></li>
 				  <li<?php if($page === "admin-vote"){ ?> class="active"<?php } ?>><a href="/admin/vote">Vote</a></li>
+				  <li<?php if($page === "admin-upgrade"){ ?> class="active"<?php } ?>><a href="/admin/upgrade">Upgrade</a></li>
 				  <li<?php if($page === "admin-documentation"){ ?> class="active"<?php } ?>><a href="/admin/documentation">Documentation</a></li>
 				</ul>
 			</div>

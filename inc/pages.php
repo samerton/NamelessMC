@@ -31,6 +31,7 @@ $pages = array(
 		"search_users",
 		"update_mcnames",
 		"update_uuids",
+		"upgrade",
 		"users",
 		"vote",
 		"update"
