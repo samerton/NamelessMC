@@ -179,7 +179,7 @@ if( $Query !== null ){
 		    <div class="panel-heading">
 		      <a class="white-text" href="/forum/view_topic/?tid=<?php echo $item["topic_id"]; ?>"><?php echo htmlspecialchars($item["topic_title"]); ?></a>
 		      <span class="pull-right">
-		        <a href="/profile/<?php echo htmlspecialchars($user->idToMCName($item["author"])); ?>"><?php echo htmlspecialchars($user->idToName($item["author"])); ?></a>
+		        <a class="white-text" href="/profile/<?php echo htmlspecialchars($user->idToMCName($item["author"])); ?>"><?php echo htmlspecialchars($user->idToName($item["author"])); ?></a>
   	      	    <?php 
   	      	    // Avatar
   	      	    $post_user = $queries->getWhere("users", array("id", "=", $item["author"]));
