@@ -1,4 +1,4 @@
-**Version 0.2.0 released. Please report bugs ether in the Spigot thread or the Issue Tracker.**
+**Version 0.2.1 released. Please report bugs ether in the Spigot thread or the Issue Tracker.**
 **Upgrade guide found in the [OP of the Spigot thread](http://www.spigotmc.org/threads/nameless-minecraft-website-software.34810/) **
 
 NamelessMC is a free, easy to use & powerful website software for your Minecraft server, which includes a large range of features.
@@ -14,4 +14,4 @@ All features of NamelessMC are explained on the [features page](https://github.c
 # Downloads & Support
 * [Issue Tracker](https://github.com/samerton/NamelessMC/issues)
 * [Support](http://www.spigotmc.org/threads/nameless-minecraft-website-software.34810/)
-* [Download](https://github.com/samerton/NamelessMC/archive/master.zip) (version 0.1.0)
+* [Download](https://github.com/samerton/NamelessMC/archive/master.zip) 
