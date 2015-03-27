@@ -29,6 +29,13 @@ if($path === ""){
 	require_once '../../functions/sanitize.php';
 }
 
+// Redirect to a URL ending with "/", without it, pagination breaks
+if(substr($_SERVER['REQUEST_URI'], -1) !== '/' && !strpos($_SERVER['REQUEST_URI'], '?')){
+	$parts = explode('?', $_SERVER['REQUEST_URI'], 2);
+    Redirect::to($parts[0] . '/' . (isset($parts[1]) ? '?' . $parts[1] : ''));
+	die();
+}
+
 if($page !== "install"){
 	/*
 	 * Check cookies to see if the user has ticked "remember me" whilst logging in, if so log them in
