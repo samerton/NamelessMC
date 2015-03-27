@@ -88,6 +88,10 @@ class Queries {
 		}
 	}
 	
+	public function tableExists($table){
+		return $this->_db->showTables($table);
+	}
+	
 	public function dbInitialise(){
 		$data = $this->_db->action('SELECT 1', 'settings', array('id', '<>', 0));
 		if(!empty($data)){
