@@ -88,6 +88,10 @@ class Queries {
 		}
 	}
 	
+	public function tableExists($table){
+		return $this->_db->showTables($table);
+	}
+	
 	public function dbInitialise(){
 		$data = $this->_db->action('SELECT 1', 'settings', array('id', '<>', 0));
 		if(!empty($data)){
@@ -98,7 +102,9 @@ class Queries {
 			echo '<strong>Buycraft data</strong> table successfully initialised<br />';
 			$data = $this->_db->createTable("custom_pages", " `id` int(11) NOT NULL AUTO_INCREMENT, `url` varchar(20) NOT NULL, `title` varchar(30) NOT NULL, `content` mediumtext NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo '<strong>Custom pages</strong> table successfully initialised<br />';
-			$data = $this->_db->createTable("donation_packages", " `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(64) NOT NULL, `description` varchar(2048) NOT NULL, `cost` varchar(8) NOT NULL, `package_id` int(8) NOT NULL, `active` tinyint(4) NOT NULL DEFAULT '0', `package_order` int(11) NOT NULL, `category` int(11) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+			$data = $this->_db->createTable("donation_categories", " `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(64) NOT NULL, `cid` int(11) NOT NULL, `order` int(11) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+			echo '<strong>Donation categories</strong> table successfully initialised<br />';
+			$data = $this->_db->createTable("donation_packages", " `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(64) NOT NULL, `description` varchar(2048) NOT NULL, `cost` varchar(8) NOT NULL, `package_id` int(8) NOT NULL, `active` tinyint(4) NOT NULL DEFAULT '0', `package_order` int(11) NOT NULL, `category` int(11) NOT NULL DEFAULT '0', `url` VARCHAR(255) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo '<strong>Donation packages</strong> table successfully initialised<br />';
 			$data = $this->_db->createTable("forums", " `id` int(11) NOT NULL AUTO_INCREMENT, `forum_title` varchar(150) NOT NULL, `forum_description` varchar(255) NOT NULL, `last_post_date` datetime DEFAULT NULL, `last_user_posted` int(11) DEFAULT NULL, `last_topic_posted` int(11) DEFAULT NULL, `parent` int(11) NOT NULL DEFAULT '0', `forum_order` int(11) NOT NULL, `news` tinyint(4) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 			echo '<strong>Forum</strong> table successfully initialised<br />';

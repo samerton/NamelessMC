@@ -223,4 +223,14 @@ class DB {
 		}
 		return false;
 	}
+	
+	public function showTables($showTable) {
+		$showTable = $this->_prefix . $showTable;
+		$sql = "SHOW TABLES LIKE '{$showTable}'";
+			
+		if(!$this->query($sql)->error()) {
+			return $this->_query->rowCount();
+		}
+		return false;
+	}
 }

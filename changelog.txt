@@ -1,0 +1,10 @@
+0.1.0
+- Initial release
+
+0.2.0
+- Add Minecraft Market integration
+- No longer need to define web store packages manually, they will be automatically synchronised with your web store
+
+0.2.1
+- Fix missing table and column if installed from new after the 0.2 release
+- Fix post authors name showing Blue not White on homepage (credit: dwilson390)
