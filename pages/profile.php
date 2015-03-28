@@ -227,7 +227,7 @@ foreach($servers as $server){
 					$friends = $user->listFriends($profile_user[0]->id);
 					if($friends !== false){
 						foreach($friends as $friend){
-							echo '<span rel="tooltip" title="' . $user->IdToName($friend->friend_id) . '"><a href="/profile/' .  $user->IdToName($friend->friend_id) . '"><img class="img-rounded" src="https://cravatar.eu/avatar/' . $user->IdToMCName($friend->friend_id) . '/40.png" /></a></span> ';
+							echo '<span rel="tooltip" title="' . $user->IdToName($friend->friend_id) . '"><a href="/profile/' . $user->IdToMCName($friend->friend_id) . '"><img class="img-rounded" src="https://cravatar.eu/avatar/' . $user->IdToMCName($friend->friend_id) . '/40.png" /></a></span> ';
 						}
 					} else {
 						echo 'This user has not added any friends';
