@@ -201,7 +201,8 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 										'pass_method' => 'default',
 										'joined' => $date,
 										'group_id' => Input::get('group'),
-										'email' => htmlspecialchars(Input::get('email'))
+										'email' => htmlspecialchars(Input::get('email')),
+										'active' => 1
 									));
 
 									Redirect::to('/admin/users');
