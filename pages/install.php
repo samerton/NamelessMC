@@ -464,7 +464,7 @@ if(isset($_GET["step"])){
 					),
 					29 => array(
 						'name' => 'version',
-						'value' => '0.2'
+						'value' => '0.2.1'
 					),
 					30 => array(
 						'name' => 'version_checked',
