@@ -21,8 +21,10 @@ $fb_url = $fb_url[0]->value;
 $infractions = $queries->getWhere("settings", array("name", "=", "infractions"));
 $infractions = $infractions[0]->value;
 
-$server_rules_url = ""; // todo
-$forum_rules_url = ""; // todo
+$server_rules_url = $queries->getWhere("settings", array("name", "=", "rules_server_url"));
+$server_rules_url = $server_rules_url[0]->value;
+$forum_rules_url = $queries->getWhere("settings", array("name", "=", "rules_forum_url"));
+$forum_rules_url = $forum_rules_url[0]->value;
  
 ?>
       <footer>
@@ -46,8 +48,8 @@ $forum_rules_url = ""; // todo
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#">Rules <b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li><a href="/forum">Server</a></li>
-						<li><a href="/forum">Forum</a></li>
+						<li><a href="/forum/view_topic/?tid=<?php echo htmlspecialchars($server_rules_url); ?>">Server</a></li>
+						<li><a href="/forum/view_topic/?tid=<?php echo htmlspecialchars($forum_rules_url); ?>">Forum</a></li>
 					</ul>
 				</li>
 			</ul>
