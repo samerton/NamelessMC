@@ -198,7 +198,7 @@ if(isset($_GET["step"])){
 						fwrite($file, $insert . $config);
 						fclose($file);
 						
-						header('Location: /install/?step=database');
+						echo '<script>window.location.replace("/install/?step=database");</script>';
 						die();
 						
 					} else {
@@ -553,7 +553,7 @@ if(isset($_GET["step"])){
 						'content' => 'Default help page. Customise in the admin panel.'
 					));
 					
-					header('Location: /install/?step=settings_extra&c=' . $c);
+					echo '<script>window.location.replace("/install/?step=settings_extra&c=' . $c . '");</script>';
 					die();
 					
 				} catch(Exception $e){
@@ -828,7 +828,7 @@ if(isset($_GET["step"])){
 							));
 						}
 						
-						header('Location: /install/?step=account');
+						echo '<script>window.location.replace("/install/?step=account");</script>';
 						die();
 						
 					} catch(Exception $e){
@@ -928,7 +928,7 @@ if(isset($_GET["step"])){
 	  </form>
 	    <?php
 		} else {
-			header('Location: /install/?step=account');
+			echo '<script>window.location.replace("/install/?step=account");</script>';
 			die();
 	    }
 	  } else if($step === "account"){
@@ -1035,7 +1035,7 @@ if(isset($_GET["step"])){
 					
 					$login = $user->login(Input::get('username'), Input::get('password'), true);
 					if($login) {					
-						header('Location: /install/?step=finish');
+						echo '<script>window.location.replace("/install/?step=finish");</script>';
 						die();
 					} else {
 						echo '<p>Sorry, there was an unknown error logging you in. <a href="/install/?step=account">Try again</a></p>';
@@ -1107,7 +1107,7 @@ if(isset($_GET["step"])){
 			$user = new User();
 		}
 		if(!$user->isLoggedIn() || $user->data()->group_id != 2){
-			header('Location: /install/?step=account');
+			echo '<script>window.location.replace("/install/?step=account");</script>';
 			die();
 		}
 		if(isset($_GET["convert"]) && !isset($_GET["from"])){
