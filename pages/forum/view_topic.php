@@ -341,7 +341,7 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
   	      	    // Delete button
 				if($user->data()->group_id == 2 || $user->data()->group_id == 3){ // Mods/admins only
 				?>
-				<form onsubmit="return confirm(\'Are you sure you want to delete this post?\');" style="display: inline;" action="/forum/delete_post/" method="post">
+				<form onsubmit="return confirm(\'Are you sure you want to delete this post?\');" style="display: inline;" action="/forum/delete_post" method="post">
 					<input type="hidden" name="pid" value="<?php echo $posts[$n]->id; ?>" />
 					<input type="hidden" name="tid" value="<?php echo $tid; ?>" />
 					<input type="hidden" name="number" value="<?php echo $n; ?>" />
@@ -407,7 +407,7 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
 					}
 					if($user_has_given === false){
   	      	  		?>
-				<form style="display: inline;" action="/forum/reputation" method="post">
+				<form style="display: inline;" action="/forum/reputation/" method="post">
 					<input type="hidden" name="token" value="<?php echo $token; ?>">
 					<input type="hidden" name="pid" value="<?php echo $posts[$n]->id; ?>" />
 					<input type="hidden" name="tid" value="<?php echo $tid; ?>" />
@@ -418,7 +418,7 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
   	      	  		<?php 
   	      	  	    } else {
   	      	  	    ?>
-				<form style="display: inline;" action="/forum/reputation" method="post">
+				<form style="display: inline;" action="/forum/reputation/" method="post">
 					<input type="hidden" name="token" value="<?php echo $token; ?>">
 					<input type="hidden" name="pid" value="<?php echo $posts[$n]->id; ?>" />
 					<input type="hidden" name="tid" value="<?php echo $tid; ?>" />
@@ -430,7 +430,7 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
   	      	  	    }
   	      	  	  } else { // No reputation for this post yet
   	      	  	  ?>
-				<form style="display: inline;" action="/forum/reputation" method="post">
+				<form style="display: inline;" action="/forum/reputation/" method="post">
 					<input type="hidden" name="token" value="<?php echo $token; ?>">
 					<input type="hidden" name="pid" value="<?php echo $posts[$n]->id; ?>" />
 					<input type="hidden" name="tid" value="<?php echo $tid; ?>" />
