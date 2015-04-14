@@ -77,4 +77,15 @@ if($version == 0.2){
 		));
 	}
 }
+
+if($version == 0.2.1){
+	// No database changes needed
+	// Update version name
+	$queries->update("settings", 30, array(
+		"value" => "0.2.2"
+	));
+	$queries->update("settings", 32, array(
+		"value" => "false"
+	));
+}
 ?>

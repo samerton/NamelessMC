@@ -8,3 +8,11 @@
 0.2.1
 - Fix missing table and column if installed from new after the 0.2 release
 - Fix post authors name showing Blue not White on homepage (credit: dwilson390)
+
+0.2.2
+- Fix reputation system redirecting to forum index
+- Fix "headers already sent" errors in the installer
+- Fix missing rules links in footer
+- Fix 404 upon clicking friend's face on profile pages (credit: dwilson390)
+- Fix users being inactive by default after being created by an admin
+- Fix issue with deleting a post
