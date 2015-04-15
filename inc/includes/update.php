@@ -78,7 +78,7 @@ if($version == 0.2){
 	}
 }
 
-if($version == 0.2.1){
+if($version == '0.2.1'){
 	// No database changes needed
 	// Update version name
 	$queries->update("settings", 30, array(
