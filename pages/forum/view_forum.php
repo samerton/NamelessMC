@@ -304,7 +304,7 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 	  <div class="row">
 	    <div class="col-md-9">
 		    <?php
-		    if(count($topics)){
+		    if(count($topics) || count($stickies)){
 		    ?>
 			<h3 style="display: inline;"><?php echo htmlspecialchars($forum_query->forum_title); ?></h3><?php if($user->isLoggedIn() && $forum->canPostTopic($fid, $user->data()->group_id)){ ?><span class="pull-right"><a style="display: inline;" class="btn btn-primary" href="/forum/new_topic/?fid=<?php echo $fid; ?>">New Topic</a></span><?php } ?>
 		    <br /><br />
@@ -317,6 +317,44 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 					</tr>
 			    </thead>
 			    <tbody>
+				<?php
+				// First, get sticky threads
+				foreach($stickies as $sticky){
+					// Get number of replies to a topic
+					$replies = $queries->getWhere("posts", array("topic_id", "=", $sticky->id));
+					$replies = count($replies);
+				?>
+				  <tr>
+				    <td><span class="glyphicon glyphicon-pushpin"></span> <a href="/forum/view_topic/?tid=<?php echo $sticky->id; ?>"><?php echo htmlspecialchars($sticky->topic_title); ?></a><br />
+				    By <a href="/profile/<?php echo htmlspecialchars($user->idToMCName($sticky->topic_creator)); ?>"><?php echo htmlspecialchars($user->idToName($sticky->topic_creator)); ?></a> | <span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', $sticky->topic_date); ?>"><?php echo $timeago->inWords(date('d M Y, H:i', $sticky->topic_date)); ?> ago</span>
+				    </td>
+				    <td><strong><?php echo $sticky->topic_views; ?></strong> views<br /><strong><?php echo $replies; ?></strong> posts</td>
+				    <td>
+				    <div class="row">
+				      <div class="col-md-2">
+					    <div class="frame">
+					      <a href="/profile/<?php echo htmlspecialchars($user->idToMCName($sticky->topic_last_user)); ?>">
+						  <?php 
+						  $last_user_avatar = $queries->getWhere("users", array("id", "=", $sticky->topic_last_user));
+						  $last_user_avatar = $last_user_avatar[0]->has_avatar;
+						  if($last_user_avatar == '0'){ 
+						  ?>
+						  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->idToMCName($sticky->topic_last_user)); ?>/30.png" />
+						  <?php } else { ?>
+						  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($sticky->topic_last_user, "../../"); ?>" />
+						  <?php } ?>
+					      </a>
+					    </div>
+					  </div>
+				      <div class="col-md-9">
+					    <a href="/profile/<?php echo htmlspecialchars($user->idToMCName($sticky->topic_last_user)); ?>"><?php echo htmlspecialchars($user->idToName($sticky->topic_last_user)); ?></a><br /><span rel="tooltip" data-trigger="hover" data-original-title="<?php echo date('d M Y, H:i', $sticky->topic_reply_date); ?>"><?php echo $timeago->inWords(date('d M Y, H:i', $sticky->topic_reply_date)); ?> ago</span>
+					  </div>
+				    </div>
+				    </td>
+				  </tr>
+				<?php 
+				}
+				?>
 			    <?php
 				// PAGINATION
 				// instantiate; set current page; set number of records
