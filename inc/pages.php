@@ -23,6 +23,7 @@ $pages = array(
 		"forum",
 		"general",
 		"groups",
+		"infractions",
 		"minecraft",
 		"stats",
 		"pages",
