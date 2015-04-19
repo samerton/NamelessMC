@@ -374,7 +374,7 @@ class Infractions {
 		return $results;
 	}
 	
-	// Receive an object containing infraction information for a specified infraction ID and type (BungeeAdminTools)
+	// Receive an object containing infraction information for a specified infraction ID and type (Ban Management)
 	// Params: $type (string), either ban, kick or mute; $id (int), ID of infraction
 	public function bm_getInfraction($type, $id) {
 		if($type === "ban" || $type === "temp_ban"){
@@ -401,12 +401,182 @@ class Infractions {
 		return false;
 	}
 	
-	// Receive the username from an ID
-	// Params: $id (string), player_id of user to lookup
+	// Receive the username from an ID (Ban Management)
+	// Params: $id (string (binary)), player_id of user to lookup
 	public function bm_getUsernameFromID($id) {
 		$result = $this->_db->get('bm_players', array('id', '=', $id))->results();
 		if(count($result)){
 			return htmlspecialchars($result[0]->name);
+		}
+		return false;
+	}
+	
+	// Receive a list of all infractions for MaxBans, either for a single user or for all users
+	// Params: $name (string), ingame name of a user. If null, will list all infractions
+	public function mb_getAllInfractions($name = null) {
+		if($name !== null){
+			$field = "name";
+			$symbol = "=";
+			$equals = $name;
+		} else {
+			$field = "name";
+			$symbol = "<>";
+			$equals = "0";
+		}
+		$bans = $this->_db->get('bans', array($field, $symbol, $equals))->results();
+		$mutes = $this->_db->get('mutes', array($field, $symbol, $equals))->results();
+		$warnings = $this->_db->get('warnings', array($field, $symbol, $equals))->results();
+		
+		$results = array();
+		$i = 0;
+		
+		// Bans
+		foreach($bans as $ban){
+			// get username
+			$username = $this->_db->get('players', array('name', '=', $ban->name))->results();
+			$results[$i]["id"] = htmlspecialchars($username[0]->actual) . '.' .  $ban->time;
+			$results[$i]["staff"] = htmlspecialchars($ban->banner);
+			
+			$results[$i]["issued"] = $ban->time / 1000;
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $ban->time / 1000);
+			
+			// Is a reason set?
+			if($ban->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($ban->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+			
+			// Is it a temp-ban?
+			if($ban->expires != 0){
+				$results[$i]["type"] = "temp_ban";
+				$results[$i]["type_human"] = "<span class=\"label label-danger\">Temp Ban</span>";
+				$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $ban->expires / 1000) . "\">Active</span>";
+				$results[$i]["expires"] = $ban->expires;
+			} else {
+				$results[$i]["type"] = "ban";
+				$results[$i]["type_human"] = "<span class=\"label label-danger\">Ban</span>";
+				$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
+			}
+			$i++;
+		}
+		
+		// Mutes
+		foreach($mutes as $mute){
+			// get username
+			$username = $this->_db->get('players', array('name', '=', $mute->name))->results();
+			$results[$i]["id"] = htmlspecialchars($username[0]->actual) . '.' .  $mute->time;
+			$results[$i]["staff"] = htmlspecialchars($mute->muter);
+			
+			$results[$i]["issued"] = $mute->time / 1000;
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $mute->time / 1000);
+			
+			// Is a reason set?
+			if($mute->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($mute->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+			
+			// Is it a temp-mute?
+			if($mute->expires != 0){
+				$results[$i]["type"] = "mute";
+				$results[$i]["type_human"] = "<span class=\"label label-warning\">Mute</span>";
+				$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $mute->expires / 1000) . "\">Active</span>";
+				$results[$i]["expires"] = $mute->expires;
+			} else {
+				$results[$i]["type"] = "mute";
+				$results[$i]["type_human"] = "<span class=\"label label-warning\">Mute</span>";
+				$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
+			}
+			$i++;
+		}
+		
+		// Warnings
+		foreach($warnings as $warning){
+			// get username
+			$username = $this->_db->get('players', array('name', '=', $warning->name))->results();
+			$results[$i]["id"] = htmlspecialchars($username[0]->actual) . '.' .  $warning->expires;
+			$results[$i]["staff"] = htmlspecialchars($warning->banner);
+			
+			$results[$i]["issued"] = strtotime('-3 days', $warning->expires / 1000);
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", strtotime('-3 days', $warning->expires / 1000));
+			
+			// Is a reason set?
+			if($warning->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($warning->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+
+			if($warning->expires != 0){
+				$results[$i]["type"] = "warning";
+				$results[$i]["type_human"] = "<span class=\"label label-info\">Warning</span>";
+				$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $warning->expires / 1000) . "\">Active</span>";
+				$results[$i]["expires"] = $warning->expires;
+			}
+			$i++;
+		}
+
+		// Order by date, most recent first
+		function date_compare($a, $b)
+		{
+			$t1 = $a['issued'];
+			$t2 = $b['issued'];
+			return $t2 - $t1;
+		}    
+		usort($results, 'date_compare');
+		return $results;
+	}
+	
+	// Receive an object containing infraction information for a specified infraction ID and type (MaxBans)
+	// Params: $type (string), either ban, kick or mute; $id (int), ID of infraction (contains both name and time)
+	public function mb_getInfraction($type, $id) {
+		// explode the ID to get name and time
+		$name = explode('.', $id);
+		$time = $name[1];
+		$name = $name[0];
+		
+		// return false by default
+		$return = false;
+		
+		if($type === "ban" || $type === "temp_ban"){
+			$results = $this->_db->get('bans', array("time", "=", $time))->results();
+			foreach($results as $result){
+				if($result->name == strtolower($name)){
+					$return = $result;
+					break;
+				}
+			}
+			return $return;
+		} else if($type === "mute"){
+			$results = $this->_db->get('mutes', array("time", "=", $time))->results();
+			foreach($results as $result){
+				if($result->name == strtolower($name)){
+					$return = $result;
+					break;
+				}
+			}
+			return $return;
+		} else if($type === "warning"){
+			$results = $this->_db->get('warnings', array("expires", "=", $time))->results();
+			foreach($results as $result){
+				if($result->name == strtolower($name)){
+					$return = $result;
+					break;
+				}
+			}
+			return $return;
+		}
+		return false;
+	}
+	
+	// Receive the username from a lower case name (MaxBans)
+	// Params: $name (string), player_id of user to lookup
+	public function mb_getUsernameFromName($name) {
+		$result = $this->_db->get('players', array('name', '=', $name))->results();
+		if(count($result)){
+			return htmlspecialchars($result[0]->actual);
 		}
 		return false;
 	}

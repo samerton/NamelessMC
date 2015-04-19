@@ -184,12 +184,22 @@ foreach($servers as $server){
 				<div role="tabpanel" class="tab-pane" id="infractions">
 					<br />
 					<?php 
-					$all_infractions = $infractions->bat_getAllInfractions($uuid); 
+					// Get the infractions plugin in use
+					$infractions_plugin = $queries->getWhere("settings", array("name", "=", "infractions_plugin"));
+					$infractions_plugin = $infractions_plugin[0]->value;
+					
+					if($infractions_plugin == "bat"){
+						$all_infractions = $infractions->bat_getAllInfractions($uuid);
+					} else if($infractions_plugin == "bm"){
+						$all_infractions = $infractions->bm_getAllInfractions($uuid);
+					} else if($infractions_plugin == "mb"){
+						$all_infractions = $infractions->mb_getAllInfractions(htmlspecialchars($profile));
+					}
 					?>
 					<table class="table table-bordered">
 					  <thead>
 						<tr>
-						  <th>ID</th>
+						  <th></th>
 						  <th>Action</th>
 						  <th>Reason</th>
 						  <th>Punished By</th>
@@ -201,10 +211,10 @@ foreach($servers as $server){
 						foreach($all_infractions as $infraction){
 						?>
 						<tr>
-						  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>"><?php echo $infraction["id"]; ?></a></td>
+						  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>">View</a></td>
 						  <td><?php echo $infraction["type_human"]; ?></td>
 						  <td><?php echo $infraction["reason"]; ?></td>
-						  <td><?php if($infraction["staff"] !== "CONSOLE"){?><a href="/profile/<?php echo $infraction["staff"]; ?>"><?php echo $infraction["staff"]; ?></a><?php } else { ?>Console<?php } ?></td>
+						  <td><?php if(strtolower($infraction["staff"]) !== "console"){?><a href="/profile/<?php echo $infraction["staff"]; ?>"><?php echo $infraction["staff"]; ?></a><?php } else { ?>Console<?php } ?></td>
 						  <td><?php echo $infraction["expires_human"]; ?><?php if(isset($infraction["unbanned"])){ echo ' <span class="label label-success" rel="tooltip" data-trigger="hover" data-original-title="' . date("jS M Y", strtotime($infraction["unbanned_date"])) . ' by ' . $infraction["unbanned_by"] . '">Unbanned</span>'; } else if(isset($infraction["unmuted"])){ echo ' <span class="label label-success" rel="tooltip" data-trigger="hover" data-original-title="' . date("jS M Y", strtotime($infraction["unmuted_date"])) . ' by ' . $infraction["unmuted_by"] . '">Unmuted</span>'; }?></td>
 						</tr>
 						<?php 

@@ -464,7 +464,7 @@ if(isset($_GET["step"])){
 					),
 					29 => array(
 						'name' => 'version',
-						'value' => '0.2.2'
+						'value' => '0.3.0'
 					),
 					30 => array(
 						'name' => 'version_checked',
@@ -880,6 +880,9 @@ if(isset($_GET["step"])){
 		  </label>
 		  <label class="btn btn-primary">
 			<input type="radio" name="inf_type" id="InputInfType2" value="bm" autocomplete="off"> Ban Management
+		  </label>
+		  <label class="btn btn-primary">
+			<input type="radio" name="inf_type" id="InputInfType3" value="mb" autocomplete="off"> MaxBans
 		  </label>
 		</div>
 		<br /><br />
@@ -1369,13 +1372,14 @@ if(isset($_GET["step"])){
             NamelessMC includes support for the following Bukkit/Spigot plugins:
 			<ul>
 			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/buycraft/">Buycraft</a></li>
+			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/ban-management/">Ban Management</a></li>
+			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/maxbans/">MaxBans</a></li>
 			</ul>
 			Coming soon:
 			<ul>
 			  <li><a target="_blank" href="http://www.spigotmc.org/resources/mcmmo.2445/">McMMO</a></li>
 			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/">Stats</a></li>
 			  <li><a target="_blank" href="http://www.spigotmc.org/resources/bukkitgames-hungergames.279/">BukkitGames</a></li>
-			  <li><a target="_blank" href="http://dev.bukkit.org/bukkit-plugins/ban-management/">Ban Management</a></li>
 			</ul>
           </div>
           <div class="modal-footer">

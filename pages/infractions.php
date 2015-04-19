@@ -57,19 +57,6 @@ if(isset($_GET['p'])){
 	  
 	  <?php 
 	  if(!isset($_GET["type"]) && !isset($_GET["id"])){ 
-	  ?>
-		<table class="table table-bordered">
-		  <thead>
-			<tr>
-			  <th></th>
-			  <th>User</th>
-			  <th>Staff</th>
-			  <th>Action</th>
-			  <th>Reason</th>
-			  <th>Expires</th>
-			</tr>
-		  </thead>
-	  <?php 
 	    if($infractions_plugin == "bat"){
 			$all_infractions = $infractions->bat_getAllInfractions();
 		} else if($infractions_plugin == "bm"){
@@ -92,45 +79,66 @@ if(isset($_GET['p'])){
 		
 		$sn = 1;
 		$fn = ceil(count($all_infractions) / 10);
+		if(count($all_infractions)){
 	  ?>
+		<table class="table table-bordered">
+		  <thead>
+			<tr>
+			  <th></th>
+			  <th>User</th>
+			  <th>Staff</th>
+			  <th>Action</th>
+			  <th>Reason</th>
+			  <th>Expires</th>
+			</tr>
+		  </thead>
 		<tbody>
 			<?php 
 			while ($n < $d) {
 				$infraction = $all_infractions[$n];
+				if($infractions_plugin == "mb"){
+					$exploded = explode('.', $infraction["id"]);
+					$mcname = $exploded[0];
+					$time = $exploded[1];
+				}
 			?>
 			<tr>
 			  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>">View</a></td>
 			  <td><?php 
-				$infractions_query = $queries->getWhere('users', array('uuid', '=', $infraction["uuid"]));
-				if(empty($infractions_query)){
-					$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction["uuid"]));
+			    if($infractions_plugin !== "mb"){
+					$infractions_query = $queries->getWhere('users', array('uuid', '=', $infraction["uuid"]));
 					if(empty($infractions_query)){
-						require_once('inc/integration/uuid.php');
-						$profile = ProfileUtils::getProfile($infraction["uuid"]);
-						if(empty($profile)){
-							echo 'Could not find that player';
-							die();
+						$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction["uuid"]));
+						if(empty($infractions_query)){
+							require_once('inc/integration/uuid.php');
+							$profile = ProfileUtils::getProfile($infraction["uuid"]);
+							if(empty($profile)){
+								echo 'Could not find that player';
+								die();
+							}
+							$result = $profile->getProfileAsArray();
+							$mcname = htmlspecialchars($result["username"]);
+							$uuid = htmlspecialchars($infraction["uuid"]);
+							try {
+								$queries->create("uuid_cache", array(
+									'mcname' => $mcname,
+									'uuid' => $uuid
+								));
+							} catch(Exception $e){
+								die($e->getMessage());
+							}
 						}
-						$result = $profile->getProfileAsArray();
-						$mcname = htmlspecialchars($result["username"]);
-						$uuid = htmlspecialchars($infraction["uuid"]);
-						try {
-							$queries->create("uuid_cache", array(
-								'mcname' => $mcname,
-								'uuid' => $uuid
-							));
-						} catch(Exception $e){
-							die($e->getMessage());
-						}
+						$mcname = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction["uuid"]));
+						echo '<a href="/profile/' . htmlspecialchars($mcname[0]->mcname) . '">' . htmlspecialchars($mcname[0]->mcname) . '</a>'; 
+					} else {
+						$mcname = $queries->getWhere('users', array('uuid', '=', $infraction["uuid"]));
+						echo '<a href="/profile/' . htmlspecialchars($mcname[0]->mcname) . '">' . htmlspecialchars($mcname[0]->mcname) . '</a>';
 					}
-					$mcname = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction["uuid"]));
-					echo '<a href="/profile/' . htmlspecialchars($mcname[0]->mcname) . '">' . htmlspecialchars($mcname[0]->mcname) . '</a>'; 
 				} else {
-					$mcname = $queries->getWhere('users', array('uuid', '=', $infraction["uuid"]));
-					echo '<a href="/profile/' . htmlspecialchars($mcname[0]->mcname) . '">' . htmlspecialchars($mcname[0]->mcname) . '</a>';
+					echo '<a href="/profile/' . $mcname . '">' . $mcname . '</a>';
 				}
 			  ?></td>
-			  <td><?php if($infraction["staff"] !== "Console"){?><a href="/profile/<?php echo $infraction["staff"]; ?>"><?php echo $infraction["staff"]; ?></a><?php } else { ?>Console<?php } ?></td>
+			  <td><?php if(strtolower($infraction["staff"]) !== "console"){?><a href="/profile/<?php echo $infraction["staff"]; ?>"><?php if($infractions_plugin !== "mb"){ echo $infraction["staff"]; } else { echo $infractions->mb_getUsernameFromName($infraction["staff"]); }?></a><?php } else { ?>Console<?php } ?></td>
 			  <td><?php echo $infraction["type_human"]; ?></td>
 			  <td><?php echo $infraction["reason"]; ?></td>
 			  <td><?php echo $infraction["expires_human"]; ?><?php if(isset($infraction["unbanned"])){ echo ' <span class="label label-success" rel="tooltip" data-trigger="hover" data-original-title="' . date("jS M Y", strtotime($infraction["unbanned_date"])) . ' by ' . $infraction["unbanned_by"] . '">Unbanned</span>'; } else if(isset($infraction["unmuted"])){ echo ' <span class="label label-success" rel="tooltip" data-trigger="hover" data-original-title="' . date("jS M Y", strtotime($infraction["unmuted_date"])) . ' by ' . $infraction["unmuted_by"] . '">Unmuted</span>'; }?></td>
@@ -142,36 +150,41 @@ if(isset($_GET['p'])){
 		</tbody>
 		</table>
 		<?php 
-		echo '
-		<ul class="pagination pagination-sm">
-		<li';
-		if ($p == 1){
-		echo ' class="disabled"><span>&laquo;</span></li>';
+			echo '
+			<ul class="pagination pagination-sm">
+			<li';
+			if ($p == 1){
+			echo ' class="disabled"><span>&laquo;</span></li>';
+			} else {
+			echo '><a href="/infractions/?p=' . ($p - 1) . '">&laquo;</a></li>';
+			}
+			while ($sn < ($fn + 1)) {
+			echo '<li';
+			if ($sn == $p){
+			echo ' class="active"';
+			}
+			echo '><a href="/infractions/?p=' . $sn . '"> ' . $sn . '</a></li>';
+			$sn++;
+			}
+			echo '
+			<li';
+			if ($p != $fn){
+			echo'><a href="/infractions/?p=' . ($p + 1) . '">&raquo;</a>';
+			} else {
+			echo' class="disabled"><span>&raquo;</span></li>';
+			}
+			echo '
+			</ul>';
 		} else {
-		echo '><a href="/infractions/?p=' . ($p - 1) . '">&laquo;</a></li>';
+			echo '<strong>No infractions</strong>';
 		}
-		while ($sn < ($fn + 1)) {
-		echo '<li';
-		if ($sn == $p){
-		echo ' class="active"';
-		}
-		echo '><a href="/infractions/?p=' . $sn . '"> ' . $sn . '</a></li>';
-		$sn++;
-		}
-		echo '
-		<li';
-		if ($p != $fn){
-		echo'><a href="/infractions/?p=' . ($p + 1) . '">&raquo;</a>';
-		} else {
-		echo' class="disabled"><span>&raquo;</span></li>';
-		}
-		echo '
-		</ul>';
 
 	  } else {
-		if(!isset($_GET["type"]) || !isset($_GET["id"]) || !is_numeric($_GET["id"])){
-			Redirect::to('/infractions');
-			die();
+		if(!isset($_GET["type"]) || !isset($_GET["id"])){
+			if($infractions_plugin != "mb" && !is_numeric($_GET["id"])){
+				Redirect::to('/infractions');
+				die();
+			}
 		}
 		
 		if($_GET["type"] !== "ban" && $_GET["type"] !== "kick" && $_GET["type"] !== "mute" && $_GET["type"] !== "temp_ban" && $_GET["type"] !== "warning"){
@@ -365,7 +378,38 @@ if(isset($_GET['p'])){
 		} else if($infractions_plugin == "mb"){
 			// MaxBans
 			$infraction = $infractions->mb_getInfraction($_GET["type"], $_GET["id"]);
+			$exploded = explode('.', $_GET["id"]);
+			$mcname = $exploded[0];
+			$time = $exploded[1];
 			
+			if($_GET["type"] == "ban"){
+				$end_date = 'Never';
+			} else if($_GET["type"] == "mute" || $_GET["type"] == "temp_ban" || $_GET["type"] == "warning"){
+				if($infraction->expires != 0){
+					$end_date = date('jS M Y', $infraction->expires / 1000);
+				} else {
+					$end_date = 'Never';
+				}
+			}
+			
+			if(isset($infraction->time)){
+				$start_date = date('jS M Y', $infraction->time / 1000);
+			} else {
+				$start_date = date('jS M Y', strtotime('-3 days', $infraction->expires / 1000));
+			}
+			
+			// Reason
+			if($infraction->reason !== null){
+				$reason = htmlspecialchars($infraction->reason);
+			} else {
+				$reason = "Not set";
+			}
+			
+			if($infraction->banner !== "console"){
+				$issued_by = $infractions->mb_getUsernameFromName($infraction->banner);
+			} else {
+				$issued_by = "console";
+			}
 			
 		}
 	  ?>
@@ -376,7 +420,7 @@ if(isset($_GET['p'])){
 		Infraction ends: <?php echo $end_date; ?><br />
 		Reason for infraction: <?php echo $reason; ?><br />
 		Issued by: <?php if(strtolower($issued_by) != "console"){ ?><a href="/profile/<?php echo $issued_by; ?>"><?php echo $issued_by; ?></a><?php } else { ?>Console<?php } ?><br />
-		Infraction revoked: <?php echo $revoked; ?><br />
+		<?php if($infractions_plugin !== "mb"){ ?>Infraction revoked: <?php echo $revoked; ?><br /><?php } ?>
 	  <?php 
 	  }
 	  ?>
