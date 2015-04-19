@@ -16,3 +16,8 @@
 - Fix 404 upon clicking friend's face on profile pages (credit: dwilson390)
 - Fix users being inactive by default after being created by an admin
 - Fix issue with deleting a post
+
+0.3.0
+- Add support for SRV records
+- Add support for Ban Management and MaxBans
+- Fix issue with sticky thread not showing in forum table view
