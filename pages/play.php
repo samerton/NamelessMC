@@ -41,23 +41,35 @@
 		die();
 	}
 	$default_server = htmlspecialchars($default_server[0]->ip);
+	/*
+	 *  Resolve real IP address (to support SRV records)
+	 */
+	require('inc/integration/status/SRVResolver.php');
 	$parts = explode(':', $default_server);
 	if(count($parts) == 1){
-		$default_ip = $parts[0];
-		$default_port = 25565;
-	} else if(count($parts) == 2){
+		$domain = $parts[0];
+		$query_ip = SRVResolver($domain);
+		$parts = explode(':', $query_ip);
 		$default_ip = $parts[0];
 		$default_port = $parts[1];
+	} else if(count($parts) == 2){
+		$domain = $parts[0];
+		$default_ip = $parts[0];
+		$default_port = $parts[1];
+		$port = $parts[1];
 	} else {
 		echo 'Invalid IP';
 		die();
 	}
 
-	if($default_port == 25565){
-		$default_server = $default_ip;
+	// IP to display
+	if(!isset($port)){
+		$address = $domain;
+	} else {
+		$address = $domain . ':' . $port;
 	}
 	?>
-	  <div class="alert alert-info"><center>Connect to the server with the IP <strong><?php echo htmlspecialchars($default_server); ?></strong></center></div>
+	  <div class="alert alert-info"><center>Connect to the server with the IP <strong><?php echo htmlspecialchars($domain); ?></strong></center></div>
 	  <?php require('inc/integration/status/global.php'); ?>
 	  <div class="row">
 		<div class="col-md-3">
@@ -88,11 +100,14 @@
 			foreach($servers as $server){
 				$parts = explode(':', $server->ip);
 				if(count($parts) == 1){
-					$server_ip = htmlspecialchars($parts[0]);
-					$server_port = 25565;
+					$domain = $parts[0];
+					$query_ip = SRVResolver($domain);
+					$parts = explode(':', $query_ip);
+					$server_ip = $parts[0];
+					$server_port = $parts[1];
 				} else if(count($parts) == 2){
-					$server_ip = htmlspecialchars($parts[0]);
-					$server_port = htmlspecialchars($parts[1]);
+					$server_ip = $parts[0];
+					$server_port = $parts[1];
 				} else {
 					echo 'Invalid IP';
 					die();
