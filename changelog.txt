@@ -21,3 +21,4 @@
 - Add support for SRV records
 - Add support for Ban Management and MaxBans
 - Fix issue with sticky thread not showing in forum table view
+- Add notice about replacing files manually whilst upgrading
