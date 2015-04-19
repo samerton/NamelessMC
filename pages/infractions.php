@@ -17,6 +17,10 @@ if($infractions[0]->value == "false"){
 
 $infractions = new Infractions();
 
+// Get the plugin in use
+$infractions_plugin = $queries->getWhere("settings", array("name", "=", "infractions_plugin"));
+$infractions_plugin = $infractions_plugin[0]->value;
+
 if(isset($_GET['p'])){
 	if(!is_numeric($_GET['p'])){
 		Redirect::to("/infractions");
@@ -57,7 +61,7 @@ if(isset($_GET['p'])){
 		<table class="table table-bordered">
 		  <thead>
 			<tr>
-			  <th>ID</th>
+			  <th></th>
 			  <th>User</th>
 			  <th>Staff</th>
 			  <th>Action</th>
@@ -66,7 +70,14 @@ if(isset($_GET['p'])){
 			</tr>
 		  </thead>
 	  <?php 
-		$all_infractions = $infractions->bat_getAllInfractions();
+	    if($infractions_plugin == "bat"){
+			$all_infractions = $infractions->bat_getAllInfractions();
+		} else if($infractions_plugin == "bm"){
+			$all_infractions = $infractions->bm_getAllInfractions();
+		} else if($infractions_plugin == "mb"){
+			$all_infractions = $infractions->mb_getAllInfractions();
+		}
+			
 		$paginate = PaginateArray($p);
 		
 		$n = $paginate[0];
@@ -88,13 +99,13 @@ if(isset($_GET['p'])){
 				$infraction = $all_infractions[$n];
 			?>
 			<tr>
-			  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>"><?php echo $infraction["id"]; ?></a></td>
+			  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>">View</a></td>
 			  <td><?php 
 				$infractions_query = $queries->getWhere('users', array('uuid', '=', $infraction["uuid"]));
 				if(empty($infractions_query)){
 					$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction["uuid"]));
 					if(empty($infractions_query)){
-						require('inc/integration/uuid.php');
+						require_once('inc/integration/uuid.php');
 						$profile = ProfileUtils::getProfile($infraction["uuid"]);
 						if(empty($profile)){
 							echo 'Could not find that player';
@@ -119,7 +130,7 @@ if(isset($_GET['p'])){
 					echo '<a href="/profile/' . htmlspecialchars($mcname[0]->mcname) . '">' . htmlspecialchars($mcname[0]->mcname) . '</a>';
 				}
 			  ?></td>
-			  <td><?php if($infraction["staff"] !== "CONSOLE"){?><a href="/profile/<?php echo $infraction["staff"]; ?>"><?php echo $infraction["staff"]; ?></a><?php } else { ?>Console<?php } ?></td>
+			  <td><?php if($infraction["staff"] !== "Console"){?><a href="/profile/<?php echo $infraction["staff"]; ?>"><?php echo $infraction["staff"]; ?></a><?php } else { ?>Console<?php } ?></td>
 			  <td><?php echo $infraction["type_human"]; ?></td>
 			  <td><?php echo $infraction["reason"]; ?></td>
 			  <td><?php echo $infraction["expires_human"]; ?><?php if(isset($infraction["unbanned"])){ echo ' <span class="label label-success" rel="tooltip" data-trigger="hover" data-original-title="' . date("jS M Y", strtotime($infraction["unbanned_date"])) . ' by ' . $infraction["unbanned_by"] . '">Unbanned</span>'; } else if(isset($infraction["unmuted"])){ echo ' <span class="label label-success" rel="tooltip" data-trigger="hover" data-original-title="' . date("jS M Y", strtotime($infraction["unmuted_date"])) . ' by ' . $infraction["unmuted_by"] . '">Unmuted</span>'; }?></td>
@@ -163,116 +174,209 @@ if(isset($_GET['p'])){
 			die();
 		}
 		
-		if($_GET["type"] !== "ban" && $_GET["type"] !== "kick" && $_GET["type"] !== "mute"){
+		if($_GET["type"] !== "ban" && $_GET["type"] !== "kick" && $_GET["type"] !== "mute" && $_GET["type"] !== "temp_ban" && $_GET["type"] !== "warning"){
 			Redirect::to('/infractions');
 			die();
 		}
 		
-		$infraction = $infractions->bat_getInfraction($_GET["type"], $_GET["id"]);
-		$infractions_query = $queries->getWhere('users', array('uuid', '=', $infraction[0]->UUID));
-		if(empty($infractions_query)){
-			$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction[0]->UUID));
+		// The following is different for each infractions plugin.
+	    if($infractions_plugin == "bat"){
+			// BungeeAdminTools
+			$infraction = $infractions->bat_getInfraction($_GET["type"], $_GET["id"]);
+			
+			// Get the username from the UUID - has the user registered on the website?
+			$infractions_query = $queries->getWhere('users', array('uuid', '=', $infraction[0]->UUID));
+			
 			if(empty($infractions_query)){
-				require('inc/integration/uuid.php');
-				$profile = ProfileUtils::getProfile($infraction[0]->UUID);
-				if(empty($profile)){
-					echo 'Could not find that player';
-					die();
-				}
-				$result = $profile->getProfileAsArray();
-				$mcname = htmlspecialchars($result["username"]);
-				$uuid = htmlspecialchars($infraction[0]->UUID);
-				try {
-					$queries->create("uuid_cache", array(
-						'mcname' => $mcname,
-						'uuid' => $uuid
-					));
-				} catch(Exception $e){
-					die($e->getMessage());
+				// User hasn't registered on the website, check the cache
+				$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction[0]->UUID));
+				
+				if(empty($infractions_query)){
+					// Not in the cache, get it from Mojang's servers
+					require_once('inc/integration/uuid.php');
+					$profile = ProfileUtils::getProfile($infraction[0]->UUID);
+					
+					if(empty($profile)){
+						// No return from Mojang's servers
+						echo 'Could not find that player';
+						die();
+					}
+					
+					$result = $profile->getProfileAsArray();
+					$mcname = htmlspecialchars($result["username"]);
+					$uuid = htmlspecialchars($infraction[0]->UUID);
+					
+					// Input into cache
+					try {
+						$queries->create("uuid_cache", array(
+							'mcname' => $mcname,
+							'uuid' => $uuid
+						));
+					} catch(Exception $e){
+						die($e->getMessage());
+					}
+				} else {
+					// User is in UUID cache
+					$mcname = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction[0]->UUID));
+					$mcname = $mcname[0]->mcname;
 				}
 			} else {
-				$mcname = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction[0]->UUID));
+				// User has registered on the website, use the Minecraft username value
+				$mcname = $queries->getWhere('users', array('uuid', '=', $infraction[0]->UUID));
 				$mcname = $mcname[0]->mcname;
 			}
-		} else {
-			$mcname = $queries->getWhere('users', array('uuid', '=', $infraction[0]->UUID));
-			$mcname = $mcname[0]->mcname;
+			
+			// Next, get some variables to display on the page. This depends on the type of infraction.
+			if($_GET["type"] == "ban" || $_GET["type"] == "temp_ban"){
+				// Ban
+				// Date of infraction
+				$start_date = date("jS M Y", strtotime($infraction[0]->ban_begin));
+				
+				// End of infraction
+				if($infraction[0]->ban_end !== null){
+					$end_date = date("jS M Y", strtotime($infraction[0]->ban_end));
+				} else {
+					$end_date = 'Never';
+				}
+				
+				// Reason
+				if($infraction[0]->ban_reason !== null){
+					$reason = htmlspecialchars($infraction[0]->ban_reason);
+				} else {
+					$reason = "Not set";
+				}
+				
+				// Staff
+				$issued_by = htmlspecialchars($infraction[0]->ban_staff);
+				
+				// Revoked?
+				if($infraction[0]->ban_unbandate !== null){
+					$revoked = "Yes, by <a href=\"/profile/" . htmlspecialchars($infraction[0]->ban_unbanstaff) . "\">" . htmlspecialchars($infraction[0]->ban_unbanstaff) . "</a> on " . date("jS M Y", strtotime($infraction[0]->ban_unbandate));
+				} else {
+					$revoked = "No";
+				}
+			
+			} else if($_GET["type"] == "mute"){
+				// Mute
+				// Date of infraction
+				$start_date = date("jS M Y", strtotime($infraction[0]->mute_begin));
+				
+				// End of infraction
+				if($infraction[0]->mute_end !== null){
+					$end_date = date("jS M Y", strtotime($infraction[0]->mute_end));
+				} else {
+					$end_date = 'Never';
+				}
+				
+				// Reason
+				if($infraction[0]->mute_reason !== null){
+					$reason = htmlspecialchars($infraction[0]->mute_reason);
+				} else {
+					$reason = "Not set";
+				}
+				
+				// Staff
+				$issued_by = htmlspecialchars($infraction[0]->mute_staff);
+				
+				// Revoked?
+				if($infraction[0]->mute_unmutedate !== null){
+					$revoked = "Yes, by <a href=\"/profile/" . htmlspecialchars($infraction[0]->mute_unmutestaff) . "\">" . htmlspecialchars($infraction[0]->mute_unmutestaff) . "</a> on " . date("jS M Y", strtotime($infraction[0]->mute_unmutedate));
+				} else {
+					$revoked = "No";
+				}
+				
+			} else if($_GET["type"] == "kick"){
+				// Kick
+				// Date of infraction
+				$start_date = date("jS M Y", strtotime($infraction[0]->kick_date));
+				
+				// End of infraction
+				$end_date = 'n/a';
+				
+				// Reason
+				if($infraction[0]->kick_reason !== null){
+					$reason = htmlspecialchars($infraction[0]->kick_reason);
+				} else {
+					$reason = 'Not set';
+				}
+				
+				// Staff
+				$issued_by = htmlspecialchars($infraction[0]->kick_staff);
+				
+				// Revoked?
+				$revoked = 'n/a';
+			}
+			
+		} else if($infractions_plugin == "bm"){
+			// Ban Management
+			$infraction = $infractions->bm_getInfraction($_GET["type"], $_GET["id"]);
+			
+			// First, get the username
+			$mcname = $infractions->bm_getUsernameFromID($infraction[0]->player_id);
+			
+			// Date of infraction
+			$start_date = date("jS M Y", $infraction[0]->created);
+			
+			// Reason
+			if($infraction[0]->reason !== null){
+				$reason = htmlspecialchars($infraction[0]->reason);
+			} else {
+				$reason = "Not set";
+			}
+			
+			$revoked = "No";
+			$end_date = "n/a";
+			
+			// Staff
+			if(isset($infraction[0]->pastActor_id)){
+				$issued_by = htmlspecialchars($infractions->bm_getUsernameFromID($infraction[0]->pastActor_id));
+			} else {
+				$issued_by = htmlspecialchars($infractions->bm_getUsernameFromID($infraction[0]->actor_id));
+			}
+			
+			// Ban and mute specific:
+			if($_GET['type'] == "ban" || $_GET['type'] == "temp_ban" || $_GET['type'] == "mute"){
+				// End of infraction
+				if(isset($infraction[0]->expires)){
+					// Not expired yet, or is permanent
+					if($infraction[0]->expires != 0){
+						// Will expire
+						$end_date = date("jS M Y", $infraction[0]->expires);
+						
+					} else {
+						// Permanent
+						$end_date = 'Never';
+						
+					}
+				} else if(isset($infraction[0]->expired)){
+					// Expired or unbanned
+					if($infraction[0]->expired != 0){
+						// Has expired
+						$end_date = date("jS M Y", $infraction[0]->expired);
+						
+					} else {
+						// Unbanned
+						$end_date = 'Never';
+						$revoked = 'Yes, on ' . date("jS M Y", $infraction[0]->created);
+					}
+				}
+			}
+			
+		} else if($infractions_plugin == "mb"){
+			// MaxBans
+			$infraction = $infractions->mb_getInfraction($_GET["type"], $_GET["id"]);
+			
+			
 		}
-		
-		
 	  ?>
 		<a href="/infractions" class="btn btn-primary">Back</a>
 		<h3>Player: <?php echo htmlspecialchars($mcname); ?></h3>
-		Infraction type: <?php $type = strtolower($_GET["type"]); echo htmlspecialchars(ucfirst($type)); ?><br />
-		Date of infraction: <?php echo date("jS M Y", strtotime($infraction[0]->ban_begin)); ?><br />
-		Infraction ends: 
-		<?php 
-		if($type === "ban"){
-			if($infraction[0]->ban_end !== null){
-				date("jS M Y", strtotime($infraction[0]->ban_end));
-			} else {
-				echo 'Never';
-			}
-		} else if($type === "mute"){
-			if($infraction[0]->mute_end !== null){
-				date("jS M Y", strtotime($infraction[0]->mute_end));
-			} else {
-				echo 'Never';
-			}
-		} else if($type === "kick"){
-			"n/a";
-		}
-		?><br />
-		Reason for infraction: 
-		<?php 
-		if($type === "ban"){
-			if($infraction[0]->ban_reason !== null){
-				echo htmlspecialchars($infraction[0]->ban_reason);
-			} else {
-				echo "Not set";
-			}
-		} else if($type === "mute"){
-			if($infraction[0]->mute_reason !== null){
-				echo htmlspecialchars($infraction[0]->mute_reason);
-			} else {
-				echo "Not set";
-			}
-		} else if($type === "kick"){
-			if($infraction[0]->kick_reason !== null){
-				echo htmlspecialchars($infraction[0]->kick_reason);
-			} else {
-				echo "Not set";
-			}
-		}
-		?><br />
-		Issued by: <a href="/profile/<?php 
-		if($type === "ban"){
-			echo htmlspecialchars($infraction[0]->ban_staff); ?>"><?php echo htmlspecialchars($infraction[0]->ban_staff); 
-		} else if($type === "mute"){
-			echo htmlspecialchars($infraction[0]->mute_staff); ?>"><?php echo htmlspecialchars($infraction[0]->mute_staff); 
-		} else if($type === "kick"){
-			echo htmlspecialchars($infraction[0]->kick_staff); ?>"><?php echo htmlspecialchars($infraction[0]->kick_staff); 
-		}
-		?></a><br />
-		Infraction revoked: 
-		<?php 
-		if($type === "ban"){
-			if($infraction[0]->ban_unbandate !== null){
-				echo "Yes, by <a href=\"/profile/" . htmlspecialchars($infraction[0]->unbanstaff) . "\">" . htmlspecialchars($infraction[0]->unbanstaff) . "</a> on " . date("jS M Y", strtotime($infraction[0]->ban_unbandate));
-			} else {
-				echo "No";
-			}
-		} else if($type === "mute"){
-			if($infraction[0]->mute_unmutedate !== null){
-				echo "Yes, by <a href=\"/profile/" . htmlspecialchars($infraction[0]->mute_unmutestaff) . "\">" . htmlspecialchars($infraction[0]->mute_unmutestaff) . "</a> on " . date("jS M Y", strtotime($infraction[0]->mute_unmutedate));
-			} else {
-				echo "No";
-			}
-		} else if($type === "kick"){
-			echo "n/a";
-		}
-		?><br />
-		
+		Infraction type: <?php $type = strtolower($_GET["type"]); echo htmlspecialchars(str_replace('_', ' ', ucfirst($type))); ?><br />
+		Date of infraction: <?php echo $start_date; ?><br />
+		Infraction ends: <?php echo $end_date; ?><br />
+		Reason for infraction: <?php echo $reason; ?><br />
+		Issued by: <?php if(strtolower($issued_by) != "console"){ ?><a href="/profile/<?php echo $issued_by; ?>"><?php echo $issued_by; ?></a><?php } else { ?>Console<?php } ?><br />
+		Infraction revoked: <?php echo $revoked; ?><br />
 	  <?php 
 	  }
 	  ?>
