@@ -14,20 +14,33 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTML Purifier for
 // Get the default server IP
 $default_server = $queries->getWhere("mc_servers", array("is_default", "=", "1"));
 $default_server = htmlspecialchars($default_server[0]->ip);
+
+/*
+ *  Resolve real IP address (to support SRV records)
+ */
+require('inc/integration/status/SRVResolver.php');
 $parts = explode(':', $default_server);
 if(count($parts) == 1){
-	$default_ip = $parts[0];
-	$default_port = 25565;
-} else if(count($parts) == 2){
+	$domain = $parts[0];
+	$query_ip = SRVResolver($domain);
+	$parts = explode(':', $query_ip);
 	$default_ip = $parts[0];
 	$default_port = $parts[1];
+} else if(count($parts) == 2){
+	$domain = $parts[0];
+	$default_ip = $parts[0];
+	$default_port = $parts[1];
+	$port = $parts[1];
 } else {
 	echo 'Invalid IP';
 	die();
 }
 
-if($default_port == 25565){
-	$default_server = $default_ip;
+// IP to display
+if(!isset($port)){
+	$address = $domain;
+} else {
+	$address = $domain . ':' . $port;
 }
 
 // Query the server
@@ -51,6 +64,7 @@ try {
 		$Query->Connect( );
 		
 		$Info = $Query->QueryOldPre17( );
+
 	}
 } catch( MinecraftPingException $e ) {
 	$Exception = $e;
@@ -124,11 +138,17 @@ if( $Query !== null ){
 	  </div>
 	  <?php 
 	    }
+		if(isset($Exception)){
 	  ?>
+		<div class="panel panel-danger">
+			<div class="panel-heading"><?php echo htmlspecialchars( $Exception->getMessage( ) ); ?></div>
+			<p><?php echo nl2br( $e->getTraceAsString(), false ); ?></p>
+		</div>
+	  <?php } ?>
 	  
       <div class="jumbotron">
         <h1><?php echo $sitename; ?></h1>
-        <p>Join with <strong><?php echo htmlspecialchars($default_server); ?></strong></p>
+        <p>Join with <strong><?php echo htmlspecialchars($address); ?></strong></p>
         <p>The<?php
 		if(!empty($Info)){
 			if($Info['players']['online'] == 1){

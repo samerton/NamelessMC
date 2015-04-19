@@ -14,25 +14,42 @@ if(!in_array("init.php", get_included_files())){
 	require('../../init.php');
 	require('../status/MinecraftServerPing.php');
 	require('../../includes/motd_format.php');
+	require('../status/SRVResolver.php');
 } else {
 	require('inc/integration/status/MinecraftServerPing.php');
 	require('inc/includes/motd_format.php');
+	require('inc/integration/status/SRVResolver.php');
 }
 
 $default_server = $queries->getWhere("mc_servers", array("is_default", "=", "1"));
 $server_name = htmlspecialchars($default_server[0]->name);
 $default_server = htmlspecialchars($default_server[0]->ip);
 
+/*
+ *  Resolve real IP address (to support SRV records)
+ */
 $parts = explode(':', $default_server);
 if(count($parts) == 1){
-	$default_ip = $parts[0];
-	$default_port = 25565;
-} else if(count($parts) == 2){
+	$domain = $parts[0];
+	$query_ip = SRVResolver($domain);
+	$parts = explode(':', $query_ip);
 	$default_ip = $parts[0];
 	$default_port = $parts[1];
+} else if(count($parts) == 2){
+	$domain = $parts[0];
+	$default_ip = $parts[0];
+	$default_port = $parts[1];
+	$port = $parts[1];
 } else {
-	echo 'Invalid IP</div>';
+	echo 'Invalid IP';
 	die();
+}
+
+// IP to display
+if(!isset($port)){
+	$address = $domain;
+} else {
+	$address = $domain . ':' . $port;
 }
 
 define( 'MQ_SERVER_ADDR', $default_ip );
@@ -65,15 +82,6 @@ if($Query !== null){
 }
 
 $Timer = Number_Format( MicroTime( true ) - $Timer, 4, '.', '' );
-
-// IP to display
-if($default_port == ("25565")){
-	$address = $default_ip;
-	$port = "";
-} else {
-	$address = $default_ip . ":" . $default_port;
-	$port = ":" . $default_port;
-}
 
 if($Info){ // If the server's up..
 	// Parse the MOTD to make it colourful
@@ -122,15 +130,6 @@ if($Info){ // If the server's up..
 
 	// Font
 	$font = __DIR__ . "/minecraft.ttf";
-
-	// IP to display
-	if($default_port == ("25565")){
-		$address = $default_ip;
-		$port = "";
-	} else {
-		$address = $default_ip . ":" . $default_port;
-		$port = ":" . $default_port;
-	}
 
 	// Make the image!
 	$serverpic = imagecreatefrompng($Info['favicon']);
