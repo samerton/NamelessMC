@@ -140,6 +140,18 @@ $token = Token::generate();
 				</form>
 				';
 				?>
+				<br />
+				<strong>Enable Infractions:</strong>
+				<?php 
+				echo '
+				<form name="infractions" style="display: inline;" action="" method="post">
+					<input type="hidden" name="id" value="22" />
+					<input type="hidden" name="value" value="' . $pages[21]->value . '" />
+					<input type="hidden" name="token" value="' . $token . '" />
+					<a href="#" onclick="document.forms[\'infractions\'].submit();">' . htmlspecialchars(ucfirst($pages[21]->value)) . '</a>
+				</form>
+				';
+				?>
 				<br /><br />
 				<?php
 				// URLs to server rules and forum rules
