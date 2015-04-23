@@ -548,7 +548,7 @@ if(isset($_GET["step"])){
 					}
 
 					$queries->create("custom_pages", array(
-						'url' => '/help',
+						'url' => '/help/',
 						'title' => 'Help',
 						'content' => 'Default help page. Customise in the admin panel.'
 					));

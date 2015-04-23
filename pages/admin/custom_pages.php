@@ -46,7 +46,7 @@ if(Input::exists()) {
 		
 		if($validation->passed()){
 			if($_GET["page"] == 1){
-				$url = "/help"; // Can't change the URL for the help page
+				$url = "/help/"; // Can't change the URL for the help page
 				$title = "Help";
 			} else {
 				$url = Input::get('url');
