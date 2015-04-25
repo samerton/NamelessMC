@@ -165,7 +165,7 @@ $token = Token::generate();
 	    if(!Session::exists('failure_post')){
 	    ?>
 		CKEDITOR.on('instanceReady', function(ev) {
-		     CKEDITOR.instances.editor.insertHtml('<?php echo str_replace(array("\r", "\n"), '', $clean); ?>');
+		     CKEDITOR.instances.editor.insertHtml('<?php echo str_replace("'", "&#39;", str_replace(array("\r", "\n"), '', $clean)); ?>');
 		});
 		<?php
 		}
