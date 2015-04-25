@@ -53,6 +53,11 @@ if(!$user->isLoggedIn()){
 	}
 }
 
+// Get currency
+$currency = $queries->getWhere("settings", array("name", "=", "donation_currency"));
+$currency = $currency[0]->value;
+
+
 ?>
 
 <!DOCTYPE html>
@@ -157,7 +162,7 @@ if(!$user->isLoggedIn()){
 						$limit = 5;
 					}
 					for ($x=1; $x<=$limit; $x++){
-						echo '<p><a href="/profile/' . htmlspecialchars($latest[$x-1]->ign) . '"><img class="img-rounded" src="https://cravatar.eu/avatar/' . htmlspecialchars($latest[$x-1]->ign) . '/30.png" /></a> ' . htmlspecialchars($latest[$x-1]->ign) . ' - £' . $latest[$x-1]->price . '</p>';
+						echo '<p><a href="/profile/' . htmlspecialchars($latest[$x-1]->ign) . '"><img class="img-rounded" src="https://cravatar.eu/avatar/' . htmlspecialchars($latest[$x-1]->ign) . '/30.png" /></a> ' . htmlspecialchars($latest[$x-1]->ign) . ' - ' . $queries->convertCurrency($currency) . $latest[$x-1]->price . '</p>';
 					}
 				?>
 			</div>
@@ -196,11 +201,6 @@ if(!$user->isLoggedIn()){
 		      <div class="col-md-4">
 				<div class="panel panel-primary">
 				  <div class="panel-heading">
-					<?php 
-					// Get currency
-					$currency = $queries->getWhere("settings", array("name", "=", "donation_currency"));
-					$currency = $currency[0]->value;
-					?>
 					<?php echo htmlspecialchars($package->name); ?><span class="pull-right"><?php echo $queries->convertCurrency($currency); echo htmlspecialchars($package->cost); ?></span>
 				  </div>
 				  <div class="panel-body">
