@@ -7,6 +7,7 @@
  */
 
 require('inc/includes/html/library/HTMLPurifier.auto.php');
+require('inc/includes/password.php'); // Include the password compatibility functions
 
 /*
  *  Check if page is enabled
