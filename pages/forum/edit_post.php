@@ -34,6 +34,27 @@ if(isset($_GET["pid"]) && isset($_GET["tid"])){
 	die();
 }
 
+/*
+ *  Is the post the first in the topic? If so, allow the title to be edited.
+ */
+ 
+$post_editing = $queries->orderWhere("posts", "topic_id = " . $topic_id, "id", "ASC LIMIT 1");
+
+if($post_editing[0]->id == $post_id){
+	$edit_title = true;
+	
+	/*
+	 *  Get the title of the topic
+	 */
+	 
+	$post_title = $queries->getWhere("topics", array("id", "=", $topic_id));
+	$post_title = htmlspecialchars($post_title[0]->topic_title);
+	
+}
+
+/*
+ *  Get the post we're editing
+ */
 
 $post_editing = $queries->getWhere("posts", array("id", "=", $post_id));
 
@@ -42,17 +63,33 @@ if($user->data()->id === $post_editing[0]->post_creator || $user->data()->group_
 	if(Input::exists()) {
 		if(Token::check(Input::get('token'))) {
 			$validate = new Validate();
-			$validation = $validate->check($_POST, array(
+			$validation = array(
 				'content' => array(
 					'required' => true,
 					'min' => 2,
 					'max' => 20480
 				)
-			));
+			);
+			// add title to validation if we need to
+			if(isset($edit_title)){
+				$validation['title'] = array(
+					'required' => true,
+					'min' => 2,
+					'max' => 64
+				);
+			}
+			
+			$validation = $validate->check($_POST, $validation);
+			
 			if($validation->passed()){
 				try {
+					// update post content
 					$queries->update("posts", $post_id, array(
 						'post_content' => htmlspecialchars(Input::get('content'))
+					));
+					// update title
+					$queries->update("topics", $topic_id, array(
+						'topic_title' => htmlspecialchars_decode(Input::get('title'))
 					));
 					Session::flash('success_post', '<div class="alert alert-info alert-dismissable"> <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>Post edited.</div>');
 					Redirect::to('/forum/view_topic/?tid=' . $topic_id . '&amp;pid=' . $post_id);
@@ -116,7 +153,6 @@ $token = Token::generate();
 		}
 	  ?>
 		<form action="" method="post">
-			<textarea name="content" id="editor" rows="3">
 			<?php
 		    // Initialise HTML Purifier
 			$config = HTMLPurifier_Config::createDefault();
@@ -127,7 +163,13 @@ $token = Token::generate();
 			$config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
 			$config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
 			$purifier = new HTMLPurifier($config);
-
+			?>
+			<?php if(isset($edit_title)){ ?>
+			<input type="text" class="form-control" name="title" value="<?php echo $post_title; ?>">
+			<br />
+			<?php } ?>
+			<textarea name="content" id="editor" rows="3">
+			<?php
 			$clean = $purifier->purify(htmlspecialchars_decode($post_editing[0]->post_content));
 			?>
 			</textarea>

@@ -36,7 +36,8 @@ if($user->data()->group_id == 2 || $user->data()->group_id == 3){
 					'required' => true
 				)
 			));
-			$thread_to_move = $queries->getWhere('topics', array('id', '=', $topic_id))[0];
+			$thread_to_move = $queries->getWhere('topics', array('id', '=', $topic_id));
+			$thread_to_move = $thread_to_move[0];
 			
 			if(!count($thread_to_move)){
 				Redirect::to('/forum');
