@@ -88,3 +88,9 @@ Only Needed in Multi-Coloured Variation
   overflow: hidden;
   background-color: #e5e5e5;
 }
+/* Make images responsive */
+img {
+	  display: block;
+	  height: auto;
+	  max-width: 100%;
+}
