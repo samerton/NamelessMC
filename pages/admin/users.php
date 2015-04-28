@@ -59,18 +59,20 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 			<?php require('pages/admin/sidebar.php'); ?>
 		</div>
 		<div class="col-md-9">
+		  <div class="well well-sm">
 			<?php
 			if(Session::exists('adm-users')){
 				echo Session::flash('adm-users');
 			}
 			if(!isset($_GET["action"]) && !isset($_GET["user"])){
 				if(isset($_GET['p'])){
-					if (!is_numeric($_GET['p'])){
-						Redirect::to("/admin/users");
+					if(!is_numeric($_GET['p'])){
+						echo '<script>window.location.replace("/admin/users/");</script>';
+						die();
 					} else {
 						if($_GET['p'] == 1){ 
 							// Avoid bug in pagination class
-							Redirect::to('/admin/users/');
+							echo '<script>window.location.replace("/admin/users/");</script>';
 							die();
 						}
 						$p = $_GET['p'];
@@ -83,7 +85,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 				$groups = $queries->getAll("groups", array("id", "<>", 0));
 				
 				// instantiate; set current page; set number of records
-				$pagination = (new Pagination());
+				$pagination = new Pagination();
 				$pagination->setCurrent($p);
 				$pagination->setTotal(count($users));
 				$pagination->alwaysShowPagination();
@@ -204,8 +206,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 										'email' => htmlspecialchars(Input::get('email')),
 										'active' => 1
 									));
-
-									Redirect::to('/admin/users');
+									echo '<script>window.location.replace("/admin/users/");</script>';
 									die();
 								} catch(Exception $e){
 									die($e->getMessage());
@@ -256,6 +257,39 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 						<input class="btn btn-success" type="submit" value="Create">	
 					</form>
 					<?php 
+				// Delete a user
+				} else if($_GET["action"] == 'delete'){
+					// Check for a valid UID
+					if(!isset($_GET["uid"]) || !is_numeric($_GET["uid"])){
+						// Invalid, redirect
+						echo '<script>window.location.replace("/admin/users/");</script>';
+						die();
+					} else {
+						// Valid, has the admin confirmed deletion?
+						if(isset($_GET["confirm"])){
+							// Delete the user
+							$queries->delete('users', array('id', '=', $_GET["uid"]));
+							Session::flash('adm-users', '<div class="alert alert-info alert-dismissible">  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>User deleted successfully.</div>');
+							echo '<script>window.location.replace("/admin/users/");</script>';
+							die();
+						} else {
+							// Confirm
+							$user = $queries->getWhere("users", array("id", "=", $_GET["uid"]));
+							if(count($user)){
+							?>
+				<p>Are you sure you wish to delete the user <strong><?php echo htmlspecialchars($user[0]->username); ?></strong>?</p>
+				<div class="btn-group" role="group" aria-label="...">
+				  <a href="/admin/users/?action=delete&uid=<?php echo $_GET["uid"]; ?>&confirm=true/" class="btn btn-danger">Confirm</a>
+				  <a href="/admin/users/?user=<?php echo $user[0]->id; ?>" class="btn btn-default">Cancel</a>
+				</div>
+							<?php
+							} else {
+								// No user exists with that ID
+								echo '<script>window.location.replace("/admin/users/");</script>';
+								die();
+							}
+						}
+					}
 				}
 			} else if(isset($_GET["user"])){
 				if(Input::exists()) {
@@ -301,7 +335,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 										'signature' => htmlspecialchars(Input::get('signature')),
 										'lastip' => Input::get('ip')
 									));
-									Redirect::to('/admin/users/?user=' . $_GET['user']);
+									echo '<script>window.location.replace("/admin/users/?user=' . $_GET['user'] . '");</script>';
 									die();
 								} catch(Exception $e) {
 									die($e->getMessage());
@@ -321,7 +355,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 							} catch(Exception $e) {
 								die($e->getMessage());
 							}
-							Redirect::to('/admin/users');
+							echo '<script>window.location.replace("/admin/users/");</script>';
 							die();
 						} else if(Input::get('action') == "avatar_disable"){
 							try {
@@ -366,6 +400,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 							<li><a href="/admin/update_mcnames/?uid=<?php echo $user[0]->id; ?>">Update Minecraft Name</a></li>
 							<li><a href="/admin/reset_password/?uid=<?php echo $user[0]->id; ?>">Reset Password</a></li>
 							<li><a href="/mod/punishments/?uid=<?php echo $user[0]->id; ?>">Punish User</a></li>
+							<li><a href="/admin/users/?action=delete&uid=<?php echo $user[0]->id; ?>">Delete User</a></li>
 						  </ul>
 						</div>
 					</span>
@@ -441,6 +476,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 				}
 			}
 			?>
+		  </div>
 		</div>
       </div>	  
 
