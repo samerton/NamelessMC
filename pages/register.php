@@ -50,7 +50,8 @@ if(Input::exists()) {
 			'email' => array(
 				'required' => true,
 				'min' => 4,
-				'max' => 50
+				'max' => 50,
+				'unique' => 'users'
 			),
 			't_and_c' => array(
 				'required' => true,
@@ -185,7 +186,7 @@ if(Input::exists()) {
 							}
 						}
 						if (strpos($error,'already exists!') !== false) {
-							echo 'That username already exists!<br />';
+							echo 'That username/email has already been used.<br />';
 						}
 						if (strpos($error,'must be a minimum of 6 characters') !== false) {
 							echo 'Your password must be a minimum of 6 characters.<br />';

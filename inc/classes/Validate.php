@@ -51,7 +51,7 @@ class Validate {
 						case 'unique';
 							$check = $this->_db->get($rule_value, array($item, '=', $value));
 							if($check->count()){
-								$this->addError("The username {$item} already exists!");
+								$this->addError("The username/email {$item} already exists!");
 							}
 						break;
 						case 'isvalid';
