@@ -177,11 +177,11 @@ $token = Token::generate();
 			// Define the toolbar groups as it is a more accessible solution.
 			toolbarGroups: [
 				{"name":"basicstyles","groups":["basicstyles"]},
-				{"name":"links","groups":["links"]},
 				{"name":"paragraph","groups":["list","align"]},
-				{"name":"insert","groups":["insert"]},
 				{"name":"styles","groups":["styles"]},
-				{"name":"about","groups":["about"]}
+				{"name":"colors","groups":["colors"]},
+				{"name":"links","groups":["links"]},
+				{"name":"insert","groups":["insert"]}
 			],
 			// Remove the redundant buttons from toolbar groups defined above.
 			removeButtons: 'Anchor,Styles,Specialchar,Font,About,Flash,Iframe'
