@@ -989,7 +989,7 @@ if(isset($_GET["step"])){
 					$mcname = Input::get('mcname');
 					$profile = ProfileUtils::getProfile($mcname);
 				} else {
-					$mcname = "";
+					$mcname = Input::get('username');
 					$profile = ProfileUtils::getProfile(Input::get('username'));
 				}
 				$uuid = $profile->getProfileAsArray();

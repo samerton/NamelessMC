@@ -21,6 +21,10 @@ if($user->isAdmLoggedIn()){
 	die();
 }
 
+// Custom usernames?
+$displaynames = $queries->getWhere("settings", array("name", "=", "displaynames"));
+$displaynames = $displaynames[0]->value;
+					  
 require('inc/includes/password.php'); // Password compat library
 require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 require('inc/functions/paginate.php'); // Get number of users on a page
@@ -161,17 +165,12 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 					if(Input::exists()) {
 						if(Token::check(Input::get('token'))) {
 							$validate = new Validate();
-							$validation = $validate->check($_POST, array(
-								'username' => array(
-									'required' => true,
-									'min' => 2,
-									'max' => 20,
-									'isvalid' => true,
-									'unique' => 'users'
-								),
+							
+							$to_validation = array(
 								'password' => array(
 									'required' => true,
-									'min' => 6
+									'min' => 6,
+									'max' => 30
 								),
 								'password_again' => array(
 									'required' => true,
@@ -184,8 +183,35 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 								),
 								'group' => array(
 									'required' => true
-								)					
-							));
+								)
+							);
+							
+							if($displaynames == "true"){
+								$to_validation['mcname'] = array(
+									'required' => true,
+									'isvalid' => true,
+									'min' => 4,
+									'max' => 20
+								);
+								$to_validation['username'] = array(
+									'required' => true,
+									'min' => 4,
+									'max' => 20,
+									'unique' => 'users'
+								);
+								$mcname = htmlspecialchars(Input::get('mcname'));
+							} else {
+								$to_validation['username'] = array(
+									'required' => true,
+									'isvalid' => true,
+									'min' => 4,
+									'max' => 20,
+									'unique' => 'users'
+								);
+								$mcname = htmlspecialchars(Input::get('username'));
+							}
+							
+							$validation = $validate->check($_POST, $to_validation);
 							
 							if($validation->passed()){
 								$user = new User();
@@ -199,6 +225,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 								try {
 									$user->create(array(
 										'username' => htmlspecialchars(Input::get('username')),
+										'mcname' => $mcname,
 										'password' => $password,
 										'pass_method' => 'default',
 										'joined' => $date,
@@ -231,8 +258,17 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 					<form action="" method="post">
 						<h2>Create Account</h2>
 						<div class="form-group">
-							<input class="form-control" type="text" name="username" id="username" value="<?php echo escape(Input::get('username')); ?>" placeholder="Username" autocomplete="off">
+							<input class="form-control" type="text" name="username" id="username" value="<?php echo escape(Input::get('username')); ?>" placeholder="<?php if($displaynames == "false"){ ?>Minecraft <?php } ?>Username" autocomplete="off">
 						</div>
+						<?php
+						if($displaynames == "true"){
+						?>
+						<div class="form-group">
+							<input class="form-control" type="text" name="mcname" id="mcname" value="<?php echo escape(Input::get('mcname')); ?>" placeholder="Minecraft Username" autocomplete="off">
+						</div>
+						<?php
+						}
+						?>
 						<div class="form-group">
 							<input class="form-control" type="text" name="email" id="email" value="<?php echo escape(Input::get('email')); ?>" placeholder="Email">
 						</div>
@@ -415,8 +451,6 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 						<input type="email" name="email" class="form-control" id="InputEmail" placeholder="Email" value="<?php echo htmlspecialchars($user[0]->email); ?>">
 					  </div>
 					  <?php
-					  $displaynames = $queries->getWhere("settings", array("name", "=", "displaynames"));
-					  $displaynames = $displaynames[0]->value;
 					  if($displaynames === "true"){
 					  ?>
 					  <div class="form-group">
@@ -493,11 +527,11 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 			// Define the toolbar groups as it is a more accessible solution.
 			toolbarGroups: [
 				{"name":"basicstyles","groups":["basicstyles"]},
-				{"name":"links","groups":["links"]},
 				{"name":"paragraph","groups":["list","align"]},
-				{"name":"insert","groups":["insert"]},
 				{"name":"styles","groups":["styles"]},
-				{"name":"about","groups":["about"]}
+				{"name":"colors","groups":["colors"]},
+				{"name":"links","groups":["links"]},
+				{"name":"insert","groups":["insert"]}
 			],
 			// Remove the redundant buttons from toolbar groups defined above.
 			removeButtons: 'Anchor,Styles,Specialchar,Font,About,Flash,Iframe'

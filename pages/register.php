@@ -16,6 +16,10 @@ if($user->isLoggedIn()){
 	die();
 }
 
+// Custom usernames?
+$custom_usernames = $queries->getWhere("settings", array("name", "=", "displaynames"));
+$custom_usernames = $custom_usernames[0]->value;
+
 // Use recaptcha?
 $recaptcha = $queries->getWhere("settings", array("name", "=", "recaptcha"));
 $recaptcha = $recaptcha[0]->value;
@@ -26,18 +30,6 @@ if(Input::exists()) {
 
 		$validate = new Validate();
 		$to_validation = array(
-			'username' => array(
-				'required' => true,
-				'min' => 4,
-				'max' => 20,
-				'unique' => 'users'
-			),
-			'mcname' => array(
-				'required' => true,
-				'isvalid' => true,
-				'min' => 4,
-				'max' => 20
-			),
 			'password' => array(
 				'required' => true,
 				'min' => 6,
@@ -64,12 +56,38 @@ if(Input::exists()) {
 				'required' => true
 			);
 		}
+		
+		if($custom_usernames == "true"){
+			$to_validation['mcname'] = array(
+				'required' => true,
+				'isvalid' => true,
+				'min' => 4,
+				'max' => 20,
+				'unique' => 'users'
+			);
+			$to_validation['username'] = array(
+				'required' => true,
+				'min' => 4,
+				'max' => 20,
+				'unique' => 'users'
+			);
+			$mcname = htmlspecialchars(Input::get('mcname'));
+		} else {
+			$to_validation['username'] = array(
+				'required' => true,
+				'isvalid' => true,
+				'min' => 4,
+				'max' => 20,
+				'unique' => 'users'
+			);
+			$mcname = htmlspecialchars(Input::get('username'));
+		}
 
 		$validation = $validate->check($_POST, $to_validation);
-		
+
 		if($validation->passed()){
 		
-			$profile = ProfileUtils::getProfile(htmlspecialchars(Input::get('mcname')));
+			$profile = ProfileUtils::getProfile($mcname);
 			$result = $profile->getProfileAsArray();
 			$uuid = $result["uuid"];
 		
@@ -91,7 +109,7 @@ if(Input::exists()) {
 				$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 60);
 				$user->create(array(
 					'username' => htmlspecialchars(Input::get('username')),
-					'mcname' => htmlspecialchars(Input::get('mcname')),
+					'mcname' => $mcname,
 					'uuid' => $uuid,
 					'password' => $password,
 					'pass_method' => 'default',
@@ -215,11 +233,17 @@ if(Input::exists()) {
 					<h2>Create an account</h2>
 					<hr class="colorgraph">
 					<div class="form-group">
-						<input type="text" name="username" id="username" autocomplete="off" value="<?php echo escape(Input::get('username')); ?>" class="form-control input-lg" placeholder="Username" tabindex="1">
+						<input type="text" name="username" id="username" autocomplete="off" value="<?php echo escape(Input::get('username')); ?>" class="form-control input-lg" placeholder="<?php if($custom_usernames == "false"){ ?>Minecraft <?php } ?>Username" tabindex="1">
 					</div>
+					<?php
+					if($custom_usernames !== "false"){
+					?>
 					<div class="form-group">
 						<input type="text" name="mcname" id="mcname" autocomplete="off" class="form-control input-lg" placeholder="Minecraft Username" tabindex="2">
 					</div>
+					<?php
+					}
+					?>
 					<div class="form-group">
 						<input type="email" name="email" id="email" value="<?php echo escape(Input::get('email')); ?>" class="form-control input-lg" placeholder="Email Address" tabindex="3">
 					</div>
