@@ -12,11 +12,8 @@ if(isset($_GET["uid"])){
 	$individual = $queries->getWhere("users", array("id", "=", $_GET["uid"]));
 
 	if(count($individual)){
-		if(!empty($individual[0]->mcname)){
-			$profile = ProfileUtils::getProfile($individual[0]->mcname);
-		} else {
-			$profile = ProfileUtils::getProfile($individual[0]->username);
-		}
+		$profile = ProfileUtils::getProfile($individual[0]->mcname);
+		
 		$result = $profile->getProfileAsArray();
 		$queries->update("users", $individual[0]->id, array(
 			"uuid" => $result['uuid']
