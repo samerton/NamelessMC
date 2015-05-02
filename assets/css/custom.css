@@ -90,7 +90,7 @@ Only Needed in Multi-Coloured Variation
 }
 /* Make images responsive */
 img {
-	  display: block;
+	  display: inline-block;
 	  height: auto;
 	  max-width: 100%;
 }
