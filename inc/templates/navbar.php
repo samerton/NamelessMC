@@ -3,13 +3,6 @@
  *	Made by Samerton
  *  http://worldscapemc.co.uk
  */
-
-	if(!isset($queries)){
-		$queries = new Queries();
-	}
-	if(!isset($forum)){
-		//$forum = new Forum();
-	}
 	$navbar_style = $queries->getWhere("settings", array("name", "=", "navbar_style"));
 	$navbar_style = $navbar_style[0]->value;
 	
@@ -71,7 +64,7 @@
 		?>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo htmlspecialchars($user->data()->username); if($exclaim === true || $messages === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png" />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if($exclaim === true || $messages === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
 				<?php if($user->isLoggedIn()) { ?> 
 				  <li><a href="/<?php echo 'profile/' . htmlspecialchars($user->data()->username);?>">Profile</a></li>
