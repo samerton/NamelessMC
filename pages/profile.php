@@ -160,7 +160,7 @@ foreach($servers as $server){
 					// Check if the user has registered on the website
 					if($exists == true){
 					?>
-					<strong>Registered:</strong> <?php echo date("d M Y", $profile_user[0]->joined); ?><br />
+					<strong>Registered:</strong> <?php echo date("d M Y, G:i", $profile_user[0]->joined); ?><br />
 					<strong>Posts:</strong> <?php echo count($queries->getWhere("posts", array("post_creator", "=", $profile_user[0]->id))); ?><br />
 					<strong>Reputation:</strong> <?php echo count($queries->getWhere("reputation", array("user_received", "=", $profile_user[0]->id))); ?><br />
 					<?php 
