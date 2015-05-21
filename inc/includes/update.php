@@ -99,4 +99,15 @@ if($version == '0.2.2'){
 		"value" => "false"
 	));
 }
+
+if($version == '0.3.0'){
+	// No database changes needed
+	// Update version name
+	$queries->update("settings", 30, array(
+		"value" => "0.3.1"
+	));
+	$queries->update("settings", 32, array(
+		"value" => "false"
+	));
+}
 ?>

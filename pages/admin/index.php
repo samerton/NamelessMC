@@ -109,7 +109,7 @@ if($user->isAdmLoggedIn()){
 			<div class="alert alert-warning">
 			A new update is available. Latest version: <?php echo htmlspecialchars($need_update); ?><br />
 			Download from <a class="white-text" style="text-decoration: underline;" href="https://github.com/samerton/NamelessMC/archive/master.zip" target="_blank">GitHub</a><br />
-			<a class="white-text" style="text-decoration: underline;" href="http://www.spigotmc.org/threads/nameless-minecraft-website-software.34810/">Update guide</a>
+			<a class="white-text" style="text-decoration: underline;" href="/admin/upgrade">Instructions</a>
 			</div>
 			<?php
 			}

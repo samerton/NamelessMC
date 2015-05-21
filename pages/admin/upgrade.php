@@ -41,6 +41,7 @@ if($latest_version !== "failed"){
 			"value" => htmlspecialchars($latest_version)
 		));
 		$need_update = htmlspecialchars($latest_version);
+		$instructions = file_get_contents("https://worldscapemc.co.uk/nl_core/update.php?version=" . $version);
 	}
 }
 
@@ -50,6 +51,23 @@ $latest_version = null;
 /*
  *  End version check
  */
+ 
+// Get update instructions
+if(isset($instructions)){
+	// HTMLPurifier
+	require('inc/includes/html/library/HTMLPurifier.auto.php'); 
+	
+	$config = HTMLPurifier_Config::createDefault();
+	$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
+	$config->set('URI.DisableExternalResources', false);
+	$config->set('URI.DisableResources', false);
+	$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+	$config->set('CSS.AllowedProperties', array('float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
+	$config->set('HTML.AllowedAttributes', 'src, height, width, alt, class, *.style');
+	$purifier = new HTMLPurifier($config);
+	
+	$instructions = $purifier->purify($instructions);
+}
  
 ?>
 <!DOCTYPE html>
@@ -90,11 +108,13 @@ $latest_version = null;
 				?>
 				<div class="well">
 				  <h2>Upgrade</h2>
-				  <p>Click "Start" to upgrade your installation from version <?php echo $version; ?> to version <?php echo htmlspecialchars($need_update); ?>.</p>
+				  <p>Follow the instructions below to upgrade your installation from version <?php echo $version; ?> to version <?php echo htmlspecialchars($need_update); ?>.</p>
 				  <p>Please create a backup of your database and files before proceeding.</p>
-				  <p><strong>Notice: files need replacing manually.</strong> <a href="http://www.spigotmc.org/threads/nameless-minecraft-website-software.34810/">Please see this post for a guide.</a></p>
-				  <p><a target="_blank" href="https://raw.githubusercontent.com/samerton/NamelessMC/master/changelog.txt">Changelog</a></p>
+				  <strong>Instructions</strong>
+				  <p><?php echo $instructions; ?></p>
+				  <p>Once this has been completed, please click "Start" below.</p>
 				  <a href="/admin/upgrade/?go" class="btn btn-primary">Start</a>
+				  <p><a target="_blank" href="https://raw.githubusercontent.com/samerton/NamelessMC/master/changelog.txt">Changelog</a></p>
 				</div>
 				<?php
 				} else {

@@ -22,3 +22,24 @@
 - Add support for Ban Management and MaxBans
 - Fix issue with sticky thread not showing in forum table view
 - Add notice about replacing files manually whilst upgrading
+
+0.3.1
+- Fix missing link to Infractions from admin sidebar
+- Add option to disable infractions from Pages page
+- Fix 404 on Help page
+- Fix plain white page on Donate page if web server is running PHP < 5.5 and user is not logged in
+- Fix issue where donation currency always shows as GBP in latest donors list
+- Fix issue where post editor occasionally doesn't show up in Edit Post
+- Add ability to edit the post title in Edit Post if the post is OP
+- Fix plain white page whilst moving threads if web server is running PHP < 5.5
+- Make images responsive
+- Add ability to delete a user from the admin panel
+- Prevent users signing up with an already used email address
+- Update CKEditor to include Bootstrap theme and Youtube button
+- Update post editor to include Youtube button and changing text's colour, plus a slight button reshuffle
+- Fix issues relating to having custom display names disabled
+- Fix updating UUID and Minecraft usernames of users from the Admin panel
+- Add user's avatar to navbar
+- Change the UUID integration class to use cURL instead of file_get_contents
+- Add time to when user registered on profile pages
+- Add upgrade instructions to admin upgrade page instead of linking to Spigot
