@@ -475,8 +475,8 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
 			  foreach($reputation as $rep){
 			?>
 			  <tr>
-				<td style="width:40px"><a href="/profile/'<?php echo htmlspecialchars($user->IdToMCName($rep->user_given)); ?>"><img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($rep->user_given)); ?>/30.png" /></a></td>
-				<td style="width:100px"><a href="/profile/'<?php echo htmlspecialchars($user->IdToMCName($rep->user_given)); ?>"><?php echo htmlspecialchars($user->IdToName($rep->user_given)); ?></a></td>
+				<td style="width:40px"><a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($rep->user_given)); ?>"><img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($rep->user_given)); ?>/30.png" /></a></td>
+				<td style="width:100px"><a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($rep->user_given)); ?>"><?php echo htmlspecialchars($user->IdToName($rep->user_given)); ?></a></td>
 			  </tr>
 			<?php 
 			  }
