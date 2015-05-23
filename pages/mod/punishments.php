@@ -152,7 +152,7 @@ if($user->isLoggedIn()){
 						    <?php echo htmlspecialchars($ip_user->mcname); ?>
 						  </td>
 						  <td>
-						    <?php echo date("d M Y, H:i", strtotime($ip_user->joined)); ?>
+						    <?php echo date("d M Y, H:i", $ip_user->joined); ?>
 						  </td>
 						</tr>					   
 					    <?php 
