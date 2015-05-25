@@ -49,7 +49,7 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 			<div class="well well-sm">
 				<ul class="nav nav-pills nav-stacked">
 				  <li><a href="/user">Overview</a></li>
-				  <li class="active"><a href="/user/messaging">Private messages</a></li>
+				  <li class="active"><a href="/user/messaging">Private Messages<?php if($unread_pms === true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php }?></a></li>
 				  <li><a href="/user/settings">Profile settings</a></li>
 				</ul>
 			</div>
@@ -102,6 +102,18 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 		  </div>
 		  <?php
 		    } else if(isset($_GET['action']) && $_GET['action'] === 'new'){
+				if(isset($_GET['uid'])){
+					if(!is_numeric($_GET['uid'])){
+						echo '<script>window.location.replace(\'/user/messaging/?action=new\');</script>';
+						die();
+					}
+					$to_user = $queries->getWhere('users', array('id', '=', $_GET['uid']));
+					if(!count($to_user)){
+						echo '<script>window.location.replace(\'/user/messaging/?action=new\');</script>';
+						die();
+					}
+					$to_user = htmlspecialchars($to_user[0]->username);
+				}
 				if(Input::exists()){
 					// Input into database
 					if(Token::check(Input::get('token'))) {
@@ -220,7 +232,7 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 			</div>
 			<div class="form-group">
 			  <label for="InputTo">To: <small><em>Separate users with a comma</em></small></label>
-			  <input class="form-control" type="text" id="InputTo" name="to" data-provide="typeahead" data-items="4" data-source='[<?php echo $user->listAllUsers(); ?>]'>
+			  <input class="form-control" type="text" id="InputTo" name="to" <?php if(isset($to_user)){ ?>value="<?php echo $to_user; ?>"<?php } ?>data-provide="typeahead" data-items="4" data-source='[<?php echo $user->listAllUsers(); ?>]'>
 			</div>
 			<?php } ?>
 			<div class="form-group">
@@ -262,7 +274,7 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 				die();
 			
 			} else if(isset($_GET['mid']) && !isset($_GET['action'])){
-				$pm = $user->getPM($_GET["mid"], $user->data()->id); // Get the PM 
+				$pm = $user->getPM($_GET["mid"], $user->data()->id); // Get the PM - this also handles setting it as "read" 
 				if($pm == false){ // Either PM doesn't exist, or the user doesn't have permission to view it
 					echo '<script>window.location.replace("/user/messaging");</script>';
 					die();

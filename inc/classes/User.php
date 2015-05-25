@@ -519,14 +519,23 @@ class User {
 					foreach($pms as $pm){
 						if($pm->user_id == $user_id){
 							$has_permission = true;
+							$pm_user_id = $pm->id;
 							break;
 						}
 					}
+
 					if($has_permission != true){
 						return false; // User doesn't have permission
 					}
+					// Set message to "read"
+					if($pm->read == 0){
+						$this->_db->update('private_messages_users', $pm_user_id, array(
+							'`read`' => 1
+						));
+					}
 				}
 				// User has permission, return the PM information
+				
 				// Get a list of users in the conversation
 				if(!isset($pms)){
 					$pms = $this->_db->get('private_messages_users', array('pm_id', '=', $pm_id))->results();
@@ -570,6 +579,26 @@ class User {
 					$this->_db->delete('private_messages', array('id', '=', $pm_id));
 					return true;
 				}
+			}
+		}
+		return false;
+	}
+	
+	// Get the number of unread PMs for the specified user
+	public function getUnreadPMs($user_id = null){
+		if($user_id){
+			$pms = $this->_db->get('private_messages_users', array('user_id', '=', $user_id));
+			if($pms->count()){
+				$pms = $pms->results();
+				$count = 0;
+				foreach($pms as $pm){
+					if($pm->read == 0){
+						$count++;
+					}
+				}
+				return $count;
+			} else {
+				return 0;
 			}
 		}
 		return false;

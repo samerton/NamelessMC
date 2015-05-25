@@ -249,18 +249,22 @@ foreach($servers as $server){
 								// echo "Can't add yourself as a friend!";
 							} else {
 								echo '<center>
-								<form method="post">
+								<form style="display: inline"; method="post">
 								<input type="submit" class="btn btn-success" name="AddFriend" value="Add Friend">
-								</form></center>';
+								</form>
+								<a href="/user/messaging/?action=new&uid=' . $profile_user[0]->id . '" class="btn btn-primary">Send Message</a>
+								</center>';
 							}
 						} else {
 							if($user->data()->id === $profile_user[0]->id){
 								// echo "Can't remove yourself as a friend!";
 							} else {
 								echo '<center>
-								<form method="post">
+								<form style="display: inline"; method="post">
 								<input type="submit" class="btn btn-danger" name="RemoveFriend" value="Remove Friend">
-								</form></center>';
+								</form>
+								<a href="/user/messaging/?action=new&uid=' . $profile_user[0]->id . '" class="btn btn-primary">Send Message</a>
+								</center>';
 							}
 						}
 					}

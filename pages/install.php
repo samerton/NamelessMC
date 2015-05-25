@@ -464,7 +464,7 @@ if(isset($_GET["step"])){
 					),
 					29 => array(
 						'name' => 'version',
-						'value' => '0.3.0'
+						'value' => '0.3.1'
 					),
 					30 => array(
 						'name' => 'version_checked',
@@ -489,6 +489,10 @@ if(isset($_GET["step"])){
 					35 => array(
 						'name' => 'store_type',
 						'value' => ''
+					),
+					36 => array(
+						'name' => 'mods_view_apps',
+						'value' => 'false'
 					)
 				);
 				

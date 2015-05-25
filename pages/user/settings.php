@@ -85,7 +85,7 @@ $token = Token::generate();
 			<div class="well well-sm">
 				<ul class="nav nav-pills nav-stacked">
 				  <li><a href="/user">Overview</a></li>
-				  <li><a href="/user/messaging">Private Messages</a></li>
+				  <li><a href="/user/messaging">Private Messages<?php if($unread_pms === true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php }?></a></li>
 				  <li class="active"><a href="/user/settings">Profile settings</a></li>
 				</ul>
 			</div>

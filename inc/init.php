@@ -126,4 +126,16 @@ if($page !== "install"){
 	$sitename = $queries->getWhere("settings", array("name", "=", "sitename"));
 	$sitename = htmlspecialchars($sitename[0]->value);
 	
+	/*
+	 *  Are there any unread private messages for the user?
+	 */
+	
+	if($user->isLoggedIn()){
+		if($user->getUnreadPMs($user->data()->id) != 0){
+			$unread_pms = true;
+		} else {
+			$unread_pms = false;
+		}
+	}
+	
 }

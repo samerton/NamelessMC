@@ -15,6 +15,13 @@
 	$vote = $queries->getWhere("settings", array("name", "=", "vote"));
 	$vote = $vote[0]->value;
 	
+	// Extra links
+	$extra = array();
+	$staff_enabled = $queries->getWhere("settings", array("name", "=", "staff_apps"));
+	if($staff_enabled[0]->value === 'true'){
+		$extra['staff_application'] = 'Staff Application';
+	}
+	
 	?>
 	<!-- Static navbar -->
     <div class="navbar navbar-<?php if($navbar_style === "0"){ ?>default<?php } else { ?>inverse<?php } ?> navbar-static-top" role="navigation">
@@ -39,40 +46,35 @@
 			<?php if($vote !== "false"){ ?>
             <li<?php if($page === "vote"){?> class="active"<?php } ?>><a href="/vote">Vote</a></li>
 			<?php } ?>
-			<!-- Coming soon 
+			<?php
+			if(!empty($extra)){
+			?>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">More <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#">Players</a></li>
-                <li><a href="#">Staff</a></li>
+			    <?php foreach($extra as $key => $item){ ?>
+				<li><a href="/<?php echo $key; ?>"><?php echo $item; ?></a></li>
+				<?php } ?>
               </ul>
             </li>
-			-->
+			<?php
+			}
+			?>
           </ul>
 		  <?php 
 		  if($page != "signin" && $page != "register"){
-			if($user->isLoggedIn()) { 
-				$messages = false;
-				//$messages = $forum->hasUnreadMessages($user->data()->id);
-				$exclaim = false;
-				if($user->data()->group_id == 2 || $user->data()->group_id == 3){
-					if($reports = $queries->getWhere("reports", array('status' , '<>', '1')) != false){ 
-						$exclaim = true; 
-					}
-				}
-			}
-		?>
+		  ?>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png" />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if($exclaim === true || $messages === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png" />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if((isset($reports) && $reports == true) || $unread_pms === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
 				<?php if($user->isLoggedIn()) { ?> 
 				  <li><a href="/<?php echo 'profile/' . htmlspecialchars($user->data()->username);?>">Profile</a></li>
 				  <li class="divider"></li>	
-				  <li<?php if($page === "user"){?> class="active"<?php } ?>><a href="/user">UserCP<?php if($messages === true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li>
+				  <li<?php if($page === "user"){?> class="active"<?php } ?>><a href="/user">UserCP<?php if($unread_pms === true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li>
 				  <?php
 				  if($user->data()->group_id == 2 || $user->data()->group_id == 3){
-				  ?><li<?php if($page === "mod"){?> class="active"<?php } ?>><a href="/mod">ModCP<?php if($exclaim === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li><?php 
+				  ?><li<?php if($page === "mod"){?> class="active"<?php } ?>><a href="/mod">ModCP<?php if($reports === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li><?php 
 				  }
 				  if($user->data()->group_id == 2){?><li<?php if($page === "admin"){?> class="active"<?php } ?>><a href="/admin">AdminCP</a></li><?php }
 				  ?>
