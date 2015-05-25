@@ -78,6 +78,16 @@ class Queries {
 		}
 	}
 	
+	public function convertQuestionType($type) {
+		if($type == "1"){
+			return 'Dropdown';
+		} else if($type == "2"){
+			return 'Text';
+		} else if($type == "3"){
+			return 'Textarea';
+		}
+	}
+	
 	public function getLastId() {
 		return $this->_db->lastid();
 	}

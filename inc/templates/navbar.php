@@ -17,7 +17,7 @@
 	
 	// Extra links
 	$extra = array();
-	$staff_enabled = $queries->getWhere("settings", array("name", "=", "staff_apps"));
+	
 	if($staff_enabled[0]->value === 'true'){
 		$extra['staff_application'] = 'Staff Application';
 	}
@@ -66,7 +66,7 @@
 		  ?>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png" />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if((isset($reports) && $reports == true) || $unread_pms === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png" />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if((isset($reports) && $reports == true) || $unread_pms === true || (isset($open_apps) && $open_apps === true)){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
 				<?php if($user->isLoggedIn()) { ?> 
 				  <li><a href="/<?php echo 'profile/' . htmlspecialchars($user->data()->username);?>">Profile</a></li>
@@ -74,7 +74,7 @@
 				  <li<?php if($page === "user"){?> class="active"<?php } ?>><a href="/user">UserCP<?php if($unread_pms === true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li>
 				  <?php
 				  if($user->data()->group_id == 2 || $user->data()->group_id == 3){
-				  ?><li<?php if($page === "mod"){?> class="active"<?php } ?>><a href="/mod">ModCP<?php if($reports === true){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li><?php 
+				  ?><li<?php if($page === "mod"){?> class="active"<?php } ?>><a href="/mod">ModCP<?php if($reports === true || (isset($open_apps) && $open_apps === true)){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li><?php 
 				  }
 				  if($user->data()->group_id == 2){?><li<?php if($page === "admin"){?> class="active"<?php } ?>><a href="/admin">AdminCP</a></li><?php }
 				  ?>

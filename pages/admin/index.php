@@ -33,9 +33,11 @@ if($last_checked < strtotime('-1 day', $date)){
 	$uid = $queries->getWhere("settings", array("name", "=", "unique_id"));
 	$uid = htmlspecialchars($uid[0]->value);
 
-	$version = $queries->getWhere("settings", array("name", "=", "version"));
-	$version = htmlspecialchars($version[0]->value);
-
+	if(!isset($version)){
+		$version = $queries->getWhere('settings', array('id', '=', 30));
+		$version = $version[0]->value;
+	}
+	
 	$latest_version = file_get_contents("https://worldscapemc.co.uk/nl_core/stats.php?uid=" . $uid . "&version=" . $version);
 
 	if($latest_version !== "failed"){

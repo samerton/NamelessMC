@@ -138,4 +138,43 @@ if($page !== "install"){
 		}
 	}
 	
+	/*
+	 *  Are staff applications enabled, and if so, are there any open applications?
+	 */
+	 
+	$staff_enabled = $queries->getWhere("settings", array("name", "=", "staff_apps"));
+	 
+	if($staff_enabled[0]->value == 'true' && ($user->data()->group_id == 3 || $user->data()->group_id == 2)){
+		// First, check if moderators can view apps or not
+		$allow_moderators = $queries->getWhere('settings', array('id', '=', '37'));
+		$allow_moderators = $allow_moderators[0]->value;
+		
+		// Get any open applications
+		$open_apps = $queries->getWhere('staff_apps_replies', array('status', '=', 0));
+		
+		if(count($open_apps)){
+			// Moderators
+			if($allow_moderators === "true"){
+				if($user->data()->group_id == 3){
+					$open_apps = true;
+				}
+			}
+			
+			// Admins
+			if($user->data()->group_id == 2){
+				$open_apps = true;
+			}
+		} else {
+			// No apps open
+			$open_apps = false;
+		}
+	}
+	
+	/*
+	 *  Get version number
+	 */
+	 
+	$version = $queries->getWhere('settings', array('id', '=', 30));
+	$version = $version[0]->value;
+	
 }

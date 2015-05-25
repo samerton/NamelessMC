@@ -152,6 +152,18 @@ $token = Token::generate();
 				</form>
 				';
 				?>
+				<br />
+				<strong>Enable Staff Applications:</strong>
+				<?php 
+				echo '
+				<form name="staff_apps" style="display: inline;" action="" method="post">
+					<input type="hidden" name="id" value="25" />
+					<input type="hidden" name="value" value="' . $pages[24]->value . '" />
+					<input type="hidden" name="token" value="' . $token . '" />
+					<a href="#" onclick="document.forms[\'staff_apps\'].submit();">' . htmlspecialchars(ucfirst($pages[24]->value)) . '</a>
+				</form>
+				';
+				?>
 				<br /><br />
 				<?php
 				// URLs to server rules and forum rules

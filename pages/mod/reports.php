@@ -87,7 +87,7 @@ $token = Token::generate();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Samerton">
-	<link rel="icon" href="/favicon.ico">
+	<link rel="icon" href="/assets/favicon.ico">
 	<meta name="robots" content="noindex">
 
     <title><?php echo $sitename; ?> &bull; ModCP Reports</title>
@@ -109,6 +109,7 @@ $token = Token::generate();
 				  <li><a href="/mod">Overview</a></li>
 				  <li class="active"><a href="/mod/reports">Reports<?php if($reports == true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li>
 				  <li><a href="/mod/punishments">Punishments</a></li>
+				  <?php if($allow_moderators === "true" || $user->data()->group_id == 2){ ?><li><a href="/mod/applications">Staff Applications<?php if($open_apps === true){ ?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } ?></a></li><?php } ?>
 				  <li><a href="/mod/announcements">Announcements</a></li>
 				</ul>
 			</div>

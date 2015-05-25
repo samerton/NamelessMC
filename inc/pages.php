@@ -30,6 +30,7 @@ $pages = array(
 		"phpinfo",
 		"reset_password",
 		"search_users",
+		"staff_apps",
 		"update_mcnames",
 		"update_uuids",
 		"upgrade",
@@ -57,12 +58,14 @@ $pages = array(
 	),
 	"mod" => array(
 		"announcements",
+		"applications",
 		"punishments",
 		"reports"
 	),
 	"play",
 	"register",
 	"signin",
+	"staff_application",
 	"user" => array(
 		"acknowledge",
 		"messaging",

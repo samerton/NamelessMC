@@ -22,7 +22,7 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
     <meta name="author" content="Samerton">
-	<link rel="icon" href="/favicon.ico">
+	<link rel="icon" href="/assets/favicon.ico">
 	<meta name="robots" content="noindex">
 
     <title><?php echo $sitename; ?> &bull; UserCP Messaging</title>

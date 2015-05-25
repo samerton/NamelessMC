@@ -464,7 +464,7 @@ if(isset($_GET["step"])){
 					),
 					29 => array(
 						'name' => 'version',
-						'value' => '0.3.1'
+						'value' => '0.3.2'
 					),
 					30 => array(
 						'name' => 'version_checked',
@@ -638,13 +638,13 @@ if(isset($_GET["step"])){
 		<input type="hidden" name="page_stats" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="page_stats" value="1"> Enable Statistics integration (requires <a href="http://dev.bukkit.org/bukkit-plugins/lolmewnstats/" target="_blank">Stats</a>)
+		    <input type="checkbox" name="page_stats" value="1"> Enable Statistics integration (Not yet complete)
 		  </label>
 	    </div>
 		<input type="hidden" name="page_donate" value="0" />
 	    <div class="checkbox">
 		  <label>
-		    <input type="checkbox" name="page_donate" value="1"> Enable Donate page (requires <a href="http://dev.bukkit.org/bukkit-plugins/buycraft/" target="_blank">Buycraft</a>)
+		    <input type="checkbox" name="page_donate" value="1"> Enable Donate page (requires <a href="http://dev.bukkit.org/bukkit-plugins/buycraft/" target="_blank">Buycraft</a> or <a href="http://www.spigotmc.org/resources/minecraft-market-free-donation-webstore.203/" target="_blank">MinecraftMarket</a>)
 		  </label>
 	    </div>
 		<input type="hidden" name="page_vote" value="0" />

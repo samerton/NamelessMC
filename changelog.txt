@@ -43,3 +43,9 @@
 - Change the UUID integration class to use cURL instead of file_get_contents
 - Add time to when user registered on profile pages
 - Add upgrade instructions to admin upgrade page instead of linking to Spigot
+
+0.3.2
+- Fix issue where a date would not display correctly in the punishments ModCP page
+- Fix error whilst clicking on a user who has given reputation in modal in view topic page
+- Improvements to the private messaging system, including fixing notifications and also a private message button on user profiles
+- Staff application system

@@ -56,6 +56,7 @@
 	  <a href="https://github.com/bassjobsen/Bootstrap-3-Typeahead" target="_blank">Bootstrap 3 Typeahead</a><br />
 	  <a href="https://github.com/flot/flot" target="_blank">Flot charts</a><br />
 	  <a href="https://jquery.com/" target="_blank">jQuery</a>, <a href="https://jqueryui.com/">jQuery UI</a><br />
+	  <a href="https://www.datatables.net/" target="_blank">DataTables</a><br />
 	  <hr>
 	  <?php include("inc/templates/footer.php"); ?> 
 	  

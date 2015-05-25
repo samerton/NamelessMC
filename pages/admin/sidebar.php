@@ -16,6 +16,7 @@
 				  <li<?php if($page === "admin-forum"){ ?> class="active"<?php } ?>><a href="/admin/forum">Forum</a></li>
 				  <li<?php if($page === "admin-minecraft"){ ?> class="active"<?php } ?>><a href="/admin/minecraft">Minecraft</a></li>
 				  <li<?php if($page === "admin-infractions"){ ?> class="active"<?php } ?>><a href="/admin/infractions">Infractions</a></li>
+				  <li<?php if($page === "admin-staff_apps"){ ?> class="active"<?php } ?>><a href="/admin/staff_apps">Staff Applications</a></li>
 				  <li<?php if($page === "admin-donate"){ ?> class="active"<?php } ?>><a href="/admin/donate">Donate</a></li>
 				  <li<?php if($page === "admin-vote"){ ?> class="active"<?php } ?>><a href="/admin/vote">Vote</a></li>
 				  <li<?php if($page === "admin-upgrade"){ ?> class="active"<?php } ?>><a href="/admin/upgrade">Upgrade</a></li>
