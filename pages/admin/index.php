@@ -123,7 +123,7 @@ if($user->isAdmLoggedIn()){
 		  </div>
 		  <div class="col-md-9">
 			<div class="well well-sm">
-				<b>WorldscapeMC website version:</b> <?php $version = $queries->getWhere("settings", array("name", "=", "version")); echo htmlspecialchars($version[0]->value); ?><br />
+				<b>NamelessMC website version:</b> <?php $version = $queries->getWhere("settings", array("name", "=", "version")); echo htmlspecialchars($version[0]->value); ?><br />
 				<b>Webserver PHP version:</b> <?php echo phpversion(); ?> <a href="/admin/phpinfo" target="_blank">(Full PHP information)</a><br /><br />
 				<b>Server banner:</b><br />
 				<img src="/inc/integration/banner"/><br />
