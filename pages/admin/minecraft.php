@@ -62,12 +62,21 @@ if($user->isAdmLoggedIn()){
 					$current_default = $queries->getWhere("mc_servers", array("is_default", "=", 1));
 					try {
 						if(count($current_default)){
-						$queries->update("mc_servers", $current_default[0]->id, array(
-							'is_default' => 0
-						));
+							$queries->update("mc_servers", $current_default[0]->id, array(
+								'is_default' => 0
+							));
 						}
 						$queries->update("mc_servers", Input::get('main'), array(
 							'is_default' => 1
+						));
+						if(Input::get('external') == '0'){
+							$external_query = "false";
+						} else {
+							$external_query = "true";
+						}
+
+						$queries->update('settings', 38, array(
+							'value' => $external_query
 						));
 						echo '<script>window.location.replace("/admin/minecraft");</script>';
 						die();
@@ -133,7 +142,17 @@ if($user->isAdmLoggedIn()){
 				?>
 				</select> 
 			  </div>
-			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <?php
+			    // value for external query
+				$external_query = $queries->getWhere('settings', array('name', '=', 'external_query'));
+				$external_query = $external_query[0]->value;
+			  ?>
+			  <label for="external_query">Use external query?</label>
+			  <input type="hidden" name="external" value="0">
+			  <input name="external" value="1" id="external_query" type="checkbox"<?php if($external_query === "true"){ echo ' checked'; } ?>>
+			  <a class="btn btn-info btn-xs" data-toggle="popover" title="Use an external API to query the Minecraft server? Only use this if the built in query doesn't work; it's highly recommended that this is unticked."><span class="glyphicon glyphicon-question-sign"></span></a>
+			  <br /><br />
+  			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
 			  <input type="submit" value="Submit" class="btn btn-default">
 			</form>
 		<?php 

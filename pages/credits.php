@@ -57,6 +57,8 @@
 	  <a href="https://github.com/flot/flot" target="_blank">Flot charts</a><br />
 	  <a href="https://jquery.com/" target="_blank">jQuery</a>, <a href="https://jqueryui.com/">jQuery UI</a><br />
 	  <a href="https://www.datatables.net/" target="_blank">DataTables</a><br />
+	  <a href="https://github.com/cosenary/Simple-PHP-Cache" target="_blank">Simple PHP Cache</a><br />
+	  <a href="http://mcapi.us/" target="_blank">MCAPI</a><br />
 	  <hr>
 	  <?php include("inc/templates/footer.php"); ?> 
 	  

@@ -59,28 +59,34 @@ if($user->isLoggedIn()){
 }
 
 $servers = $queries->getWhere("mc_servers", array("display", "=", "1"));
-define( 'MQ_TIMEOUT', 1 );
-require('inc/integration/status/MinecraftServerPing.php');
-require('inc/integration/status/server.php');
-$serverStatus = new ServerStatus();
-foreach($servers as $server){
-	$parts = explode(':', $server->ip);
-	if(count($parts) == 1){
-		$server_ip = htmlspecialchars($parts[0]);
-		$server_port = 25565;
-	} else if(count($parts) == 2){
-		$server_ip = htmlspecialchars($parts[0]);
-		$server_port = htmlspecialchars($parts[1]);
-	} else {
-		echo 'Invalid IP</div>';
-		die();
-	}
-	if($serverStatus->isOnline($server_ip, $server_port, $mcname) === true){
-		$is_online = $server->name;
-		break;
+
+// Are we using the built-in query or an external API?
+$query_to_use = $queries->getWhere('settings', array('name', '=', 'external_query'));
+$query_to_use = $query_to_use[0]->value;
+
+if($query_to_use == 'false'){
+	define( 'MQ_TIMEOUT', 1 );
+	require('inc/integration/status/MinecraftServerPing.php');
+	require('inc/integration/status/server.php');
+	$serverStatus = new ServerStatus();
+	foreach($servers as $server){
+		$parts = explode(':', $server->ip);
+		if(count($parts) == 1){
+			$server_ip = htmlspecialchars($parts[0]);
+			$server_port = 25565;
+		} else if(count($parts) == 2){
+			$server_ip = htmlspecialchars($parts[0]);
+			$server_port = htmlspecialchars($parts[1]);
+		} else {
+			echo 'Invalid IP</div>';
+			die();
+		}
+		if($serverStatus->isOnline($server_ip, $server_port, $mcname) === true){
+			$is_online = $server->name;
+			break;
+		}
 	}
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -119,7 +125,7 @@ foreach($servers as $server){
 	  <?php if(isset($profile)){ ?>
 	  <div class="row">
 		<div class="col-md-9">
-			<div class="jumbotron"><h2><img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo $mcname; ?>/60.png" /> <strong><?php echo $mcname; ?></strong> <?php if($exists == true){ echo $user->getGroup($profile_user[0]->id, null, "true"); } else { echo '<span class="label label-default">Player</span>'; } ?> <span class="label label-<?php if(!isset($is_online)){ echo 'danger">Offline'; } else { echo 'success" rel="tooltip" data-trigger="hover" data-original-title="' . htmlspecialchars($is_online) . '">Online'; }?></span></h2></div>
+			<div class="jumbotron"><h2><img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo $mcname; ?>/60.png" /> <strong><?php echo $mcname; ?></strong> <?php if($exists == true){ echo $user->getGroup($profile_user[0]->id, null, "true"); } else { echo '<span class="label label-default">Player</span>'; } ?> <?php if($query_to_use == 'false'){ ?><span class="label label-<?php if(!isset($is_online)){ echo 'danger">Offline'; } else { echo 'success" rel="tooltip" data-trigger="hover" data-original-title="' . htmlspecialchars($is_online) . '">Online'; }?></span><?php } ?></h2></div>
 		    <br />
 		    <div role="tabpanel">
 			  <!-- Nav tabs -->

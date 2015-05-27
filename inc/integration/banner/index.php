@@ -21,6 +21,10 @@ if(!in_array("init.php", get_included_files())){
 	require('inc/integration/status/SRVResolver.php');
 }
 
+// Are we using the built-in query or an external API?
+$query_to_use = $queries->getWhere('settings', array('name', '=', 'external_query'));
+$query_to_use = $query_to_use[0]->value;
+
 $default_server = $queries->getWhere("mc_servers", array("is_default", "=", "1"));
 $server_name = htmlspecialchars($default_server[0]->name);
 $default_server = htmlspecialchars($default_server[0]->ip);
@@ -52,36 +56,93 @@ if(!isset($port)){
 	$address = $domain . ':' . $port;
 }
 
-define( 'MQ_SERVER_ADDR', $default_ip );
-define( 'MQ_SERVER_PORT', $default_port );
-define( 'MQ_TIMEOUT', 1 );
+if($query_to_use == "false"){
+	// Internal Query
+	define( 'MQ_SERVER_ADDR', $default_ip );
+	define( 'MQ_SERVER_PORT', $default_port );
+	define( 'MQ_TIMEOUT', 1 );
 
-$Timer = MicroTime( true );
+	$Timer = MicroTime( true );
 
-$Info = false;
-$Query = null;
+	$Info = false;
+	$Query = null;
 
-// Ping the server
-try{
-	$Query = new MinecraftPing( MQ_SERVER_ADDR, MQ_SERVER_PORT, MQ_TIMEOUT );
-	
-	$Info = $Query->Query( );
-	
-	if($Info === false){
-		$Query->Close( );
-		$Query->Connect( );
+	// Ping the server
+	try{
+		$Query = new MinecraftPing( MQ_SERVER_ADDR, MQ_SERVER_PORT, MQ_TIMEOUT );
 		
-		$Info = $Query->QueryOldPre17( );
+		$Info = $Query->Query( );
+		
+		if($Info === false){
+			$Query->Close( );
+			$Query->Connect( );
+			
+			$Info = $Query->QueryOldPre17( );
+		}
+	} catch( MinecraftPingException $e ){
+		$Exception = $e;
 	}
-} catch( MinecraftPingException $e ){
-	$Exception = $e;
-}
 
-if($Query !== null){
-	$Query->Close( );
-}
+	if($Query !== null){
+		$Query->Close( );
+	}
 
-$Timer = Number_Format( MicroTime( true ) - $Timer, 4, '.', '' );
+	$Timer = Number_Format( MicroTime( true ) - $Timer, 4, '.', '' );
+} else {
+	// External query
+	$cache = new Cache();
+	
+	// Check cache
+	$cache->setCache('query_cache');
+	
+	if(!$cache->isCached('query')){
+		// Not cached, query the server
+		// Use cURL
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_URL, 'https://mcapi.us/server/status?ip=' . $default_ip . '&port=' . $default_port);
+		
+		// Execute
+		$ret = curl_exec($ch);
+
+		// Store in cache
+		$cache->store('query', json_decode($ret, true), 5000);
+		
+		// Format the query
+		$ret = json_decode($ret, true);
+		
+		$Info = array(
+			'players' => array(
+				'online' => $ret['players']['now'],
+				'max' => $ret['players']['max']
+			),
+			'description' => $ret['motd']
+		);
+		
+		if(empty($ret['players']['max'])){
+			$Info['players']['max'] = $Info['players']['online'];
+		}
+		
+	} else {
+		// Cached, don't query
+		$query = $cache->retrieve('query');
+
+		$Info = array(
+			'players' => array(
+				'online' => $query['players']['now'],
+				'max' => $query['players']['max']
+			),
+			'description' => $query['motd']
+		);
+		
+		if(empty($query['players']['max'])){
+			$Info['players']['max'] = $Info['players']['online'];
+		}
+	}
+}
 
 if($Info){ // If the server's up..
 	// Parse the MOTD to make it colourful
@@ -132,7 +193,11 @@ if($Info){ // If the server's up..
 	$font = __DIR__ . "/minecraft.ttf";
 
 	// Make the image!
-	$serverpic = imagecreatefrompng($Info['favicon']);
+	if($query_to_use == "false"){
+		$serverpic = imagecreatefrompng($Info['favicon']);
+	} else {
+		$serverpic = imagecreatefrompng("favicon.png");
+	}
 	imageAlphaBlending($serverpic, true);
 	imageSaveAlpha($serverpic, true);
 	imagettftext($im, 12, 0, 90, 30, $white, $font, $server_name);
@@ -225,7 +290,9 @@ if($Info){ // If the server's up..
 	$x = $x - 40;
 
 	imagettftext($im, 11, 0, $x, 23, $white, $font, $Info['players']['online'] . "/" . $Info['players']['max']);
-	imagettftext($im, 10, 0, 550, 90, $white, $font, $Timer."ms");
+	if($query_to_use == "false"){
+		imagettftext($im, 10, 0, 550, 90, $white, $font, $Timer."ms");
+	}
 	imagecopy($im, $serverpic, 10, 20, 0, 0, 64, 64);
 
 	$online = imagecreatefrompng("online.png");

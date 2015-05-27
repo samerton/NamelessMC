@@ -43,37 +43,85 @@ if(!isset($port)){
 	$address = $domain . ':' . $port;
 }
 
-// Query the server
-define( 'MQ_SERVER_ADDR', $default_ip );
-define( 'MQ_SERVER_PORT', $default_port );
-define( 'MQ_TIMEOUT', 1 );
+// Are we using the built-in query or an external API?
+$query_to_use = $queries->getWhere('settings', array('name', '=', 'external_query'));
+$query_to_use = $query_to_use[0]->value;
 
-require('inc/integration/status/MinecraftServerPing.php');
+if($query_to_use == 'false'){
+	// Built in query
+	// Query the server
+	define( 'MQ_SERVER_ADDR', $default_ip );
+	define( 'MQ_SERVER_PORT', $default_port );
+	define( 'MQ_TIMEOUT', 1 );
 
-$Info = false;
-$Query = null;
+	require('inc/integration/status/MinecraftServerPing.php');
 
-try {
-	$Query = new MinecraftPing( MQ_SERVER_ADDR, MQ_SERVER_PORT, MQ_TIMEOUT );
-	
-	$Info = $Query->Query( );
-	
-	if( $Info === false )
-	{
-		$Query->Close( );
-		$Query->Connect( );
+	$Info = false;
+	$Query = null;
+
+	try {
+		$Query = new MinecraftPing( MQ_SERVER_ADDR, MQ_SERVER_PORT, MQ_TIMEOUT );
 		
-		$Info = $Query->QueryOldPre17( );
+		$Info = $Query->Query( );
+		
+		if( $Info === false )
+		{
+			$Query->Close( );
+			$Query->Connect( );
+			
+			$Info = $Query->QueryOldPre17( );
 
+		}
+	} catch( MinecraftPingException $e ) {
+		$Exception = $e;
 	}
-} catch( MinecraftPingException $e ) {
-	$Exception = $e;
-}
 
-if( $Query !== null ){
-	$Query->Close( );
+	if( $Query !== null ){
+		$Query->Close( );
+	}
+} else {
+	// External query
+	// Check cache
+	$cache = new Cache();
+	$cache->setCache('query_cache');
+	
+	if(!$cache->isCached('query')){
+		// Not cached, query the server
+		// Use cURL
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_URL, 'https://mcapi.us/server/status?ip=' . $default_ip . '&port=' . $default_port);
+		
+		// Execute
+		$ret = curl_exec($ch);
+
+		// Store in cache
+		$cache->store('query', json_decode($ret, true), 5000);
+		
+		// Format the query
+		$ret = json_decode($ret, true);
+		
+		$Info = array(
+			'players' => array(
+				'online' => $ret['players']['now']
+			)
+		);
+		
+	} else {
+		// Cached, don't query
+		$query = $cache->retrieve('query');
+
+		$Info = array(
+			'players' => array(
+				'online' => $query['players']['now']
+			)
+		);
+	}
+	
 }
- 
 ?>
 
 <!DOCTYPE html>
@@ -138,13 +186,7 @@ if( $Query !== null ){
 	  </div>
 	  <?php 
 	    }
-		if(isset($Exception)){
 	  ?>
-		<div class="panel panel-danger">
-			<div class="panel-heading"><?php echo htmlspecialchars( $Exception->getMessage( ) ); ?></div>
-			<p><?php echo nl2br( $e->getTraceAsString(), false ); ?></p>
-		</div>
-	  <?php } ?>
 	  
       <div class="jumbotron">
         <h1><?php echo $sitename; ?></h1>

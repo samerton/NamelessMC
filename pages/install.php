@@ -493,6 +493,10 @@ if(isset($_GET["step"])){
 					36 => array(
 						'name' => 'mods_view_apps',
 						'value' => 'false'
+					),
+					37 => array(
+						'name' => 'external_query',
+						'value' => 'false'
 					)
 				);
 				

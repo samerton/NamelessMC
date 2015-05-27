@@ -68,9 +68,22 @@
 	} else {
 		$address = $domain . ':' . $port;
 	}
+	
+	// Are we using the built-in query or an external API?
+	$query_to_use = $queries->getWhere('settings', array('name', '=', 'external_query'));
+	$query_to_use = $query_to_use[0]->value;
 	?>
 	  <div class="alert alert-info"><center>Connect to the server with the IP <strong><?php echo htmlspecialchars($domain); ?></strong></center></div>
-	  <?php require('inc/integration/status/global.php'); ?>
+	  <?php
+	  if($query_to_use == 'false'){
+		// Built in query, continue as normal
+	    require('inc/integration/status/global.php'); 
+	  } else {
+		  // External query
+		  $cache = new Cache();
+		  require('inc/integration/status/global_external.php');
+	  }
+	  ?>
 	  <div class="row">
 		<div class="col-md-3">
 		  <div class="well">
@@ -80,23 +93,45 @@
 				<td><?php if(!empty($Info)){ ?>Online<?php } else { ?>Offline<?php } ?></td>
 			  </tr>
 			  <tr>
-				<td><b>Players:</b></td>
-				<td><?php echo $Info['players']['online'] . ' / ' . $Info['players']['max'];?></td>
+				<td><b>Players Online:</b></td>
+				<td><?php 
+				  if(empty($Info['players']['max'])){
+					echo $Info['players']['online'];
+				  } else {
+				    echo $Info['players']['online'] . ' / ' . $Info['players']['max'];
+				  }
+				?></td>
 			  </tr>
+			  <?php
+			  if($query_to_use == 'false'){
+			  ?>
 			  <tr>
 				<td><b>Queried in:</b></td>
 				<td><?php echo $Timer; ?>s</td>
 			  </tr>
+			  <?php
+			  }
+			  ?>
 			</table>
 		  </div>
 		</div>
 		<div class="col-md-9">
 		  <div class="well">
+		    <?php if($query_to_use == 'false'){	?>
 			<h3>Players online</h3>
+			<?php } else { ?>
+			<h3>Server Status</h3>
 			<?php 
+			}
 			$servers = $queries->getWhere("mc_servers", array("display", "=", "1"));
-			require('inc/integration/status/server.php');
-			$serverStatus = new ServerStatus();
+			if($query_to_use == 'false'){
+				// Built in query, continue as normal
+				require('inc/integration/status/server.php'); 
+				$serverStatus = new ServerStatus();
+			} else {
+				// External query
+				$cache = new Cache();
+			}
 			foreach($servers as $server){
 				$parts = explode(':', $server->ip);
 				if(count($parts) == 1){
@@ -115,7 +150,12 @@
 			?>
 			<h4><?php echo htmlspecialchars($server->name); ?></h4>
 			<?php 
-				$serverStatus->serverPlay($server_ip, $server_port, $server->name);
+				if($query_to_use == 'false'){
+					$serverStatus->serverPlay($server_ip, $server_port, $server->name);
+				} else {
+					require('inc/integration/status/server_external.php');
+					echo '<hr>';
+				}
 			}
 			?>
 			</div>
