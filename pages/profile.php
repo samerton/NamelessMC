@@ -200,6 +200,9 @@ if($query_to_use == 'false'){
 						$all_infractions = $infractions->bm_getAllInfractions($uuid);
 					} else if($infractions_plugin == "mb"){
 						$all_infractions = $infractions->mb_getAllInfractions(htmlspecialchars($profile));
+					} else if($infractions_plugin == "lb"){
+						$uuid = ProfileUtils::formatUUID($uuid);
+						$all_infractions = $infractions->lb_getAllInfractions($uuid);
 					}
 					?>
 					<table class="table table-bordered">
@@ -215,6 +218,43 @@ if($query_to_use == 'false'){
 					  <tbody>
 						<?php 
 						foreach($all_infractions as $infraction){
+							if($infractions_plugin == "lb"){
+								// Get username of staff
+								if($infraction["staff"] !== "CONSOLE"){
+									// Get username of staff from UUID
+									$staff_uuid = str_replace('-', '', $infraction["staff"]);
+									$infractions_query = $queries->getWhere('users', array('uuid', '=', htmlspecialchars($staff_uuid)));
+									if(empty($infractions_query)){
+										$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', htmlspecialchars($staff_uuid)));
+										if(empty($infractions_query)){
+											require_once('inc/integration/uuid.php');
+											$profile = ProfileUtils::getProfile($staff_uuid);
+											if(empty($profile)){
+												echo 'Could not find that player';
+												die();
+											}
+											$result = $profile->getProfileAsArray();
+											$staff = htmlspecialchars($result["username"]);
+											$uuid = htmlspecialchars($staff_uuid);
+											try {
+												$queries->create("uuid_cache", array(
+													'mcname' => $staff,
+													'uuid' => $uuid
+												));
+											} catch(Exception $e){
+												die($e->getMessage());
+											}
+										}
+										$staff = $queries->getWhere('uuid_cache', array('uuid', '=', $staff_uuid));
+										$infraction["staff"] = $staff[0]->mcname;
+									} else {
+										$staff = $queries->getWhere('users', array('uuid', '=', $staff_uuid));
+										$infraction["staff"] = $staff[0]->mcname;
+									}
+								} else {
+									$infraction["staff"] = "console";
+								}
+							}
 						?>
 						<tr>
 						  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>">View</a></td>

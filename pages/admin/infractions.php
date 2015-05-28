@@ -99,6 +99,9 @@ if(Input::exists()){
 				  <label class="btn btn-primary<?php if($query[27]->value == "mb"){ ?> active<?php } ?>">
 					<input type="radio" name="plugin" id="InputPlugin3" value="mb" autocomplete="off"<?php if($query[27]->value == "mb"){ ?> checked<?php } ?>> MaxBans
 				  </label>
+				  <label class="btn btn-primary<?php if($query[27]->value == "lb"){ ?> active<?php } ?>">
+					<input type="radio" name="plugin" id="InputPlugin4" value="lb" autocomplete="off"<?php if($query[27]->value == "lb"){ ?> checked<?php } ?>> LiteBans
+				  </label>
 				</div>
 				<br /><br />
 				<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">

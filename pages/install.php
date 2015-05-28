@@ -892,6 +892,9 @@ if(isset($_GET["step"])){
 		  <label class="btn btn-primary">
 			<input type="radio" name="inf_type" id="InputInfType3" value="mb" autocomplete="off"> MaxBans
 		  </label>
+		  <label class="btn btn-primary">
+			<input type="radio" name="inf_type" id="InputInfType4" value="lb" autocomplete="off"> LiteBans
+		  </label>
 		</div>
 		<br /><br />
 	    <div class="form-group">

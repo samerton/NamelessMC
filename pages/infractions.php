@@ -63,6 +63,8 @@ if(isset($_GET['p'])){
 			$all_infractions = $infractions->bm_getAllInfractions();
 		} else if($infractions_plugin == "mb"){
 			$all_infractions = $infractions->mb_getAllInfractions();
+		} else if($infractions_plugin == "lb"){
+			$all_infractions = $infractions->lb_getAllInfractions();
 		}
 			
 		$paginate = PaginateArray($p);
@@ -101,11 +103,45 @@ if(isset($_GET['p'])){
 					$mcname = $exploded[0];
 					$time = $exploded[1];
 				}
+				if($infractions_plugin == "lb"){
+					$mcname = $infraction["username"];
+					
+					// LiteBans: get username of staff from UUID
+					$staff_uuid = str_replace('-', '', $infraction["staff"]);
+					$infractions_query = $queries->getWhere('users', array('uuid', '=', $staff_uuid));
+					if(empty($infractions_query)){
+						$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $staff_uuid));
+						if(empty($infractions_query)){
+							require_once('inc/integration/uuid.php');
+							$profile = ProfileUtils::getProfile($staff_uuid);
+							if(empty($profile)){
+								echo 'Could not find that player';
+								die();
+							}
+							$result = $profile->getProfileAsArray();
+							$staff = htmlspecialchars($result["username"]);
+							$uuid = htmlspecialchars($staff_uuid);
+							try {
+								$queries->create("uuid_cache", array(
+									'mcname' => $staff,
+									'uuid' => $uuid
+								));
+							} catch(Exception $e){
+								die($e->getMessage());
+							}
+						}
+						$staff = $queries->getWhere('uuid_cache', array('uuid', '=', $staff_uuid));
+						$infraction["staff"] = $staff[0]->mcname;
+					} else {
+						$staff = $queries->getWhere('users', array('uuid', '=', $staff_uuid));
+						$infraction["staff"] = $staff[0]->mcname;
+					}
+				}
 			?>
 			<tr>
 			  <td><a href="/infractions/?type=<?php echo $infraction["type"]; ?>&amp;id=<?php echo $infraction["id"]; ?>">View</a></td>
 			  <td><?php 
-			    if($infractions_plugin !== "mb"){
+			    if($infractions_plugin !== "mb" && $infractions_plugin !== "lb"){
 					$infractions_query = $queries->getWhere('users', array('uuid', '=', $infraction["uuid"]));
 					if(empty($infractions_query)){
 						$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $infraction["uuid"]));
@@ -411,16 +447,83 @@ if(isset($_GET['p'])){
 				$issued_by = "console";
 			}
 			
+		} else if($infractions_plugin == "lb"){
+			// LiteBans
+			$infraction = $infractions->lb_getInfraction($_GET["type"], $_GET["id"]);
+			$mcname = $infraction[1];
+			$infraction = $infraction[0];
+			
+			if($_GET["type"] == "ban"){
+				$end_date = 'Never';
+				if($infraction->active == 0){
+					$unbanned = true;
+				}
+			} else if($_GET["type"] == "mute" || $_GET["type"] == "temp_ban" || $_GET["type"] == "warning"){
+				if($infraction->until != '-1'){
+					$end_date = date('jS M Y', $infraction->until / 1000);
+				} else {
+					$end_date = 'Never';
+				}
+				if($_GET["type"] == "mute"){
+					if($infraction->active == 0){
+						$unbanned = true;
+					}
+				}
+			}
+			
+			$start_date = date('jS M Y', $infraction->time / 1000);
+			
+			// Reason
+			if($infraction->reason !== null){
+				$reason = htmlspecialchars($infraction->reason);
+			} else {
+				$reason = "Not set";
+			}
+			
+			if($infraction->banned_by_uuid !== "CONSOLE"){
+				// Get username of staff from UUID
+				$staff_uuid = str_replace('-', '', $infraction->banned_by_uuid);
+				$infractions_query = $queries->getWhere('users', array('uuid', '=', htmlspecialchars($staff_uuid)));
+				if(empty($infractions_query)){
+					$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', htmlspecialchars($staff_uuid)));
+					if(empty($infractions_query)){
+						require_once('inc/integration/uuid.php');
+						$profile = ProfileUtils::getProfile($staff_uuid);
+						if(empty($profile)){
+							echo 'Could not find that player';
+							die();
+						}
+						$result = $profile->getProfileAsArray();
+						$staff = htmlspecialchars($result["username"]);
+						$uuid = htmlspecialchars($staff_uuid);
+						try {
+							$queries->create("uuid_cache", array(
+								'mcname' => $staff,
+								'uuid' => $uuid
+							));
+						} catch(Exception $e){
+							die($e->getMessage());
+						}
+					}
+					$staff = $queries->getWhere('uuid_cache', array('uuid', '=', $staff_uuid));
+					$issued_by = $staff[0]->mcname;
+				} else {
+					$staff = $queries->getWhere('users', array('uuid', '=', $staff_uuid));
+					$issued_by = $staff[0]->mcname;
+				}
+			} else {
+				$issued_by = "console";
+			}
 		}
 	  ?>
 		<a href="/infractions" class="btn btn-primary">Back</a>
 		<h3>Player: <?php echo htmlspecialchars($mcname); ?></h3>
-		Infraction type: <?php $type = strtolower($_GET["type"]); echo htmlspecialchars(str_replace('_', ' ', ucfirst($type))); ?><br />
+		Infraction type: <?php $type = strtolower($_GET["type"]); echo htmlspecialchars(str_replace('_', ' ', ucfirst($type))); ?><?php if($infractions_plugin == "lb" && isset($unbanned)){ ?> - <strong>Revoked</strong><?php } ?><br />
 		Date of infraction: <?php echo $start_date; ?><br />
 		Infraction ends: <?php echo $end_date; ?><br />
 		Reason for infraction: <?php echo $reason; ?><br />
 		Issued by: <?php if(strtolower($issued_by) != "console"){ ?><a href="/profile/<?php echo $issued_by; ?>"><?php echo $issued_by; ?></a><?php } else { ?>Console<?php } ?><br />
-		<?php if($infractions_plugin !== "mb"){ ?>Infraction revoked: <?php echo $revoked; ?><br /><?php } ?>
+		<?php if($infractions_plugin !== "mb" && $infractions_plugin !== "lb"){ ?>Infraction revoked: <?php echo $revoked; ?><br /><?php } ?>
 	  <?php 
 	  }
 	  ?>

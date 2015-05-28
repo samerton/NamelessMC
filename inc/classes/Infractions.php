@@ -581,4 +581,265 @@ class Infractions {
 		return false;
 	}
 	
+	// Receive a list of all infractions for LiteBans, either for a single user or for all users
+	// Params: $uuid (string), UUID of a user. If null, will list all infractions
+	public function lb_getAllInfractions($uuid = null) {
+		if($uuid !== null){
+			$field = "uuid";
+			$symbol = "=";
+			$equals = $uuid;
+		} else {
+			$field = "uuid";
+			$symbol = "<>";
+			$equals = "0";
+		}
+
+		$bans = $this->_db->get('bans', array($field, $symbol, $equals))->results();
+		$kicks = $this->_db->get('kicks', array($field, $symbol, $equals))->results();
+		$mutes = $this->_db->get('mutes', array($field, $symbol, $equals))->results();
+		
+		$warnings = $this->_db->get('warnings', array($field, $symbol, $equals))->results();
+		
+		$results = array();
+		$i = 0;
+
+		// Bans
+		foreach($bans as $ban){
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($ban->uuid)))->results();
+			
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = $username[0]->name;
+
+			$results[$i]["username"] = htmlspecialchars($username);
+			$results[$i]["id"] = $ban->id;
+			$results[$i]["staff"] = htmlspecialchars($ban->banned_by_uuid);
+			
+			$results[$i]["issued"] = $ban->time / 1000;
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $ban->time / 1000);
+			
+			// Is a reason set?
+			if($ban->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($ban->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+			
+			// Is it a temp-ban?
+			if($ban->until != '-1'){
+				$results[$i]["type"] = "temp_ban";
+				$results[$i]["type_human"] = "<span class=\"label label-danger\">Temp Ban</span>";
+				if($ban->active == 1){
+					$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $ban->until / 1000) . "\">Active</span>";
+					$results[$i]["expires"] = $ban->until / 1000;
+				} else {
+					$results[$i]["expires_human"] = "<span class=\"label label-info\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expired at " . date("jS M Y", $ban->until / 1000) . "\">Expired</span>";
+					$results[$i]["expires"] = $ban->until / 1000;
+				}
+			} else {
+				$results[$i]["type"] = "ban";
+				$results[$i]["type_human"] = "<span class=\"label label-danger\">Ban</span>";
+				if($ban->active == 1){
+					$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
+				} else {
+					$results[$i]["expires_human"] = "<span class=\"label label-success\">Unbanned</span>";
+				}
+			}
+			$i++;
+		}
+		
+		// Mutes
+		foreach($mutes as $mute){
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($mute->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = $username[0]->name;
+			
+			$results[$i]["username"] = htmlspecialchars($username);
+			$results[$i]["id"] = $mute->id;
+			$results[$i]["staff"] = htmlspecialchars($mute->banned_by_uuid);
+			
+			$results[$i]["issued"] = $mute->time / 1000;
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $mute->time / 1000);
+			
+			// Is a reason set?
+			if($mute->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($mute->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+			
+			$results[$i]["type"] = "mute";
+			$results[$i]["type_human"] = "<span class=\"label label-warning\">Mute</span>";
+			
+			// Is it a temp-mute?
+			if($mute->until != '-1'){
+				if($mute->active == 1){
+					$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $mute->until / 1000) . "\">Active</span>";
+					$results[$i]["expires"] = $mute->until / 1000;
+				} else {
+					$results[$i]["expires_human"] = "<span class=\"label label-info\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expired: " . date("jS M Y", $mute->until / 1000) . "\">Expired</span>";
+					$results[$i]["expires"] = $mute->until / 1000;
+				}
+			} else {
+				if($mute->active == 1){
+					$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
+				} else {
+					$results[$i]["expires_human"] = "<span class=\"label label-success\">Unmuted</span>";	
+				}
+			}
+			$i++;
+		}
+		
+		// Warnings
+		foreach($warnings as $warning){
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($warning->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = $username[0]->name;
+			
+			$results[$i]["username"] = htmlspecialchars($username);
+			$results[$i]["id"] = $warning->id;
+			$results[$i]["staff"] = htmlspecialchars($warning->banned_by_uuid);
+			
+			$results[$i]["issued"] = $warning->time / 1000;
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $warning->time / 1000);
+			
+			// Is a reason set?
+			if($warning->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($warning->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+
+
+			$results[$i]["type"] = "warning";
+			$results[$i]["type_human"] = "<span class=\"label label-info\">Warning</span>";
+			$results[$i]["expires_human"] = "n/a";
+
+			$i++;
+		}
+		
+		// Kicks
+		foreach($kicks as $kick){
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($kick->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = $username[0]->name;
+			
+			$results[$i]["username"] = htmlspecialchars($username);
+			$results[$i]["id"] = $kick->id;
+			$results[$i]["staff"] = htmlspecialchars($kick->banned_by_uuid);
+			
+			$results[$i]["issued"] = $kick->time / 1000;
+			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $kick->time / 1000);
+			
+			// Is a reason set?
+			if($kick->reason !== null){
+				$results[$i]["reason"] = htmlspecialchars($kick->reason);
+			} else {
+				$results[$i]["reason"] = "-";
+			}
+
+			$results[$i]["type"] = "kick";
+			$results[$i]["type_human"] = "<span class=\"label label-default\">Kick</span>";
+			$results[$i]["expires_human"] = "n/a";
+
+			$i++;
+		}
+
+		// Order by date, most recent first
+		function date_compare($a, $b)
+		{
+			$t1 = $a['issued'];
+			$t2 = $b['issued'];
+			return $t2 - $t1;
+		}    
+		usort($results, 'date_compare');
+
+		return $results;
+	}
+	
+	// Receive an object containing infraction information for a specified infraction ID and type (LiteBans)
+	// Params: $type (string), either ban, kick or mute; $id (int), ID of infraction
+	public function lb_getInfraction($type, $id) {
+		if($type === "ban" || $type === "temp_ban"){
+			$results = $this->_db->get('bans', array("id", "=", $id))->results();
+			
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($results[0]->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = htmlspecialchars($username[0]->name);
+			
+			return array($results[0], $username);
+		} else if($type === "mute"){
+			$results = $this->_db->get('mutes', array("id", "=", $id))->results();
+			
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($results[0]->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = htmlspecialchars($username[0]->name);
+			
+			return array($results[0], $username);
+		} else if($type === "warning"){
+			$results = $this->_db->get('warnings', array("id", "=", $id))->results();
+			
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($results[0]->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = htmlspecialchars($username[0]->name);
+			
+			return array($results[0], $username);
+		} else if($type === "kick"){
+			$results = $this->_db->get('kicks', array("id", "=", $id))->results();
+			
+			$username = $this->_db->get('history', array('uuid', '=', htmlspecialchars($results[0]->uuid)))->results();
+
+			if(count($username) > 1){
+				// get most recent name
+				usort($username, function($a, $b) {
+					return strtotime($b->date) - strtotime($a->date);
+				});
+			}
+			$username = htmlspecialchars($username[0]->name);
+			
+			return array($results[0], $username);
+		}
+		return false;
+	}
+	
 }
