@@ -424,8 +424,15 @@ if(isset($_GET['p'])){
 			
 			if($_GET["type"] == "ban"){
 				$end_date = 'Never';
-				if($infraction->active == 0){
-					$unbanned = true;
+				if($infraction->active == null){
+					// active
+				} else {
+					if(ord($infraction->active) == '1'){
+						// active
+					} else {
+						// revoked
+						$unbanned = true;
+					}
 				}
 			} else if($_GET["type"] == "mute" || $_GET["type"] == "temp_ban" || $_GET["type"] == "warning"){
 				if($infraction->until != '-1'){
@@ -434,8 +441,15 @@ if(isset($_GET['p'])){
 					$end_date = 'Never';
 				}
 				if($_GET["type"] == "mute"){
-					if($infraction->active == 0){
-						$unbanned = true;
+					if($infraction->active == null){
+						// active
+					} else {
+						if(ord($infraction->active) == '1'){
+							// active
+						} else {
+							// revoked
+							$unbanned = true;
+						}
 					}
 				}
 			}

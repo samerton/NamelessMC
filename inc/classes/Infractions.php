@@ -633,7 +633,7 @@ class Infractions {
 			if($ban->until != '-1'){
 				$results[$i]["type"] = "temp_ban";
 				$results[$i]["type_human"] = "<span class=\"label label-danger\">Temp Ban</span>";
-				if($ban->active == 1){
+				if(ord($ban->active) == '1'){
 					$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $ban->until / 1000) . "\">Active</span>";
 					$results[$i]["expires"] = $ban->until / 1000;
 				} else {
@@ -643,10 +643,16 @@ class Infractions {
 			} else {
 				$results[$i]["type"] = "ban";
 				$results[$i]["type_human"] = "<span class=\"label label-danger\">Ban</span>";
-				if($ban->active == 1){
+
+				if($ban->active == null){
+					// Active
 					$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
 				} else {
-					$results[$i]["expires_human"] = "<span class=\"label label-success\">Unbanned</span>";
+					if(ord($ban->active) == '1'){
+						$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
+					} else {
+						$results[$i]["expires_human"] = "<span class=\"label label-success\">Unbanned</span>";	
+					}
 				}
 			}
 			$i++;
@@ -683,7 +689,7 @@ class Infractions {
 			
 			// Is it a temp-mute?
 			if($mute->until != '-1'){
-				if($mute->active == 1){
+				if(ord($mute->active) == '1'){
 					$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $mute->until / 1000) . "\">Active</span>";
 					$results[$i]["expires"] = $mute->until / 1000;
 				} else {
@@ -691,10 +697,15 @@ class Infractions {
 					$results[$i]["expires"] = $mute->until / 1000;
 				}
 			} else {
-				if($mute->active == 1){
+				if($mute->active == null){
+					// Active
 					$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
 				} else {
-					$results[$i]["expires_human"] = "<span class=\"label label-success\">Unmuted</span>";	
+					if(ord($mute->active) == '1'){
+						$results[$i]["expires_human"] = "<span class=\"label label-danger\">Permanent</span>";
+					} else {
+						$results[$i]["expires_human"] = "<span class=\"label label-success\">Unmuted</span>";	
+					}
 				}
 			}
 			$i++;
