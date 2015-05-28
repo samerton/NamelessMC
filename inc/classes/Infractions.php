@@ -617,7 +617,7 @@ class Infractions {
 
 			$results[$i]["username"] = htmlspecialchars($username);
 			$results[$i]["id"] = $ban->id;
-			$results[$i]["staff"] = htmlspecialchars($ban->banned_by_uuid);
+			$results[$i]["staff"] = htmlspecialchars($ban->banned_by_name);
 			
 			$results[$i]["issued"] = $ban->time / 1000;
 			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $ban->time / 1000);
@@ -637,7 +637,7 @@ class Infractions {
 					$results[$i]["expires_human"] = "<span class=\"label label-success\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expires: " . date("jS M Y", $ban->until / 1000) . "\">Active</span>";
 					$results[$i]["expires"] = $ban->until / 1000;
 				} else {
-					$results[$i]["expires_human"] = "<span class=\"label label-info\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expired at " . date("jS M Y", $ban->until / 1000) . "\">Expired</span>";
+					$results[$i]["expires_human"] = "<span class=\"label label-info\" rel=\"tooltip\" data-trigger=\"hover\" data-original-title=\"Expired: " . date("jS M Y", $ban->until / 1000) . "\">Expired</span>";
 					$results[$i]["expires"] = $ban->until / 1000;
 				}
 			} else {
@@ -666,7 +666,7 @@ class Infractions {
 			
 			$results[$i]["username"] = htmlspecialchars($username);
 			$results[$i]["id"] = $mute->id;
-			$results[$i]["staff"] = htmlspecialchars($mute->banned_by_uuid);
+			$results[$i]["staff"] = htmlspecialchars($mute->banned_by_name);
 			
 			$results[$i]["issued"] = $mute->time / 1000;
 			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $mute->time / 1000);
@@ -714,7 +714,7 @@ class Infractions {
 			
 			$results[$i]["username"] = htmlspecialchars($username);
 			$results[$i]["id"] = $warning->id;
-			$results[$i]["staff"] = htmlspecialchars($warning->banned_by_uuid);
+			$results[$i]["staff"] = htmlspecialchars($warning->banned_by_name);
 			
 			$results[$i]["issued"] = $warning->time / 1000;
 			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $warning->time / 1000);
@@ -748,7 +748,7 @@ class Infractions {
 			
 			$results[$i]["username"] = htmlspecialchars($username);
 			$results[$i]["id"] = $kick->id;
-			$results[$i]["staff"] = htmlspecialchars($kick->banned_by_uuid);
+			$results[$i]["staff"] = htmlspecialchars($kick->banned_by_name);
 			
 			$results[$i]["issued"] = $kick->time / 1000;
 			$results[$i]["issued_human"] = date("jS M Y, H:i:s", $kick->time / 1000);

@@ -105,37 +105,6 @@ if(isset($_GET['p'])){
 				}
 				if($infractions_plugin == "lb"){
 					$mcname = $infraction["username"];
-					
-					// LiteBans: get username of staff from UUID
-					$staff_uuid = str_replace('-', '', $infraction["staff"]);
-					$infractions_query = $queries->getWhere('users', array('uuid', '=', $staff_uuid));
-					if(empty($infractions_query)){
-						$infractions_query = $queries->getWhere('uuid_cache', array('uuid', '=', $staff_uuid));
-						if(empty($infractions_query)){
-							require_once('inc/integration/uuid.php');
-							$profile = ProfileUtils::getProfile($staff_uuid);
-							if(empty($profile)){
-								echo 'Could not find that player';
-								die();
-							}
-							$result = $profile->getProfileAsArray();
-							$staff = htmlspecialchars($result["username"]);
-							$uuid = htmlspecialchars($staff_uuid);
-							try {
-								$queries->create("uuid_cache", array(
-									'mcname' => $staff,
-									'uuid' => $uuid
-								));
-							} catch(Exception $e){
-								die($e->getMessage());
-							}
-						}
-						$staff = $queries->getWhere('uuid_cache', array('uuid', '=', $staff_uuid));
-						$infraction["staff"] = $staff[0]->mcname;
-					} else {
-						$staff = $queries->getWhere('users', array('uuid', '=', $staff_uuid));
-						$infraction["staff"] = $staff[0]->mcname;
-					}
 				}
 			?>
 			<tr>
