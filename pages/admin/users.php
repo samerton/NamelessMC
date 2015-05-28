@@ -458,6 +458,10 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 						<input type="text" name="MCUsername" class="form-control" name="MCUsername" id="InputMCUsername" placeholder="Minecraft Username" value="<?php echo htmlspecialchars($user[0]->mcname); ?>">
 					  </div>
 					  <?php
+					  } else {
+					  ?>
+					  <input type="hidden" name="MCUsername" value="<?php echo htmlspecialchars($user[0]->username); ?>">
+					  <?php
 					  }
 					  ?>
 					  <div class="form-group">
