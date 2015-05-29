@@ -60,6 +60,10 @@ if(Input::exists()) {
 			'twitter_id' => array(
 				'min' => 4,
 				'max' => 64
+			),
+			'admin_email' => array(
+				'min' => 2,
+				'max' => 1024
 			)
 		));
 		
@@ -142,6 +146,11 @@ if(Input::exists()) {
 					'name' => 'displaynames',
 					'number' => 27,
 					'value' => $displaynames
+				),
+				13 => array(
+					'name' => 'admin_email',
+					'number' => 12,
+					'value' => htmlspecialchars(Input::get('admin_email'))
 				)
 			);
 			try {
@@ -201,7 +210,11 @@ if(Input::exists()) {
 				<form role="form" action="" method="post">
 					<div class="form-group">
 						<label for="InputSiteName">Site Name</label>
-						<input type="text" name="sitename" class="form-control" id="InputSiteName" placeholder="Site Name" value="<?php echo $settings[0]->value; ?>">
+						<input type="text" name="sitename" class="form-control" id="InputSiteName" placeholder="Site Name" value="<?php echo escape($settings[0]->value); ?>">
+					</div>
+					<div class="form-group">
+						<label for="InputEmail">Outgoing Email</label>
+						<input type="text" name="admin_email" class="form-control" id="InputEmail" placeholder="Outgoing Email" value="<?php echo escape($settings[11]->value); ?>">
 					</div>
 					<input type="hidden" name="enable_recaptcha" value="0" />
 					<label>Recaptcha Site Key</label>
@@ -209,27 +222,27 @@ if(Input::exists()) {
 						<span class="input-group-addon">
 							<input name="enable_recaptcha" value="1" id="InputEnableRecaptcha" type="checkbox"<?php if($settings[13]->value === "true"){ echo ' checked'; } ?>>
 					    </span>
-						<input type="text" name="recaptcha" class="form-control" id="InputRecaptcha" placeholder="Recaptcha Key" value="<?php echo $settings[14]->value; ?>">
+						<input type="text" name="recaptcha" class="form-control" id="InputRecaptcha" placeholder="Recaptcha Key" value="<?php echo escape($settings[14]->value); ?>">
 					</div>
 					<div class="form-group">
 						<label for="InputYoutube">YouTube URL</label>
-						<input type="text" name="youtubeurl" class="form-control" id="InputYoutube" placeholder="YouTube URL (with preceding http)" value="<?php echo $settings[6]->value; ?>">
+						<input type="text" name="youtubeurl" class="form-control" id="InputYoutube" placeholder="YouTube URL (with preceding http)" value="<?php echo escape($settings[6]->value); ?>">
 					</div>
 					<div class="form-group">
 						<label for="InputTwitter">Twitter URL</label>
-						<input type="text" name="twitterurl" class="form-control" id="InputTwitter" placeholder="Twitter URL (with preceding http)" value="<?php echo $settings[7]->value; ?>">
+						<input type="text" name="twitterurl" class="form-control" id="InputTwitter" placeholder="Twitter URL (with preceding http)" value="<?php echo escape($settings[7]->value); ?>">
 					</div>
 					<div class="form-group">
 						<label for="InputTwitterID">Twitter Widget ID</label>
-						<input type="text" name="twitter_id" class="form-control" id="InputTwitterID" placeholder="Twitter Widget ID" value="<?php echo $settings[15]->value; ?>">
+						<input type="text" name="twitter_id" class="form-control" id="InputTwitterID" placeholder="Twitter Widget ID" value="<?php echo escape($settings[15]->value); ?>">
 					</div>
 					<div class="form-group">
 						<label for="InputGPlus">Google Plus URL</label>
-						<input type="text" name="gplusurl" class="form-control" id="InputGPlus" placeholder="Google Plus URL (with preceding http)" value="<?php echo $settings[8]->value; ?>">
+						<input type="text" name="gplusurl" class="form-control" id="InputGPlus" placeholder="Google Plus URL (with preceding http)" value="<?php echo escape($settings[8]->value); ?>">
 					</div>
 					<div class="form-group">
 						<label for="InputFacebook">Facebook URL</label>
-						<input type="text" name="fburl" class="form-control" id="InputFacebook" placeholder="Facebook URL (with preceding http)" value="<?php echo $settings[9]->value; ?>">
+						<input type="text" name="fburl" class="form-control" id="InputFacebook" placeholder="Facebook URL (with preceding http)" value="<?php echo escape($settings[9]->value); ?>">
 					</div>
 					<div class="form-group">
 						<label for="InputBootstrap">Bootstrap Style</label>
