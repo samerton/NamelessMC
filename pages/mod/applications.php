@@ -73,14 +73,20 @@ if(isset($_GET['app'])){
 			// Get questions
 			$questions = $queries->getWhere('staff_apps_questions', array('id', '<>', 0));
 		} else {
-			if($_GET['action'] == 'accept'){
-				$queries->update('staff_apps_replies', $application->id, array(
-					'status' => 1
-				));
-			} else if($_GET['action'] == 'reject'){
-				$queries->update('staff_apps_replies', $application->id, array(
-					'status' => 2
-				));
+			// Can the user actually accept an application?
+			$moderators_accept_applications = $queries->getWhere('settings', array('name', '=', 'mods_accept_apps'));
+			$moderators_accept_applications = $moderators_accept_applications[0]->value;
+			
+			if($user->data()->group_id == 2 || ($moderators_accept_applications == "true" && $user->data()->group_id == 3)){
+				if($_GET['action'] == 'accept'){
+					$queries->update('staff_apps_replies', $application->id, array(
+						'status' => 1
+					));
+				} else if($_GET['action'] == 'reject'){
+					$queries->update('staff_apps_replies', $application->id, array(
+						'status' => 2
+					));
+				}
 			}
 			Redirect::to('/mod/applications/?app=' . $application->id);
 			die();
@@ -197,8 +203,10 @@ require_once('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 			Viewing application from <strong><a href="/profile/<?php echo $username; ?>"><?php echo $username; ?></a></strong> <?php if($application->status == 0){ ?><span class="label label-info">Open</span><?php } else if($application->status == 1){ ?><span class="label label-success">Accepted</span><?php } else if($application->status == 2){ ?><span class="label label-danger">Declined</span><?php } ?>
 			<span class="pull-right">
 			  <?php 
-			  if($application->status == 0 && $user->data()->group_id == 2){
-				// Admins can accept/reject applications
+			  // can moderators accept applications?
+			  $moderators_accept_applications = $queries->getWhere('settings', array('name', '=', 'mods_accept_apps'));
+			  $moderators_accept_applications = $moderators_accept_applications[0]->value;
+			  if($application->status == 0 && ($user->data()->group_id == 2 || ($moderators_accept_applications == "true" && $user->data()->group_id == 3))){
 			  ?>
 			  <div class="btn-group">
 			    <a href="/mod/applications/?app=<?php echo $application->id; ?>&action=accept" class="btn btn-success">Accept</a><a href="/mod/applications/?app=<?php echo $application->id; ?>&action=reject" class="btn btn-danger">Reject</a>

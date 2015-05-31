@@ -31,6 +31,15 @@ if(Input::exists() && !isset($_GET['action']) && !isset($_GET['question'])){
 	$queries->update("settings", 37, array(
 		'value' => $allow_moderators_input
 	));
+	// Handle input for allowing moderators to accept/reject staff apps
+	if(Input::get('allow_moderators_accept') == 1){
+		$allow_moderators_input = "true";
+	} else {
+		$allow_moderators_input = "false";
+	}
+	$queries->update("settings", 39, array(
+		'value' => $allow_moderators_input
+	));
 	Redirect::to('/admin/staff_apps/');
 	die();
 }
@@ -91,7 +100,17 @@ if(Input::exists() && !isset($_GET['action']) && !isset($_GET['question'])){
 				<label for="InputAllowModerators">Allow moderators to view applications?</label>
 				<input type="hidden" name="allow_moderators" value="0" />
 				<input name="allow_moderators" value="1" id="InputAllowModerators" type="checkbox"<?php if($allow_moderators === "true"){ echo ' checked'; } ?>>
-			    <a class="btn btn-info btn-xs" data-toggle="popover" title="Moderators will only be able to comment; not accept or reject applications"><span class="glyphicon glyphicon-question-sign"></span></a>
+			    <a class="btn btn-info btn-xs" data-toggle="popover" title="Moderators will only be able to comment; not accept or reject applications unless the following box is checked"><span class="glyphicon glyphicon-question-sign"></span></a>
+			  </div>
+			  <?php
+			  // can moderators accept/reject applications?
+			  $allow_moderators_accept = $queries->getWhere('settings', array('name', '=', 'mods_accept_apps'));
+			  $allow_moderators_accept = $allow_moderators_accept[0]->value;
+			  ?>
+			  <div class="form-group">
+				<label for="InputAcceptModerators">Allow moderators to accept/reject applications?</label>
+				<input type="hidden" name="allow_moderators_accept" value="0" />
+				<input name="allow_moderators_accept" value="1" id="InputAcceptModerators" type="checkbox"<?php if($allow_moderators_accept === "true"){ echo ' checked'; } ?>>
 			  </div>
 			  <input type="submit" class="btn btn-default" value="Submit changes">
 			</form>
