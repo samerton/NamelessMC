@@ -274,6 +274,8 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
 	  $config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
 	  $config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
 	  $config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
+	  $config->set('HTML.SafeIframe', true);
+	  $config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
 	  $purifier = new HTMLPurifier($config);
 
 	  // Display the correct number of posts
