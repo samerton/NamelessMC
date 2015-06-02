@@ -105,6 +105,12 @@ class Forum {
 				}
 			}
 		}
+		
+		// Order the discussions returned
+		usort($return, function($a, $b) {
+			return $b['topic_reply_date'] - $a['topic_reply_date'];
+		});
+		
 		return $return;
 	}
 	
