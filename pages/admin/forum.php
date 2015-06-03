@@ -435,8 +435,7 @@ if($user->isAdmLoggedIn()){
 									$post = Input::get('perm-post-' . $group->id);
 									
 									$forum_perm_exists = 0;
-									
-									// *
+
 									if(count($forum_perm_query)){ 
 										foreach($forum_perm_query as $query){
 											if($query->group_id == $group->id){
@@ -546,8 +545,10 @@ if($user->isAdmLoggedIn()){
 						<?php
 						foreach($groups as $group){
 							// Get the existing group permissions
+							$view = 0;
+							$topic = 0;
+							$post = 0;
 							
-							// *
 							foreach($group_perms as $group_perm){
 								if($group_perm->group_id == $group->id){
 									$view = $group_perm->view;
