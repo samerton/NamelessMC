@@ -87,10 +87,12 @@ if($user->data()->id === $post_editing[0]->post_creator || $user->data()->group_
 					$queries->update("posts", $post_id, array(
 						'post_content' => htmlspecialchars(Input::get('content'))
 					));
-					// update title
-					$queries->update("topics", $topic_id, array(
-						'topic_title' => htmlspecialchars_decode(Input::get('title'))
-					));
+					if(isset($edit_title)){
+						// update title
+						$queries->update("topics", $topic_id, array(
+							'topic_title' => htmlspecialchars_decode(Input::get('title'))
+						));
+					}
 					Session::flash('success_post', '<div class="alert alert-info alert-dismissable"> <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>Post edited.</div>');
 					Redirect::to('/forum/view_topic/?tid=' . $topic_id . '&amp;pid=' . $post_id);
 					die();
