@@ -157,7 +157,7 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="<?php echo $sitename; ?> Forum - Topic: <?php echo htmlspecialchars($topic->topic_title); ?>">
     <meta name="author" content="Samerton">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/assets/favicon.ico">
 
     <title><?php echo $sitename; ?> &bull; Forum - <?php echo htmlspecialchars($topic->topic_title); ?></title>
 	

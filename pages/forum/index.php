@@ -22,6 +22,7 @@ $timeago = new Timeago();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="<?php echo $sitename; ?> Forum Index">
     <meta name="author" content="Samerton">
+	<link rel="icon" href="/assets/favicon.ico">
 
     <title><?php echo $sitename; ?> &bull; Forum Index</title>
 	
