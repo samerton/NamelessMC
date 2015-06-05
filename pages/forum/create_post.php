@@ -117,7 +117,7 @@ $token = Token::generate();
     <meta name="description" content="<?php echo $sitename; ?> Forum - Topic: <?php echo htmlspecialchars($topic->topic_title); ?>">
     <meta name="author" content="Samerton">
     <meta name="robots" content="noindex">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/assets/favicon.ico">
 
     <title><?php echo $sitename; ?> &bull; Forum - New Reply</title>
 	
