@@ -343,7 +343,7 @@ if(!Cookie::exists('nl-topic-' . $tid)) {
   	      	    // Delete button
 				if($user->data()->group_id == 2 || $user->data()->group_id == 3){ // Mods/admins only
 				?>
-				<form onsubmit="return confirm(\'Are you sure you want to delete this post?\');" style="display: inline;" action="/forum/delete_post" method="post">
+				<form onsubmit="return confirm('Are you sure you want to delete this post?');" style="display: inline;" action="/forum/delete_post/" method="post">
 					<input type="hidden" name="pid" value="<?php echo $posts[$n]->id; ?>" />
 					<input type="hidden" name="tid" value="<?php echo $tid; ?>" />
 					<input type="hidden" name="number" value="<?php echo $n; ?>" />
