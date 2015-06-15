@@ -11,6 +11,7 @@ class DB {
 	private function __construct() {
 		try {
 			$this->_pdo = new PDO('mysql:host=' . Config::get('mysql/host') . ';dbname=' . Config::get('mysql/db'), Config::get('mysql/username'), Config::get('mysql/password'));
+			$this->_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
 			$this->_prefix = Config::get('mysql/prefix');
 		} catch(PDOException $e) {
 			die("<strong>Error:<br /></strong><div class=\"alert alert-danger\">" . $e->getMessage() . "</div>Please check your database connection settings.");
@@ -42,6 +43,32 @@ class DB {
 				$this->_results = $this->_query->fetchAll(PDO::FETCH_OBJ);
 				$this->_count = $this->_query->rowCount();
 			} else {
+				print_r($this->_pdo->errorInfo());
+				$this->_error = true;
+			}
+			
+			
+		}
+		
+		return $this;
+		
+	}
+	
+	public function createQuery($sql, $params = array()) {
+		$this->_error = false;
+		if($this->_query = $this->_pdo->prepare($sql)) {
+			$x = 1;
+			if(count($params)) {
+				foreach($params as $param) {
+					$this->_query->bindValue($x, $param);
+					$x++;
+				}
+			}
+			
+			if($this->_query->execute()) {
+				$this->_count = $this->_query->rowCount();
+			} else {
+				print_r($this->_pdo->errorInfo());
 				$this->_error = true;
 			}
 			
@@ -116,7 +143,7 @@ class DB {
 			$table = $this->_prefix . $table;
 			$sql = "INSERT INTO {$table} (`" . implode('`,`', $keys) . "`) VALUES ({$values})";
 			
-			if(!$this->query($sql, $fields)->error()){
+			if(!$this->createQuery($sql, $fields)->error()){
 				return true;
 			}
 			return false;

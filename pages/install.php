@@ -1010,6 +1010,12 @@ if(isset($_GET["step"])){
 				$uuid = $profile->getProfileAsArray();
 				$uuid = $uuid['uuid']; 
 				
+				if($uuid == null){
+					// Error getting UUID, display an error asking user to update manually
+					$uuid_error = true;
+					$uuid = '';
+				}
+				
 				// Hash password
 				$password = password_hash(Input::get('password'), PASSWORD_BCRYPT, array("cost" => 13));
 				
@@ -1018,25 +1024,28 @@ if(isset($_GET["step"])){
 				$date = $date->getTimestamp();
 				
 				try {
-					// Create groups
-					$queries->create("groups", array(
-						'id' => 1,
-						'name' => 'Standard',
-						'group_html' => '<span class="label label-success">Member</span>',
-						'group_html_lg' => '<span class="label label-success">Member</span>'
-					));
-					$queries->create("groups", array(
-						'id' => 2,
-						'name' => 'Admin',
-						'group_html' => '<span class="label label-danger">Admin</span>',
-						'group_html_lg' => '<span class="label label-danger">Admin</span>'
-					));
-					$queries->create("groups", array(
-						'id' => 3,
-						'name' => 'Moderator',
-						'group_html' => '<span class="label label-info">Moderator</span>',
-						'group_html_lg' => '<span class="label label-info">Moderator</span>'
-					));
+					// Create groups if they don't exist
+					$groups_exist = $queries->getWhere('groups', array('id', '<>', 0));
+					if(empty($groups_exist)){
+						$queries->create("groups", array(
+							'id' => 1,
+							'name' => 'Standard',
+							'group_html' => '<span class="label label-success">Member</span>',
+							'group_html_lg' => '<span class="label label-success">Member</span>'
+						));
+						$queries->create("groups", array(
+							'id' => 2,
+							'name' => 'Admin',
+							'group_html' => '<span class="label label-danger">Admin</span>',
+							'group_html_lg' => '<span class="label label-danger">Admin</span>'
+						));
+						$queries->create("groups", array(
+							'id' => 3,
+							'name' => 'Moderator',
+							'group_html' => '<span class="label label-info">Moderator</span>',
+							'group_html_lg' => '<span class="label label-info">Moderator</span>'
+						));
+					}
 				
 					// Create admin account
 					$user->create(array(
@@ -1052,8 +1061,12 @@ if(isset($_GET["step"])){
 					));
 					
 					$login = $user->login(Input::get('username'), Input::get('password'), true);
-					if($login) {					
-						echo '<script>window.location.replace("/install/?step=finish");</script>';
+					if($login) {
+						if(!isset($uuid_error)){
+							echo '<script>window.location.replace("/install/?step=finish");</script>';
+						} else {
+							echo '<script>window.location.replace("/install/?step=finish&error=uuid");</script>';
+						}
 						die();
 					} else {
 						echo '<p>Sorry, there was an unknown error logging you in. <a href="/install/?step=account">Try again</a></p>';
@@ -1335,6 +1348,15 @@ if(isset($_GET["step"])){
 	  } else if($step === "finish"){
 	  ?>
 	  <h2>Finish</h2>
+	  <?php
+	    if(isset($_GET['error']) && $_GET['error'] == 'uuid'){
+	  ?>
+	  <div class="alert alert-danger">
+	    Notice: There was an error querying the Minecraft API to retrieve the admin account's UUID. Please update this manually from the AdminCP's users section.
+	  </div>
+	  <?php
+		}
+	  ?>
 	  <p>Thanks for using NamelessMC website software.</p>
 	  <p>Before you start using the website, please configure the forums and Minecraft servers via the AdminCP.</p>
 	  <p>Links:
