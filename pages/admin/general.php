@@ -29,14 +29,6 @@ if(Input::exists()) {
 				'min' => 2,
 				'max' => 32
 			),
-			'buycraftapi' => array(
-				'min' => 4,
-				'max' => 40
-			),
-			'buycrafturl' => array(
-				'min' => 4,
-				'max' => 64
-			),
 			'recaptcha' => array(
 				'min' => 4,
 				'max' => 40
