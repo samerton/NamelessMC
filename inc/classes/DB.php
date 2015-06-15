@@ -82,7 +82,7 @@ class DB {
 	public function createTable($name, $table_data, $other){
 		$name = $this->_prefix . $name;
 		$sql = "CREATE TABLE `{$name}` ({$table_data}) {$other}";
-			if(!$this->query($sql)->error()) {
+			if(!$this->createQuery($sql)->error()) {
 				return $this;
 			}
 		return false;
