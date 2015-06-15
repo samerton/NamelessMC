@@ -175,7 +175,7 @@ class DB {
 		$table = $this->_prefix . $table;
 		$sql = "UPDATE {$table} SET {$field} = {$field} + 1 WHERE id = {$id}";
 		
-		if(!$this->query($sql)->error()) {
+		if(!$this->createQuery($sql)->error()) {
 			return true;
 		}
 		
@@ -186,7 +186,7 @@ class DB {
 		$table = $this->_prefix . $table;
 		$sql = "UPDATE {$table} SET {$field} = {$field} - 1 WHERE id = {$id}";
 		
-		if(!$this->query($sql)->error()) {
+		if(!$this->createQuery($sql)->error()) {
 			return true;
 		}
 		
@@ -217,7 +217,7 @@ class DB {
 	public function alterTable($name, $column, $attributes) {
 		$name = $this->_prefix . $name;
 		$sql = "ALTER TABLE `{$name}` ADD {$column} {$attributes}";
-			if(!$this->query($sql)->error()) {
+			if(!$this->createQuery($sql)->error()) {
 				return $this;
 			}
 		return false;
