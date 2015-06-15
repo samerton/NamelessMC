@@ -49,3 +49,20 @@
 - Fix error whilst clicking on a user who has given reputation in modal in view topic page
 - Improvements to the private messaging system, including fixing notifications and also a private message button on user profiles
 - Staff application system
+
+0.3.3
+- Add a method of querying a Minecraft server externally in case the internal library doesn't work
+- Fix buttons displaying incorrectly if there aren't a multiple of 4 vote sites defined
+- Add LiteBans infractions integration
+- Fix issue where changing users group whilst having custom displaynames disabled would remove their avatar
+- Attempt to fix errors relating to timezones not being set - temporary fix until timezone support is included
+- Add field to change outgoing email address in the AdminCP
+- Add option to allow moderators to accept or reject applications
+- Fix videos embedded in posts not showing up
+- Add missing sorting function for latest posts
+- Fix issue where group forum permission checkboxes will be ticked even if the group doesn't have access to that forum.
+- Fix issue with favicon not displaying on all pages (credit: dwilson390)
+- Fix issue which would occur when editing a reply would remove a topic's title
+- Fix issue that would arise upon quoting a post containing an inverted comma
+- Fix issue when deleting posts
+- Fix issue which would occur when inserting data into the database, or updating existing data

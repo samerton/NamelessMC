@@ -210,4 +210,26 @@ if($version == '0.3.1'){
 	
 	
 }
+
+if($version == '0.3.2'){
+	// Insert new external query row into database settings table
+	$queries->create("settings", array(
+		"name" => "external_query",
+		"value" => "false"
+	));
+	
+	// Insert new row into database regarding moderators accepting or denying applications
+	$queries->create("settings", array(
+		"name" => "mods_accept_apps",
+		"value" => "false"
+	));
+	
+	// Update version name
+	$queries->update("settings", 30, array(
+		"value" => "0.3.3"
+	));
+	$queries->update("settings", 32, array(
+		"value" => "false"
+	));
+}
 ?>

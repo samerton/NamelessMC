@@ -164,7 +164,7 @@ class DB {
 		$table = $this->_prefix . $table;
 		$sql = "UPDATE {$table} SET {$set} WHERE id = {$id}";
 		
-		if(!$this->query($sql, $fields)->error()) {
+		if(!$this->createQuery($sql, $fields)->error()) {
 			return true;
 		}
 		
