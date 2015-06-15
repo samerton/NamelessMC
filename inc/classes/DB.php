@@ -109,6 +109,27 @@ class DB {
 		return false;
 	}
 	
+	public function deleteAction($action, $table, $where = array()) {
+		if(count($where) === 3) {
+			$operators = array('=', '>', '<', '>=', '<=', '<>');
+			
+			$field 		= $where[0];
+			$operator 	= $where[1];
+			$value 		= $where[2];
+			
+			$table = $this->_prefix . $table;
+			
+			if(in_array($operator, $operators)) {
+				$sql = "{$action} FROM {$table} WHERE {$field} {$operator} ?";
+				
+				if(!$this->createQuery($sql, array($value))->error()) {
+					return $this;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public function get($table, $where) {
 		return $this->action('SELECT *', $table, $where);
 	}
@@ -124,7 +145,7 @@ class DB {
 	}
 
 	public function delete($table, $where) {
-		return $this->action('DELETE', $table, $where);
+		return $this->deleteAction('DELETE', $table, $where);
 	}
 	
 	public function insert($table, $fields = array()) {
