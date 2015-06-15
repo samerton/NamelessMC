@@ -66,7 +66,7 @@ class ProfileUtils {
         } else {
             $url = "https://sessionserver.mojang.com/session/minecraft/profile/".$identifier;
         }
-		
+
 		// Use cURL instead of file_get_contents
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -94,9 +94,7 @@ class ProfileUtils {
     public static function getUUIDFromUsername($username, $timeout = 5) {
         if(strlen($username) > 16)
             return array("username" => "", "uuid" => "");
-        $url = 'https://api.mojang.com/profiles/page/1';
-		
-		$post_data = '{"name":"'.$username.'","agent":"minecraft"}';
+        $url = 'https://api.mojang.com/users/profiles/minecraft/'.htmlspecialchars($username);
 		
 		// Use cURL instead of file_get_contents
 		$ch = curl_init();
@@ -105,13 +103,7 @@ class ProfileUtils {
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen($post_data))
-		);
 		
 		// Execute
 		$result = curl_exec($ch);
@@ -120,7 +112,6 @@ class ProfileUtils {
         if(isset($result) && $result != null && $result != false)
         {
             $ress = json_decode($result, true);
-            $ress = $ress["profiles"][0];
             $res = Array("username" =>  $ress['name'], "uuid" => $ress['id']);
             return $res;
         }
