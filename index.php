@@ -15,6 +15,9 @@ require_once 'inc/pages.php'; // Load an array containing the pages that exist
 require_once 'inc/functions/array_handling.php'; // Custom array functions
 
 
+// Define path
+define('ROOT_PATH', __DIR__);
+
 /*
  *  Get the directory the user is trying to access
  */ 

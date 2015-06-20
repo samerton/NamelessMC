@@ -50,6 +50,9 @@ $timeago = new Timeago();
 		right: 0;  
 		margin: auto;
 	}
+	html {
+		overflow-y: scroll;
+	}
 	</style>
 	
   </head>
@@ -125,9 +128,9 @@ $timeago = new Timeago();
 					  $last_user_avatar = $last_user_avatar[0]->has_avatar;
 					  if($last_user_avatar == '0'){ 
 					  ?>
-					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->IdToMCName($discussions[$n]['topic_last_user']); ?>/30.png" />
+					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($discussions[$n]['topic_last_user'])); ?>/30.png" />
 					  <?php } else { ?>
-					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($discussions[$n]['topic_last_user'], "../"); ?>" />
+					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($discussions[$n]['topic_last_user']); ?>" />
 					  <?php } ?>
 					  </a>
 					</div>
@@ -187,6 +190,11 @@ $timeago = new Timeago();
 	  <div class="row">
 	    <div class="col-md-9">
 		    <table class="table table-bordered">
+			    <colgroup>
+				  <col style="width:50%">
+				  <col style="width:10%">
+				  <col style="width:40%">
+			    </colgroup>
 			    <thead>
 					<tr>
 					  <th>Forum</th>
@@ -219,7 +227,15 @@ $timeago = new Timeago();
 						?>
 					    <div class="col-md-2">
 						  <div class="frame">
-						    <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["last_user_posted"])); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["last_user_posted"])); ?>/30.png" /></a>
+						    <?php 
+						    $last_user_avatar = $queries->getWhere("users", array("id", "=", $item["last_user_posted"]));
+						    $last_user_avatar = $last_user_avatar[0]->has_avatar;
+						    if($last_user_avatar == '0'){ 
+						    ?>
+						    <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["last_user_posted"])); ?>/30.png" />
+						    <?php } else { ?>
+						    <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($item["last_user_posted"]); ?>" />
+						    <?php } ?>
 						  </div>
 						</div>
 					    <div class="col-md-9">
@@ -270,9 +286,17 @@ $timeago = new Timeago();
 						}
 					?>
 				  <div class="row">
-					<div class="col-md-2">
+					<div class="col-md-3">
 					  <div class="frame">
-					    <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>/30.png" /></a>
+						<?php 
+						$last_user_avatar = $queries->getWhere("users", array("id", "=", $item["topic_last_user"]));
+						$last_user_avatar = $last_user_avatar[0]->has_avatar;
+						if($last_user_avatar == '0'){ 
+						?>
+						<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>/30.png" />
+						<?php } else { ?>
+						<img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($item["topic_last_user"]); ?>" />
+						<?php } ?>
 					  </div>
 					</div>
 					<div class="col-md-9">

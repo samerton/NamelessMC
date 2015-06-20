@@ -66,7 +66,7 @@
 		  ?>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png" />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if((isset($reports) && $reports == true) || $unread_pms === true || (isset($open_apps) && $open_apps === true)){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php if($user->isLoggedIn()) { if($user->data()->has_avatar == 0){ echo '<img class="img-rounded" style="margin: -10px 0px;" src="https://cravatar.eu/avatar/' . htmlspecialchars($user->data()->mcname) . '/25.png"'; } else { echo '<img class="img-rounded" style="width:25px; height:25px; margin: -10px 0px;" src="' . $user->getAvatar($user->data()->id) . '"'; } echo ' />&nbsp;&nbsp;' . htmlspecialchars($user->data()->username); if((isset($reports) && $reports == true) || $unread_pms === true || (isset($open_apps) && $open_apps === true)){?> <span class="glyphicon glyphicon-exclamation-sign"></span><?php } } else { ?>Guest<?php } ?> <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
 				<?php if($user->isLoggedIn()) { ?> 
 				  <li><a href="/<?php echo 'profile/' . htmlspecialchars($user->data()->username);?>">Profile</a></li>

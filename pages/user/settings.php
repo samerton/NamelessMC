@@ -135,7 +135,7 @@ $token = Token::generate();
 
 			if($avatar_enabled === "true"){
 			?>
-			<form action="/user/avatar_upload" method="post" enctype="multipart/form-data">
+			<form action="/user/avatar_upload/" method="post" enctype="multipart/form-data">
 			  <strong>Upload an avatar (.jpg, .png or .gif only):</strong>
 			  <input type="file" name="uploaded_avatar" />
 			  <input type="hidden" name="token" value="<?php echo $token; ?>" /><br />

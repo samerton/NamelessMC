@@ -101,6 +101,9 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 		right: 0;  
 		margin: auto;
 	}
+	html {
+		overflow-y: scroll;
+	}
 	</style>
 	
   </head>
@@ -173,7 +176,7 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 					  ?>
 					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->idToMCName($sticky->topic_last_user)); ?>/30.png" />
 					  <?php } else { ?>
-					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($sticky->topic_last_user, "../../"); ?>" />
+					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($sticky->topic_last_user); ?>" />
 					  <?php } ?>
 					  </a>
 					</div>
@@ -236,7 +239,7 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 					  ?>
 					  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->idToMCName($topics[$n]->topic_last_user)); ?>/30.png" />
 					  <?php } else { ?>
-					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($topics[$n]->topic_last_user, "../../"); ?>" />
+					  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($topics[$n]->topic_last_user); ?>" />
 					  <?php } ?>
 					  </a>
 					</div>
@@ -309,6 +312,11 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 			<h3 style="display: inline;"><?php echo htmlspecialchars($forum_query->forum_title); ?></h3><?php if($user->isLoggedIn() && $forum->canPostTopic($fid, $user->data()->group_id)){ ?><span class="pull-right"><a style="display: inline;" class="btn btn-primary" href="/forum/new_topic/?fid=<?php echo $fid; ?>">New Topic</a></span><?php } ?>
 		    <br /><br />
 			<table class="table table-bordered">
+			    <colgroup>
+				  <col style="width:50%">
+				  <col style="width:10%">
+				  <col style="width:40%">
+			    </colgroup>
 			    <thead>
 					<tr>
 					  <th>Topic</th>
@@ -341,7 +349,7 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 						  ?>
 						  <img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->idToMCName($sticky->topic_last_user)); ?>/30.png" />
 						  <?php } else { ?>
-						  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($sticky->topic_last_user, "../../"); ?>" />
+						  <img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($sticky->topic_last_user); ?>" />
 						  <?php } ?>
 					      </a>
 					    </div>
@@ -453,9 +461,17 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 						}
 					?>
 				  <div class="row">
-					<div class="col-md-2">
+					<div class="col-md-3">
 					  <div class="frame">
-					    <a href="/profile/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>"><img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>/30.png" /></a>
+						<?php 
+						$last_user_avatar = $queries->getWhere("users", array("id", "=", $item["topic_last_user"]));
+						$last_user_avatar = $last_user_avatar[0]->has_avatar;
+						if($last_user_avatar == '0'){ 
+						?>
+						<img class="img-centre img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->IdToMCName($item["topic_last_user"])); ?>/30.png" />
+						<?php } else { ?>
+						<img class="img-centre img-rounded" style="width:30px; height:30px;" src="<?php echo $user->getAvatar($item["topic_last_user"]); ?>" />
+						<?php } ?>
 					  </div>
 					</div>
 					<div class="col-md-9">
