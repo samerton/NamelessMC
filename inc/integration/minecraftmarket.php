@@ -16,13 +16,13 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-curl_setopt($ch, CURLOPT_URL, 'https://www.minecraftmarket.com/api/1.5/' . $API . '/gui');
+curl_setopt($ch, CURLOPT_URL, 'http://www.minecraftmarket.com/api/1.5/' . $API . '/gui');
 $mm_gui = curl_exec($ch);
 $mm_gui = json_decode(str_replace("&quot;", "\"", strip_tags($mm_gui)), true);
  
 // Packages and categories
 
-curl_setopt($ch, CURLOPT_URL, 'https://www.minecraftmarket.com/api/1.5/' . $API . '/recentdonor');
+curl_setopt($ch, CURLOPT_URL, 'http://www.minecraftmarket.com/api/1.5/' . $API . '/recentdonor');
 
 $mm_donors = curl_exec($ch);
 $mm_donors = json_decode(str_replace("&quot;", "\"", strip_tags($mm_donors)), true);
