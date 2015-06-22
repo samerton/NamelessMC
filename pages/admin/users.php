@@ -443,7 +443,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 						?>
 						<span class="pull-right">
 							<?php if($user[0]->active == 0){ ?>
-							<a href="/admin/users/?user=19&action=validate" class="btn btn-primary">Validate User</a>
+							<a href="/admin/users/?user=<?php echo $user[0]->id; ?>&action=validate" class="btn btn-primary">Validate User</a>
 							<?php } ?>
 							<div class="btn-group">
 							  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
