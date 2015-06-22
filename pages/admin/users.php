@@ -160,7 +160,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 			</table>
 				<?php 
 				echo $pagination->parse(); // Print pagination
-			} else if(isset($_GET["action"])){
+			} else if(isset($_GET["action"]) && $_GET['action'] !== 'validate'){
 				if($_GET["action"] === "new"){
 					if(Input::exists()) {
 						if(Token::check(Input::get('token'))) {
@@ -328,188 +328,207 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 					}
 				}
 			} else if(isset($_GET["user"])){
-				if(Input::exists()) {
-					if(Token::check(Input::get('token'))) {
-						if(Input::get('action') === "update"){
-							$validate = new Validate();
-							$validation = $validate->check($_POST, array(
-								'email' => array(
-									'required' => true,
-									'min' => 2,
-									'max' => 50
-								),
-								'group' => array(
-									'required' => true
-								),
-								'username' => array(
-									'required' => true,
-									'min' => 2,
-									'max' => 20
-								),
-								'MCUsername' => array(
-									'isvalid' => true
-								),
-								'UUID' => array(
-									'max' => 32
-								),
-								'signature' => array(
-									'max' => 256
-								),
-								'ip' => array(
-									'max' => 256
-								)
-							));
-							
-							if($validation->passed()){
+				if(isset($_GET['action']) && $_GET['action'] == 'validate'){
+					$user = $queries->getWhere("users", array("id", "=", $_GET["user"]));
+					if($user[0]->active == 0){
+						// activate user
+						$queries->update('users', $_GET['user'], array(
+							'active' => 1
+						));
+						echo '<script>window.location.replace(\'/admin/users/?user=' . $_GET['user'] . '\')</script>';
+						die();
+					} else {
+						// already active
+						echo '<script>window.location.replace(\'/admin/users/?user=' . $_GET['user'] . '\')</script>';
+						die();
+					}
+				} else {
+					if(Input::exists()) {
+						if(Token::check(Input::get('token'))) {
+							if(Input::get('action') === "update"){
+								$validate = new Validate();
+								$validation = $validate->check($_POST, array(
+									'email' => array(
+										'required' => true,
+										'min' => 2,
+										'max' => 50
+									),
+									'group' => array(
+										'required' => true
+									),
+									'username' => array(
+										'required' => true,
+										'min' => 2,
+										'max' => 20
+									),
+									'MCUsername' => array(
+										'isvalid' => true
+									),
+									'UUID' => array(
+										'max' => 32
+									),
+									'signature' => array(
+										'max' => 256
+									),
+									'ip' => array(
+										'max' => 256
+									)
+								));
+								
+								if($validation->passed()){
+									try {
+										$queries->update('users', $_GET["user"], array(
+											'username' => htmlspecialchars(Input::get('username')),
+											'email' => htmlspecialchars(Input::get('email')),
+											'group_id' => Input::get('group'),
+											'mcname' => htmlspecialchars(Input::get('MCUsername')),
+											'uuid' => htmlspecialchars(Input::get('UUID')),
+											'signature' => htmlspecialchars(Input::get('signature')),
+											'lastip' => Input::get('ip')
+										));
+										echo '<script>window.location.replace("/admin/users/?user=' . $_GET['user'] . '");</script>';
+										die();
+									} catch(Exception $e) {
+										die($e->getMessage());
+									}
+									
+								} else {
+									echo '<div class="alert alert-danger">';
+									foreach($validation->errors() as $error) {
+										echo $error, '<br>';
+									}
+									echo '</div>';
+								}
+							} else if(Input::get('action') == "delete"){
 								try {
-									$queries->update('users', $_GET["user"], array(
-										'username' => htmlspecialchars(Input::get('username')),
-										'email' => htmlspecialchars(Input::get('email')),
-										'group_id' => Input::get('group'),
-										'mcname' => htmlspecialchars(Input::get('MCUsername')),
-										'uuid' => htmlspecialchars(Input::get('UUID')),
-										'signature' => htmlspecialchars(Input::get('signature')),
-										'lastip' => Input::get('ip')
-									));
-									echo '<script>window.location.replace("/admin/users/?user=' . $_GET['user'] . '");</script>';
-									die();
+									$queries->delete('users', array('id', '=' , $data[0]->id));
+									
 								} catch(Exception $e) {
 									die($e->getMessage());
 								}
-								
-							} else {
-								echo '<div class="alert alert-danger">';
-								foreach($validation->errors() as $error) {
-									echo $error, '<br>';
+								echo '<script>window.location.replace("/admin/users/");</script>';
+								die();
+							} else if(Input::get('action') == "avatar_disable"){
+								try {
+									$queries->update('users', $_GET["user"], array(
+										"has_avatar" => "0"
+									));
+								} catch(Exception $e) {
+									die($e->getMessage());
 								}
-								echo '</div>';
-							}
-						} else if(Input::get('action') == "delete"){
-							try {
-								$queries->delete('users', array('id', '=' , $data[0]->id));
-								
-							} catch(Exception $e) {
-								die($e->getMessage());
-							}
-							echo '<script>window.location.replace("/admin/users/");</script>';
-							die();
-						} else if(Input::get('action') == "avatar_disable"){
-							try {
-								$queries->update('users', $_GET["user"], array(
-									"has_avatar" => "0"
-								));
-							} catch(Exception $e) {
-								die($e->getMessage());
 							}
 						}
 					}
-				}
-				if(!is_numeric($_GET["user"])){
-					$user = $queries->getWhere("users", array("username", "=", $_GET["user"]));
-				} else {
-					$user = $queries->getWhere("users", array("id", "=", $_GET["user"]));
-				}
-				if(count($user)){
-					$token = Token::generate();
-					
-				    // Initialise HTML Purifier
-					$config = HTMLPurifier_Config::createDefault();
-					$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
-					$config->set('URI.DisableExternalResources', false);
-					$config->set('URI.DisableResources', false);
-					$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
-					$config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
-					$config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
-					$purifier = new HTMLPurifier($config);
-					
-					$signature = $purifier->purify(htmlspecialchars_decode($user[0]->signature));
-					
-					echo '<h2 style="display: inline;">' . htmlspecialchars($user[0]->username) . '</h2>';
-					?>
-					<span class="pull-right">
-						<div class="btn-group">
-						  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							Tasks <span class="caret"></span>
-						  </button>
-						  <ul class="dropdown-menu" role="menu">
-							<li><a href="/admin/update_uuids/?uid=<?php echo $user[0]->id; ?>">Update UUID</a></li>
-							<li><a href="/admin/update_mcnames/?uid=<?php echo $user[0]->id; ?>">Update Minecraft Name</a></li>
-							<li><a href="/admin/reset_password/?uid=<?php echo $user[0]->id; ?>">Reset Password</a></li>
-							<li><a href="/mod/punishments/?uid=<?php echo $user[0]->id; ?>">Punish User</a></li>
-							<li><a href="/admin/users/?action=delete&uid=<?php echo $user[0]->id; ?>">Delete User</a></li>
-						  </ul>
-						</div>
-					</span>
-					<br /><br />
-					<form role="form" action="" method="post">
-					  <div class="form-group">
-						<label for="InputUsername">Username</label>
-						<input type="text" name="username" class="form-control" id="InputUsername" placeholder="Username" value="<?php echo htmlspecialchars($user[0]->username); ?>">
-					  </div>
-					  <div class="form-group">
-						<label for="InputEmail">Email address</label>
-						<input type="email" name="email" class="form-control" id="InputEmail" placeholder="Email" value="<?php echo htmlspecialchars($user[0]->email); ?>">
-					  </div>
-					  <?php
-					  if($displaynames === "true"){
-					  ?>
-					  <div class="form-group">
-						<label for="InputMCUsername">Minecraft Username</label>
-						<input type="text" name="MCUsername" class="form-control" name="MCUsername" id="InputMCUsername" placeholder="Minecraft Username" value="<?php echo htmlspecialchars($user[0]->mcname); ?>">
-					  </div>
-					  <?php
-					  } else {
-					  ?>
-					  <input type="hidden" name="MCUsername" value="<?php echo htmlspecialchars($user[0]->username); ?>">
-					  <?php
-					  }
-					  ?>
-					  <div class="form-group">
-						<label for="InputUUID">Minecraft UUID</label>
-						<input type="text" name="UUID" class="form-control" id="InputUUID" placeholder="Minecraft UUID" value="<?php echo htmlspecialchars($user[0]->uuid); ?>">
-					  </div>
-					  <div class="form-group">
-					    <label for="InputSignature">Signature</label>
-						<textarea class="signature" rows="10" name="signature" id="InputSignature"><?php echo $signature; ?></textarea>
-				      </div>
-					  <div class="form-group">
-						<label for="InputIP">IP address</label>
-						<input class="form-control" name="ip" id="InputIP" type="text" placeholder="<?php echo htmlspecialchars($user[0]->lastip); ?>" readonly>
-					  </div>
-					  <?php 
-					  $groups = $queries->orderAll('groups', 'name', 'ASC');
-					  ?>
-					  <div class="form-group">
-						 <label for="InputGroup">Group</label>
-						 <select class="form-control" id="InputGroup" name="group">
-						<?php 
-						foreach($groups as $group){ 
+					if(!is_numeric($_GET["user"])){
+						$user = $queries->getWhere("users", array("username", "=", $_GET["user"]));
+					} else {
+						$user = $queries->getWhere("users", array("id", "=", $_GET["user"]));
+					}
+					if(count($user)){
+						$token = Token::generate();
+						
+						// Initialise HTML Purifier
+						$config = HTMLPurifier_Config::createDefault();
+						$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
+						$config->set('URI.DisableExternalResources', false);
+						$config->set('URI.DisableResources', false);
+						$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+						$config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
+						$config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
+						$purifier = new HTMLPurifier($config);
+						
+						$signature = $purifier->purify(htmlspecialchars_decode($user[0]->signature));
+						
+						echo '<h2 style="display: inline;">' . htmlspecialchars($user[0]->username) . '</h2>';
 						?>
-						  <option value="<?php echo $group->id; ?>" <?php if($group->id === $user[0]->group_id){ echo 'selected="selected"'; } ?>><?php echo $group->name; ?></option>
-						<?php 
-						} 
-						?>
-						</select> 
-					  </div>
-					  <input type="hidden" name="token" value="<?php echo $token; ?>">
-					  <input type="hidden" name="action" value="update">
-					  <input type="submit" value="Submit Changes" class="btn btn-default">
-					</form>
-					<br />
-					<?php
-					// Is avatar uploading enabled?
-					$avatar_enabled = $queries->getWhere('settings', array('name', '=', 'user_avatars'));
-					$avatar_enabled = $avatar_enabled[0]->value;
+						<span class="pull-right">
+							<?php if($user[0]->active == 0){ ?>
+							<a href="/admin/users/?user=19&action=validate" class="btn btn-primary">Validate User</a>
+							<?php } ?>
+							<div class="btn-group">
+							  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+								Tasks <span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu" role="menu">
+								<li><a href="/admin/update_uuids/?uid=<?php echo $user[0]->id; ?>">Update UUID</a></li>
+								<li><a href="/admin/update_mcnames/?uid=<?php echo $user[0]->id; ?>">Update Minecraft Name</a></li>
+								<li><a href="/admin/reset_password/?uid=<?php echo $user[0]->id; ?>">Reset Password</a></li>
+								<li><a href="/mod/punishments/?uid=<?php echo $user[0]->id; ?>">Punish User</a></li>
+								<li><a href="/admin/users/?action=delete&uid=<?php echo $user[0]->id; ?>">Delete User</a></li>
+							  </ul>
+							</div>
+						</span>
+						<br /><br />
+						<form role="form" action="" method="post">
+						  <div class="form-group">
+							<label for="InputUsername">Username</label>
+							<input type="text" name="username" class="form-control" id="InputUsername" placeholder="Username" value="<?php echo htmlspecialchars($user[0]->username); ?>">
+						  </div>
+						  <div class="form-group">
+							<label for="InputEmail">Email address</label>
+							<input type="email" name="email" class="form-control" id="InputEmail" placeholder="Email" value="<?php echo htmlspecialchars($user[0]->email); ?>">
+						  </div>
+						  <?php
+						  if($displaynames === "true"){
+						  ?>
+						  <div class="form-group">
+							<label for="InputMCUsername">Minecraft Username</label>
+							<input type="text" name="MCUsername" class="form-control" name="MCUsername" id="InputMCUsername" placeholder="Minecraft Username" value="<?php echo htmlspecialchars($user[0]->mcname); ?>">
+						  </div>
+						  <?php
+						  } else {
+						  ?>
+						  <input type="hidden" name="MCUsername" value="<?php echo htmlspecialchars($user[0]->username); ?>">
+						  <?php
+						  }
+						  ?>
+						  <div class="form-group">
+							<label for="InputUUID">Minecraft UUID</label>
+							<input type="text" name="UUID" class="form-control" id="InputUUID" placeholder="Minecraft UUID" value="<?php echo htmlspecialchars($user[0]->uuid); ?>">
+						  </div>
+						  <div class="form-group">
+							<label for="InputSignature">Signature</label>
+							<textarea class="signature" rows="10" name="signature" id="InputSignature"><?php echo $signature; ?></textarea>
+						  </div>
+						  <div class="form-group">
+							<label for="InputIP">IP address</label>
+							<input class="form-control" name="ip" id="InputIP" type="text" placeholder="<?php echo htmlspecialchars($user[0]->lastip); ?>" readonly>
+						  </div>
+						  <?php 
+						  $groups = $queries->orderAll('groups', 'name', 'ASC');
+						  ?>
+						  <div class="form-group">
+							 <label for="InputGroup">Group</label>
+							 <select class="form-control" id="InputGroup" name="group">
+							<?php 
+							foreach($groups as $group){ 
+							?>
+							  <option value="<?php echo $group->id; ?>" <?php if($group->id === $user[0]->group_id){ echo 'selected="selected"'; } ?>><?php echo $group->name; ?></option>
+							<?php 
+							} 
+							?>
+							</select> 
+						  </div>
+						  <input type="hidden" name="token" value="<?php echo $token; ?>">
+						  <input type="hidden" name="action" value="update">
+						  <input type="submit" value="Submit Changes" class="btn btn-default">
+						</form>
+						<br />
+						<?php
+						// Is avatar uploading enabled?
+						$avatar_enabled = $queries->getWhere('settings', array('name', '=', 'user_avatars'));
+						$avatar_enabled = $avatar_enabled[0]->value;
 
-					if($avatar_enabled === "true"){
-					?>
-					<strong>Other actions:</strong><br />
-					<form role="form" action="" method="post">
-					  <input type="hidden" name="token" value="<?php echo $token; ?>">
-					  <input type="hidden" name="action" value="avatar_disable">
-					  <input type="submit" value="Disable avatar" class="btn btn-danger">
-					</form>
-					<?php 
+						if($avatar_enabled === "true"){
+						?>
+						<strong>Other actions:</strong><br />
+						<form role="form" action="" method="post">
+						  <input type="hidden" name="token" value="<?php echo $token; ?>">
+						  <input type="hidden" name="action" value="avatar_disable">
+						  <input type="submit" value="Disable avatar" class="btn btn-danger">
+						</form>
+						<?php 
+						}
 					}
 				}
 			}
