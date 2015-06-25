@@ -183,7 +183,7 @@ if(Input::exists()) {
 			<div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
 			<?php
 			if(Input::exists()) {
-				if($validation->passed()) {	} else {
+				if(isset($validation) && $validation->passed()) {	} else {
 					echo '<div class="alert alert-danger">';
 					foreach($validation->errors() as $error) {
 						if (strpos($error,'is required') !== false) {
