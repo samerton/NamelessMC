@@ -89,7 +89,11 @@ if(Input::exists()) {
 		
 			$profile = ProfileUtils::getProfile($mcname);
 			$result = $profile->getProfileAsArray();
-			$uuid = $result["uuid"];
+			if(isset($result["uuid"]) && !empty($result['uuid'])){
+				$uuid = $result['uuid'];
+			} else {
+				$uuid = '';
+			}
 		
 			$user = new User();
 			
