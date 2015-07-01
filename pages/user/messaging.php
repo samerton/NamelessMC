@@ -184,6 +184,17 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 								}
 								
 							}
+							
+							// Ensure people haven't been added twice
+							$users = array_unique($users);
+							
+							// Ensure the person who actually created the PM hasn't been added
+							foreach($users as $key => $item){
+								if($item == $user->data()->username){
+									unset($users[$key]);
+								}
+							}
+							
 							if(!isset($max_users)){
 								try {
 									// Input the content
@@ -205,11 +216,22 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 										} else {
 											$user_id = $item;
 										}
+										
 										if($user_id){
-											$queries->create("private_messages_users", array(
-												'pm_id' => $last_id,
-												'user_id' => $user_id
-											));
+											if($user_id !== $user->data()->id){
+												// Not the author
+												$queries->create("private_messages_users", array(
+													'pm_id' => $last_id,
+													'user_id' => $user_id
+												));
+											} else {
+												// Is the author, automatically set as read
+												$queries->create("private_messages_users", array(
+													'pm_id' => $last_id,
+													'user_id' => $user_id,
+													'read' => 1
+												));
+											}
 										}
 									}
 									echo '<script>window.location.replace("/user/messaging");</script>';
