@@ -454,7 +454,7 @@ class User {
 			$return = array(); // Array to return containing info of PMs
 			
 			// First, get a list of PMs the user has created themselves
-			$data = $this->_db->get('private_messages', array('author_id', '=', $user_id));
+			$data = $this->_db->orderWhere('private_messages', 'author_id = ' . $user_id, 'sent_date', 'DESC');
 			
 			if($data->count()){
 				$data = $data->results();

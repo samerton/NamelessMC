@@ -76,11 +76,19 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 							$user_string .= ' <span class="label label-info">and ' . (count($pm['users']) - $n) . ' more</span>';
 							break;
 						} else {
-							if($n == 4 || $n == count($pm['users'])){
-								$user_string .= '<a href="/profile/' . $user->idToMCName($item) . '">' . $user->idToName($item) . '</a>';
+							if($n == count($pm['users'])){
+								if($item != 0){
+									$user_string .= '<a href="/profile/' . $user->idToMCName($item) . '">' . $user->idToName($item) . '</a>';
+								} else {
+									$user_string .= 'System';
+								}
 								break;
 							} else {
-								$user_string .= '<a href="/profile/' . $user->idToMCName($item) . '">' . $user->idToName($item) . '</a>, ';
+								if($item != 0){
+									$user_string .= '<a href="/profile/' . $user->idToMCName($item) . '">' . $user->idToName($item) . '</a>, ';
+								} else {
+									$user_string .= 'System, ';
+								}
 							}
 						}
 						$n++;
@@ -268,9 +276,9 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 					$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
 					$config->set('URI.DisableExternalResources', false);
 					$config->set('URI.DisableResources', false);
-					$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+					$config->set('HTML.Allowed', 'u,a,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
 					$config->set('CSS.AllowedProperties', array('float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
-					$config->set('HTML.AllowedAttributes', 'src, height, width, alt, class, *.style');
+					$config->set('HTML.AllowedAttributes', 'src, height, width, alt, href, class, *.style');
 					$purifier = new HTMLPurifier($config);
 					$message = $purifier->purify(htmlspecialchars_decode($message));
 				} else {
@@ -308,9 +316,17 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 				
 				foreach($pm[1] as $item){
 					if($n == count($pm[1])){
-						$user_string .= '<a href="/profile/' . htmlspecialchars($user->idToMCName($item)) . '">' . htmlspecialchars($user->idToName($item)) . '</a>';
+						if($item != 0){
+							$user_string .= '<a href="/profile/' . htmlspecialchars($user->idToMCName($item)) . '">' . htmlspecialchars($user->idToName($item)) . '</a>';
+						} else {
+							$user_string .= 'System';
+						}
 					} else {
-						$user_string .= '<a href="/profile/' . htmlspecialchars($user->idToMCName($item)) . '">' . htmlspecialchars($user->idToName($item)) . '</a>, ';
+						if($item != 0){
+							$user_string .= '<a href="/profile/' . htmlspecialchars($user->idToMCName($item)) . '">' . htmlspecialchars($user->idToName($item)) . '</a>, ';
+						} else {
+							$user_string .= 'System, ';
+						}
 					}
 					$n++;
 				}
@@ -322,7 +338,13 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 		  <br /><br />
 		  <div class="panel panel-primary">
 		    <div class="panel-heading">
-			  <?php echo '<a class="white-text" href="/profile/' . htmlspecialchars($user->idToMCName($item)) . '">' . htmlspecialchars($user->idToName($item)) . '</a>'; ?>
+			  <?php 
+			  if($item != 0){
+				echo '<a class="white-text" href="/profile/' . htmlspecialchars($user->idToMCName($item)) . '">' . htmlspecialchars($user->idToName($item)) . '</a>'; 
+			  } else {
+				echo '<span class="white-text">System</span>';
+			  }
+			  ?>
 			  <span class="pull-right"><?php echo date('d M Y, H:i', strtotime($pm[0]->sent_date)); ?></span>
 			</div>
 			<div class="panel-body">
@@ -331,9 +353,9 @@ require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTMLPurifier
 				$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
 				$config->set('URI.DisableExternalResources', false);
 				$config->set('URI.DisableResources', false);
-				$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+				$config->set('HTML.Allowed', 'u,p,a,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
 				$config->set('CSS.AllowedProperties', array('float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
-				$config->set('HTML.AllowedAttributes', 'src, height, width, alt, class, *.style');
+				$config->set('HTML.AllowedAttributes', 'src, href, height, width, alt, class, *.style');
 				$purifier = new HTMLPurifier($config);
 				
 				echo $purifier->purify(htmlspecialchars_decode($pm[0]->content));

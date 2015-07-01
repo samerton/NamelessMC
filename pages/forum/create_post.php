@@ -16,6 +16,7 @@ if(!$user->isLoggedIn()){
 }
 
 $forum = new Forum();
+$mentionsParser = new MentionsParser();
 
 require('inc/includes/html/library/HTMLPurifier.auto.php'); // HTML Purifier
 
@@ -57,12 +58,20 @@ if(Input::exists()) {
 			)
 		));
 		if($validation->passed()){
+			
+			// Get last post ID, and increment it
+			
+			$last_post_id = $queries->orderWhere('posts', 'id <> 0', 'id', 'DESC LIMIT 1');
+			$last_post_id = $last_post_id[0]->id + 1;
+			
+			$content = $mentionsParser->parse(Input::get('content'), $tid, $last_post_id);
+			
 			try {
 				$queries->create("posts", array(
 					'forum_id' => $fid,
 					'topic_id' => $tid,
 					'post_creator' => $user->data()->id,
-					'post_content' => htmlspecialchars(Input::get('content')),
+					'post_content' => htmlspecialchars($content),
 					'post_date' => date('Y-m-d H:i:s')
 				));
 				$queries->update("forums", $fid, array(

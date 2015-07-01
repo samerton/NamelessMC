@@ -16,6 +16,7 @@ if(!$user->isLoggedIn()){
 }
 
 $forum = new Forum();
+$mentionsParser = new MentionsParser();
 
 if(!isset($_GET['fid']) || !is_numeric($_GET['fid'])){
 	Redirect::to('/forum/error/?error=not_exist');
@@ -65,11 +66,17 @@ if(Input::exists()) {
 					'topic_reply_date' => date('U')
 				));
 				$topic_id = $queries->getLastId();
+				
+				// Get last post ID and increment
+				$last_post_id = $queries->orderWhere('posts', 'id <> 0', 'id', 'DESC LIMIT 1');
+				$last_post_id = $last_post_id[0]->id + 1;
+				
+				$content = $mentionsParser->parse(Input::get('content'), $topic_id, $last_post_id);
 				$queries->create("posts", array(
 					'forum_id' => $fid,
 					'topic_id' => $topic_id,
 					'post_creator' => $user->data()->id,
-					'post_content' => htmlspecialchars(Input::get('content')),
+					'post_content' => htmlspecialchars($content),
 					'post_date' => date('Y-m-d H:i:s')
 				));
 				$queries->update("forums", $fid, array(
@@ -109,7 +116,7 @@ $token = Token::generate();
     <meta name="description" content="<?php echo $sitename; ?> Forum - New Topic ?>">
     <meta name="author" content="Samerton">
     <meta name="robots" content="noindex">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/assets/favicon.ico">
 
     <title><?php echo $sitename; ?> &bull; Forum - New Topic</title>
 	
