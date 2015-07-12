@@ -311,7 +311,7 @@ $stickies = $queries->orderWhere("topics", "forum_id = " . $fid . " AND sticky =
 		    ?>
 			<h3 style="display: inline;"><?php echo htmlspecialchars($forum_query->forum_title); ?></h3><?php if($user->isLoggedIn() && $forum->canPostTopic($fid, $user->data()->group_id)){ ?><span class="pull-right"><a style="display: inline;" class="btn btn-primary" href="/forum/new_topic/?fid=<?php echo $fid; ?>">New Topic</a></span><?php } ?>
 		    <br /><br />
-			<table class="table table-bordered">
+			<table class="table table-bordered" style="table-layout:fixed;">
 			    <colgroup>
 				  <col style="width:50%">
 				  <col style="width:10%">
