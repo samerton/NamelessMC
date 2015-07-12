@@ -151,7 +151,7 @@ if(Input::exists() && !isset($_GET['action']) && !isset($_GET['question'])){
 			}
 			?>
 			</table>
-			<?php } else if(isset($_GET['question'])) { 
+			<?php } else if(isset($_GET['question']) && !isset($_GET['action'])) { 
 			// Get the question
 			if(!is_numeric($_GET['question'])){
 				echo '<script>window.location.replace(\'/admin/staff_apps\');</script>';
@@ -206,7 +206,9 @@ if(Input::exists() && !isset($_GET['action']) && !isset($_GET['question'])){
 			
 			$question = $question[0];
 			?>
-			<strong>Editing question '<?php echo htmlspecialchars($question->name); ?>'</strong><br /><br />
+			<strong>Editing question '<?php echo htmlspecialchars($question->name); ?>'</strong>
+			<span class="pull-right"><a href="/admin/staff_apps/?question=<?php echo $question->id; ?>&action=delete" onclick="return confirm('Are you sure you want to delete this question?');" class="btn btn-danger">Delete question</a></span>
+			<br /><br />
 			
 			<form method="post" action="/admin/staff_apps/?question=<?php echo $question_id; ?>">
 			  <label for="name">Question Name</label>
@@ -300,7 +302,29 @@ if(Input::exists() && !isset($_GET['action']) && !isset($_GET['question'])){
 			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
 			  <input type="submit" class="btn btn-primary" value="Create">
 			</form>
-			<?php } ?>
+			<?php 
+			} else if(isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['question'])) {
+				// Get the question
+				if(!is_numeric($_GET['question'])){
+					echo '<script>window.location.replace(\'/admin/staff_apps\');</script>';
+					die();
+				}
+				$question_id = $_GET['question'];
+				$question = $queries->getWhere('staff_apps_questions', array('id', '=', $question_id));
+				
+				// Does the question exist?
+				if(!count($question)){
+					echo '<script>window.location.replace(\'/admin/staff_apps\');</script>';
+					die();
+				}
+				
+				// Exists, we can delete it
+				$queries->delete('staff_apps_questions', array('id', '=', $question_id));
+				
+				Session::flash('apps_post_success', '<div class="alert alert-info">Question successfully deleted</div>');
+				echo '<script>window.location.replace(\'/admin/staff_apps\');</script>';
+				die();
+			} ?>
 			</div>
 		</div>
       </div>	  
