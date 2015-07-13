@@ -66,3 +66,15 @@
 - Fix issue that would arise upon quoting a post containing an inverted comma
 - Fix issue when deleting posts
 - Fix issue which would occur when inserting data into the database, or updating existing data
+
+0.4.0
+- Remove unnecessary form validation from the AdminCP general settings tab
+- Fix issues where custom avatars would not display properly
+- Fix issues with MinecraftMarket synchronisation
+- Allow manual activation of accounts
+- Fix issue whereby a validation variable was not defined
+- Fix issue upon registration if UUID was not obtainable
+- Fix message status not being changed to "read" if the user is the author
+- Add user tagging functionality to the forums, thanks to @fetch404
+- Add button to delete a staff application question
+- Fix forum table column widths

@@ -42,6 +42,7 @@
 	  <strong>Contributors</strong>:<br />
 	  Wiki created by EvenSafe789<br />
 	  WordPress conversion script by dwilson390<br />
+	  Tagging code by fetch404<br />
 	  <br />
 	  <strong>External libraries</strong>:<br />
 	  <a href="https://github.com/ircmaxell/password_compat" target="_blank">PasswordCompat</a><br />
