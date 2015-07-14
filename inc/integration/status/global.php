@@ -12,24 +12,12 @@ $Query = null;
 
 try
 {
-	$Query = new MinecraftPing( MQ_SERVER_ADDR, MQ_SERVER_PORT, MQ_TIMEOUT );
-	
-	$Info = $Query->Query( );
-	
-	if( $Info === false )
-	{
-		/*
-		 * If this server is older than 1.7, we can try querying it again using older protocol
-		 * This function returns data in a different format, you will have to manually map
-		 * things yourself if you want to match 1.7's output
-		 *
-		 * If you know for sure that this server is using an older version,
-		 * you then can directly call QueryOldPre17 and avoid Query() and then reconnection part
-		 */
-		
+	$Query = new MinecraftPing( $server_ip, $server_port, MQ_TIMEOUT );
+	if(!$pre17){
+		$Info = $Query->Query( );
+	} else {
 		$Query->Close( );
 		$Query->Connect( );
-		
 		$Info = $Query->QueryOldPre17( );
 	}
 }
