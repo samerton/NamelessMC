@@ -46,6 +46,8 @@
 	 */
 	require('inc/integration/status/SRVResolver.php');
 	$parts = explode(':', $default_server);
+	$pre17 = $server->pre
+	echo $pre17;
 	if(count($parts) == 1){
 		$domain = $parts[0];
 		$query_ip = SRVResolver($domain);
@@ -133,6 +135,7 @@
 				$cache = new Cache();
 			}
 			foreach($servers as $server){
+				$pre17 = $server->pre
 				$parts = explode(':', $server->ip);
 				if(count($parts) == 1){
 					$domain = $parts[0];
@@ -151,7 +154,7 @@
 			<h4><?php echo htmlspecialchars($server->name); ?></h4>
 			<?php 
 				if($query_to_use == 'false'){
-					$serverStatus->serverPlay($server_ip, $server_port, $server->name);
+					$serverStatus->serverPlay($server_ip, $server_port, $server->name, $pre17);
 				} else {
 					require('inc/integration/status/server_external.php');
 					echo '<hr>';
