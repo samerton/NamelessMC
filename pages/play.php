@@ -40,6 +40,7 @@
 		echo 'No default server defined.';
 		die();
 	}
+    $pre17 = $default_server[0]->pre;
 	$default_server = htmlspecialchars($default_server[0]->ip);
 	/*
 	 *  Resolve real IP address (to support SRV records)
@@ -95,11 +96,19 @@
 			  <tr>
 				<td><b>Players Online:</b></td>
 				<td><?php 
-				  if(empty($Info['players']['max'])){
-					echo $Info['players']['online'];
+                  if($pre17 == 0){
+                    if(empty($Info['players']['max'])){
+                        echo $Info['players']['online'];
+                    } else {
+                        echo $Info['players']['online'] . ' / ' . $Info['players']['max'];
+                    }
 				  } else {
-				    echo $Info['players']['online'] . ' / ' . $Info['players']['max'];
-				  }
+                    if(empty($Info['MaxPlayers'])){
+                        echo $Info['Players'];
+                    } else {
+                        echo $Info['Players'] . ' / ' . $Info['MaxPlayers'];
+                    }
+                  }
 				?></td>
 			  </tr>
 			  <?php
@@ -133,6 +142,7 @@
 				$cache = new Cache();
 			}
 			foreach($servers as $server){
+                $pre17 = $server->pre;
 				$parts = explode(':', $server->ip);
 				if(count($parts) == 1){
 					$domain = $parts[0];
@@ -151,7 +161,7 @@
 			<h4><?php echo htmlspecialchars($server->name); ?></h4>
 			<?php 
 				if($query_to_use == 'false'){
-					$serverStatus->serverPlay($server_ip, $server_port, $server->name);
+					$serverStatus->serverPlay($server_ip, $server_port, $server->name, $pre17);
 				} else {
 					require('inc/integration/status/server_external.php');
 					echo '<hr>';

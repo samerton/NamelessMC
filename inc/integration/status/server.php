@@ -1,29 +1,14 @@
 <?php
 class ServerStatus {
-	public function serverPlay($server_ip, $server_port, $server_name){
+	public function serverPlay($server_ip, $server_port, $server_name, $pre17){
 		$Info = false;
 		$Query = null;
-
 		try
 		{
 			$Query = new MinecraftPing( $server_ip, $server_port, MQ_TIMEOUT );
-			
-			$Info = $Query->Query( );
-			
-			if( $Info === false )
-			{
-				/*
-				 * If this server is older than 1.7, we can try querying it again using older protocol
-				 * This function returns data in a different format, you will have to manually map
-				 * things yourself if you want to match 1.7's output
-				 *
-				 * If you know for sure that this server is using an older version,
-				 * you then can directly call QueryOldPre17 and avoid Query() and then reconnection part
-				 */
-				
-				$Query->Close( );
-				$Query->Connect( );
-				
+			if($pre17 == 0){
+				$Info = $Query->Query( );
+			} else {
 				$Info = $Query->QueryOldPre17( );
 			}
 		}
@@ -36,48 +21,52 @@ class ServerStatus {
 		{
 			$Query->Close( );
 		}
-
-		if($Info['players']['online'] == 0) {
-			echo'<div class="alert alert-warning">There are no players online!</div>';
-		} else {
-			if($Info['players']['online'] > 12){
-				$extra = ($Info['players']['online'] - 12);
-				$max = 12;
-			} else {
-				$max = $Info['players']['online'];
-			}
-			for ($row = 0; $row < $max; $row++) {
-				echo '<span rel="tooltip" data-trigger="hover" data-original-title="'.$Info['players']['sample'][$row]['name'].'"><a href="/profile/' . $Info['players']['sample'][$row]['name'] . '"><img src="https://cravatar.eu/avatar/' .$Info['players']['sample'][$row]['name'] . '/50.png" style="width: 40px; height: 40px; margin-bottom: 5px; margin-left: 5px; border-radius: 3px;" /></a></span>';
-			}
-			if(isset($extra)){
-				echo ' <span class="label label-info">And ' . $extra . ' more</span>';
-			}
-		}
+        if($pre17 == 0){
+            function startsWith($haystack, $needle) {
+                return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
+            }
+            if(startsWith($Info['version']['name'], 'BungeeCord')){
+                if($Info['players']['online'] == 0) {
+                    echo'<div class="alert alert-warning">There are no players online!</div>';
+                } else {
+                    echo'<div class="alert alert-warning">There are ' . $Info['players']['online'] . ' players online!</div>';
+                }
+            } else {
+                if($Info['players']['online'] == 0) {
+                    echo'<div class="alert alert-warning">There are no players online!</div>';
+                } else {
+                    if($Info['players']['online'] > 12){
+                        $extra = ($Info['players']['online'] - 12);
+                        $max = 12;
+                    } else {
+                        $max = $Info['players']['online'];
+                    }
+                    for ($row = 0; $row < $max; $row++) {
+                        echo '<span rel="tooltip" data-trigger="hover" data-original-title="'.$Info['players']['sample'][$row]['name'].'"><a href="/profile/' . $Info['players']['sample'][$row]['name'] . '"><img src="https://cravatar.eu/avatar/' .$Info['players']['sample'][$row]['name'] . '/50.png" style="width: 40px; height: 40px; margin-bottom: 5px; margin-left: 5px; border-radius: 3px;" /></a></span>';
+                    }
+                    if(isset($extra)){
+                        echo ' <span class="label label-info">And ' . $extra . ' more</span>';
+                    }
+                }
+            }
+        } else {
+            if($Info['Players'] == 0) {
+                echo'<div class="alert alert-warning">There are no players online!</div>';
+            } else {
+                echo'<div class="alert alert-warning">There are ' . $Info['Players'] . ' players online!</div>';
+            }
+        }
 	}
-	public function isOnline($server_ip, $server_port, $player_name){
+	public function isOnline($server_ip, $server_port, $player_name, $pre17){
 		$Info = false;
 		$Query = null;
 
 		try
 		{
 			$Query = new MinecraftPing( $server_ip, $server_port, MQ_TIMEOUT );
-			
-			$Info = $Query->Query( );
-			
-			if( $Info === false )
-			{
-				/*
-				 * If this server is older than 1.7, we can try querying it again using older protocol
-				 * This function returns data in a different format, you will have to manually map
-				 * things yourself if you want to match 1.7's output
-				 *
-				 * If you know for sure that this server is using an older version,
-				 * you then can directly call QueryOldPre17 and avoid Query() and then reconnection part
-				 */
-				
-				$Query->Close( );
-				$Query->Connect( );
-				
+			if($pre17 == 0){
+				$Info = $Query->Query( );
+			} else {
 				$Info = $Query->QueryOldPre17( );
 			}
 		}
