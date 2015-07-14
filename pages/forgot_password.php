@@ -29,8 +29,7 @@ if(Input::exists()) {
 						In order to reset your password, please use the following link:
 						http://' . $_SERVER['SERVER_NAME'] . '/change_password/?c=' . $code . '
 						
-						If you did not request the password reset, please contact us at ' . htmlspecialchars($siteemail) . '
-						Please note that your account will not be accessible until this action is complete.
+						If you did not request the password reset, please ignore this email.
 						
 						Thanks,
 						' . $sitename . ' staff.';
@@ -41,8 +40,7 @@ if(Input::exists()) {
 			mail($to, $subject, $message, $headers);
 			
 			$queries->update('users', $check[0]->id, array(
-				'reset_code' => $code,
-				'active' => 0
+				'reset_code' => $code
 			));
 			
 			Session::flash('info', '<div class="alert alert-info">Success. Please check your emails for further instructions.</div>');
