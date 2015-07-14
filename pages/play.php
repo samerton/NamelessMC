@@ -40,14 +40,13 @@
 		echo 'No default server defined.';
 		die();
 	}
+    $pre17 = $default_server[0]->pre;
 	$default_server = htmlspecialchars($default_server[0]->ip);
 	/*
 	 *  Resolve real IP address (to support SRV records)
 	 */
 	require('inc/integration/status/SRVResolver.php');
 	$parts = explode(':', $default_server);
-	$pre17 = $server->pre
-	echo $pre17;
 	if(count($parts) == 1){
 		$domain = $parts[0];
 		$query_ip = SRVResolver($domain);
@@ -97,11 +96,19 @@
 			  <tr>
 				<td><b>Players Online:</b></td>
 				<td><?php 
-				  if(empty($Info['players']['max'])){
-					echo $Info['players']['online'];
+                  if($pre17 == 0){
+                    if(empty($Info['players']['max'])){
+                        echo $Info['players']['online'];
+                    } else {
+                        echo $Info['players']['online'] . ' / ' . $Info['players']['max'];
+                    }
 				  } else {
-				    echo $Info['players']['online'] . ' / ' . $Info['players']['max'];
-				  }
+                    if(empty($Info['MaxPlayers'])){
+                        echo $Info['Players'];
+                    } else {
+                        echo $Info['Players'] . ' / ' . $Info['MaxPlayers'];
+                    }
+                  }
 				?></td>
 			  </tr>
 			  <?php
@@ -135,7 +142,7 @@
 				$cache = new Cache();
 			}
 			foreach($servers as $server){
-				$pre17 = $server->pre
+                $pre17 = $server->pre;
 				$parts = explode(':', $server->ip);
 				if(count($parts) == 1){
 					$domain = $parts[0];
