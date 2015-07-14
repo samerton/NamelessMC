@@ -2,6 +2,7 @@
 define( 'MQ_SERVER_ADDR', $default_ip );
 define( 'MQ_SERVER_PORT', $default_port );
 define( 'MQ_TIMEOUT', 1 );
+define( 'PRE', $pre17 );
 
 require('inc/integration/status/MinecraftServerPing.php');
 
@@ -12,12 +13,10 @@ $Query = null;
 
 try
 {
-	$Query = new MinecraftPing( $server_ip, $server_port, MQ_TIMEOUT );
-	if(!$pre17){
+	$Query = new MinecraftPing( MQ_SERVER_ADDR, MQ_SERVER_PORT, MQ_TIMEOUT );
+	if(PRE == 0){
 		$Info = $Query->Query( );
 	} else {
-		$Query->Close( );
-		$Query->Connect( );
 		$Info = $Query->QueryOldPre17( );
 	}
 }
