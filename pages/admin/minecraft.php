@@ -217,10 +217,10 @@ if($user->isAdmLoggedIn()){
 				</div>
 				<input type="hidden" name="display" value="0" />
 				<label for="InputDisplay">Show on Play page?</label>
-				<input name="display" id="InputDisplay" value="1" type="checkbox"<?php if($server[0]->display == 1){ echo ' checked'; } ?>>
+				<input name="display" id="InputDisplay" value="<?php echo htmlspecialchars($server[0]->display); ?>" type="checkbox"<?php if($server[0]->display == 1){ echo ' checked'; } ?>>
 				<input type="hidden" name="pre" value="0" />
 				<label for="InputPre">Pre 1.7 Minecraft version?</label>
-				<input name="pre" id="InputPre" value="0" type="checkbox">
+				<input name="pre" id="InputPre" value="<?php echo htmlspecialchars($server[0]->pre); ?>" type="checkbox"<?php if($server[0]->display == 1){ echo ' checked'; } ?>>
 				<br /><br />
 				<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
 				<input class="btn btn-success" type="submit" value="Update">
