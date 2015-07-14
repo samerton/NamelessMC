@@ -1063,9 +1063,9 @@ if(isset($_GET["step"])){
 					$login = $user->login(Input::get('username'), Input::get('password'), true);
 					if($login) {
 						if(!isset($uuid_error)){
-							echo '<script>window.location.replace("/install/?step=finish");</script>';
+							echo '<script>window.location.replace("/install/?step=convert");</script>';
 						} else {
-							echo '<script>window.location.replace("/install/?step=finish&error=uuid");</script>';
+							echo '<script>window.location.replace("/install/?step=convert&error=uuid");</script>';
 						}
 						die();
 					} else {
@@ -1148,7 +1148,8 @@ if(isset($_GET["step"])){
 			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=modernbb'">ModernBB</a><br />
 			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=phpbb'">phpBB</a><br />
 			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=mybb'">MyBB</a><br />
-			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=wordpress'">WordPress</a><br /><br />
+			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=wordpress'">WordPress</a><br />
+			<a href="#" onclick="location.href='/install/?step=convert&convert=yes&from=xenforo'">XenForo</a><br /><br />
 			<button class="btn btn-danger" onclick="location.href='/install/?step=convert'">Cancel</button>
 		</div>
 	  <?php
@@ -1331,12 +1332,68 @@ if(isset($_GET["step"])){
 			<h4>Converting from MyBB:</h4>
 			Coming Soon
 	<?php
+		} else if(strtolower($_GET["from"]) === "xenforo"){
+			if(!Input::exists()){
+	  ?>
+			<h4>Converting from XenForo:</h4>
+			
+	  <?php
+				if(isset($_GET["error"])){
+	  ?>
+			<div class="alert alert-danger">
+			  Error connecting to the database. Are you sure you entered the correct credentials?
+			</div>
+	  <?php
+				}
+	  ?>
+			
+			<form action="?step=convert&convert=yes&from=xenforo" method="post">
+			  <div class="form-group">
+			    <label for="InputDBAddress">XenForo Database Address</label>
+				<input class="form-control" type="text" id="InputDBAddress" name="db_address" placeholder="Database address">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBName">XenForo Database Name</label>
+				<input class="form-control" type="text" id="InputDBName" name="db_name" placeholder="Database name">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBUsername">XenForo Database Username</label>
+				<input class="form-control" type="text" id="InputDBUsername" name="db_username" placeholder="Database username">
+			  </div>
+			  <div class="form-group">
+			    <label for="InputDBPassword">XenForo Database Password</label>
+				<input class="form-control" type="password" id="InputDBPassword" name="db_password" placeholder="Database password">
+			  </div>
+			  <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+			  <input type="hidden" name="action" value="convert">
+			  <input class="btn btn-primary" type="submit" value="Convert">
+			  <a href="#" class="btn btn-danger" onclick="location.href='/install/?step=convert&convert=yes'">Cancel</a>
+			</form>
+			
+	  <?php
+			} else {
+				require 'converters/xenforo.php';
+	  ?>
+			<div class="alert alert-success">
+				Successfully imported XenForo data. <strong>Important:</strong> Please redefine any private categories and update all users' Minecraft usernames in the Admin panel.<br />
+				<center><button class="btn btn-primary"  onclick="location.href='/install/?step=finish'">Proceed</button></center>
+			</div>
+	  <?php
+			}
 		}
 	?>
 		</div>
 	<?php
 		} else if(!isset($_GET["convert"]) && !isset($_GET["from"]) && !isset($_GET["action"])){
-	?>
+
+	    if(isset($_GET['error']) && $_GET['error'] == 'uuid'){
+	  ?>
+	  <div class="alert alert-danger">
+	    Notice: There was an error querying the Minecraft API to retrieve the admin account's UUID. Please update this manually from the AdminCP's users section.
+	  </div>
+	  <?php
+		}
+	  ?>
 	  <h2>Convert</h2>
 	  <p>Convert from another forum software?</p>
 	  <div class="btn-group">
@@ -1348,15 +1405,6 @@ if(isset($_GET["step"])){
 	  } else if($step === "finish"){
 	  ?>
 	  <h2>Finish</h2>
-	  <?php
-	    if(isset($_GET['error']) && $_GET['error'] == 'uuid'){
-	  ?>
-	  <div class="alert alert-danger">
-	    Notice: There was an error querying the Minecraft API to retrieve the admin account's UUID. Please update this manually from the AdminCP's users section.
-	  </div>
-	  <?php
-		}
-	  ?>
 	  <p>Thanks for using NamelessMC website software.</p>
 	  <p>Before you start using the website, please configure the forums and Minecraft servers via the AdminCP.</p>
 	  <p>Links:
