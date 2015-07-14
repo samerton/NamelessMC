@@ -128,7 +128,7 @@ class Queries {
 		echo '<strong>Infraction appeals comments</strong> table successfully initialised<br />';
 		$data = $this->_db->createTable("logs", " `id` int(11) NOT NULL AUTO_INCREMENT, `type` varchar(20) NOT NULL, `user_id` int(11) NOT NULL, `user_ip` varchar(45) NOT NULL, `info` varchar(255) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 		echo '<strong>Logs</strong> table successfully initialised<br />';
-		$data = $this->_db->createTable("mc_servers", " `id` int(11) NOT NULL AUTO_INCREMENT, `ip` varchar(64) NOT NULL, `name` varchar(20) NOT NULL, `is_default` tinyint(4) NOT NULL DEFAULT '0', `display` tinyint(4) NOT NULL DEFAULT '1', PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
+		$data = $this->_db->createTable("mc_servers", " `id` int(11) NOT NULL AUTO_INCREMENT, `ip` varchar(64) NOT NULL, `name` varchar(20) NOT NULL, `is_default` tinyint(4) NOT NULL DEFAULT '0', `display` tinyint(4) NOT NULL DEFAULT '1', `pre` tinyint(4) NOT NULL DEFAULT '0', PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 		echo '<strong>Minecraft servers</strong> table successfully initialised<br />';
 		$data = $this->_db->createTable("plugins", " `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(128) NOT NULL, `enabled` tinyint(4) NOT NULL DEFAULT '0', `description` varchar(255) NOT NULL, PRIMARY KEY (`id`)", "ENGINE=InnoDB DEFAULT CHARSET=latin1");
 		echo '<strong>Plugins</strong> table successfully initialised<br />';
