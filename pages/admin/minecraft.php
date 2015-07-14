@@ -218,8 +218,9 @@ if($user->isAdmLoggedIn()){
 				<input type="hidden" name="display" value="0" />
 				<label for="InputDisplay">Show on Play page?</label>
 				<input name="display" id="InputDisplay" value="1" type="checkbox"<?php if($server[0]->display == 1){ echo ' checked'; } ?>>
+				<input type="hidden" name="pre" value="0" />
 				<label for="InputPre">Pre 1.7 Minecraft version?</label>
-				<input name="pre" id="InputPre" value="1" type="checkbox<?php if($server[0]->pre == 1){ echo ' checked'; } ?>
+				<input name="pre" id="InputPre" value="1" type="checkbox"<?php if($server[0]->pre == 1){ echo ' checked'; } ?>
 				<br /><br />
 				<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
 				<input class="btn btn-success" type="submit" value="Update">
@@ -287,6 +288,7 @@ if($user->isAdmLoggedIn()){
 					<input type="hidden" name="display" value="0" />
 					<label for="InputDisplay">Show on Play page?</label>
 					<input name="display" id="InputDisplay" value="1" type="checkbox">
+					<input type="hidden" name="pre" value="0" />
 					<label for="InputPre">Pre 1.7 Minecraft version?</label>
 					<input name="pre" id="InputPre" value="1" type="checkbox">
 					<br /><br />
