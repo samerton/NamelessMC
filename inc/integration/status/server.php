@@ -57,18 +57,14 @@ class ServerStatus {
             }
         }
 	}
-	public function isOnline($server_ip, $server_port, $player_name, $pre17){
+	public function isOnline($server_ip, $server_port, $player_name){
 		$Info = false;
 		$Query = null;
 
 		try
 		{
 			$Query = new MinecraftPing( $server_ip, $server_port, MQ_TIMEOUT );
-			if($pre17 == 0){
-				$Info = $Query->Query( );
-			} else {
-				$Info = $Query->QueryOldPre17( );
-			}
+			$Info = $Query->Query( );
 		}
 		catch( MinecraftPingException $e )
 		{
