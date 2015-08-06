@@ -137,7 +137,7 @@ $token = Token::generate();
 					?>
 					<tr>
 					  <td><a href="/mod/reports/?rid=<?php echo $report->id; ?>"><strong>View</strong></a></td>
-					  <td><a href="/profile/<?php echo $user->idToMCName($report->reported_id); ?>"><?php echo $user->idToName($report->reported_id); ?></a></td>
+					  <td><a href="/profile/<?php echo htmlspecialchars($user->idToMCName($report->reported_id)); ?>"><?php echo htmlspecialchars($user->idToName($report->reported_id)); ?></a></td>
 					  <td><?php
 					  if($report->type == 0){
 						echo 'Forum Post';
@@ -146,7 +146,7 @@ $token = Token::generate();
 					  }
 					  ?></td>
 					  <td><?php echo(count($queries->getWhere("reports_comments", array('report_id' , '=', $report->id)))); ?></td>
-					  <td><a href="/profile/<?php echo $user->idToMCName($report->updated_by); ?>"><img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo $user->idToMCName($report->updated_by); ?>/30.png" /></a>&nbsp;&nbsp;&nbsp;<a href="/profile/<?php echo $user->idToName($report->updated_by); ?>"><?php echo $user->idToName($report->updated_by); ?></a></td>
+					  <td><a href="/profile/<?php echo htmlspecialchars($user->idToMCName($report->updated_by)); ?>"><img class="img-rounded" src="https://cravatar.eu/avatar/<?php echo htmlspecialchars($user->idToMCName($report->updated_by)); ?>/30.png" /></a>&nbsp;&nbsp;&nbsp;<a href="/profile/<?php echo htmlspecialchars($user->idToName($report->updated_by)); ?>"><?php echo htmlspecialchars($user->idToName($report->updated_by)); ?></a></td>
 					</tr>				
 					<?php
 					}
@@ -182,7 +182,7 @@ $token = Token::generate();
 						echo '<center>' . Session::flash('success_comment_report') . '</center>';
 					}
 					?>
-					<h2 style="display:inline;">Report: <a href="/profile/<?php echo $user->idToMCName($report[0]->reported_id); ?>"><?php echo $user->idToName($report[0]->reported_id);?></a> | <small><a href="<?php echo $url; ?>">View Reported Content</a></small></h2>
+					<h2 style="display:inline;">Report: <a href="/profile/<?php echo htmlspecialchars($user->idToMCName($report[0]->reported_id)); ?>"><?php echo htmlspecialchars($user->idToName($report[0]->reported_id));?></a> | <small><a href="<?php echo $url; ?>">View Reported Content</a></small></h2>
 					<span class="pull-right">
 						<form action="" method="post">
 							<?php echo '<input type="hidden" name="type" value="update_status">'; ?>
@@ -195,14 +195,14 @@ $token = Token::generate();
 					</span>
 					<br /><br />
 					<div class="panel panel-primary">
-						<div class="panel-heading">Reported by <a href="/profile/<?php echo $user->idToMCName($report[0]->reporter_id);?>"><?php echo $user->idToName($report[0]->reporter_id);?></a><span class="pull-right"><?php echo date("jS M Y , g:ia", strtotime($report[0]->date_reported)); ?></span></div>
+						<div class="panel-heading">Reported by <a class="white-text" href="/profile/<?php echo htmlspecialchars($user->idToMCName($report[0]->reporter_id));?>"><?php echo htmlspecialchars($user->idToName($report[0]->reporter_id));?></a><span class="pull-right"><?php echo date("jS M Y , g:ia", strtotime($report[0]->date_reported)); ?></span></div>
 						<div class="panel-body">
 							<?php
 							$config = HTMLPurifier_Config::createDefault();
 							$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
 							$config->set('URI.DisableExternalResources', false);
 							$config->set('URI.DisableResources', false);
-							$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+							$config->set('HTML.Allowed', 'u,p,a,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
 							$config->set('CSS.AllowedProperties', array('float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
 							$config->set('HTML.AllowedAttributes', 'src, height, width, alt, class, *.style');
 							$purifier = new HTMLPurifier($config);
@@ -217,7 +217,7 @@ $token = Token::generate();
 						foreach($comments as $comment){
 					?>
 					<div class="panel panel-primary">
-						<div class="panel-heading"><a href="/profile/<?php echo $user->idToMCName($comment->commenter_id);?>"><?php echo $user->idToName($comment->commenter_id);?></a><span class="pull-right"><?php echo date("jS M Y , g:ia", strtotime($comment->comment_date)); ?></span></div>
+						<div class="panel-heading"><a href="/profile/<?php echo htmlspecialchars($user->idToMCName($comment->commenter_id));?>"><?php echo htmlspecialchars($user->idToName($comment->commenter_id));?></a><span class="pull-right"><?php echo date("jS M Y , g:ia", strtotime($comment->comment_date)); ?></span></div>
 						<div class="panel-body">
 							<?php
 							echo $purifier->purify(htmlspecialchars_decode($comment->comment_content));
