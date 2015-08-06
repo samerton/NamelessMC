@@ -432,7 +432,7 @@ require('inc/functions/paginate.php'); // Get number of users on a page
 						$config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
 						$config->set('URI.DisableExternalResources', false);
 						$config->set('URI.DisableResources', false);
-						$config->set('HTML.Allowed', 'u,p,b,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
+						$config->set('HTML.Allowed', 'u,p,b,a,i,small,blockquote,span[style],span[class],p,strong,em,li,ul,ol,div[align],br,img');
 						$config->set('CSS.AllowedProperties', array('text-align', 'float', 'color','background-color', 'background', 'font-size', 'font-family', 'text-decoration', 'font-weight', 'font-style', 'font-size'));
 						$config->set('HTML.AllowedAttributes', 'href, src, height, width, alt, class, *.style');
 						$purifier = new HTMLPurifier($config);
