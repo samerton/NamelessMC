@@ -1,3 +1,5 @@
+**New version 1.0 repository found [here](https://github.com/NamelessMC/Nameless)**
+
 **Version 0.4.0 released. Please report bugs ether in the Spigot thread or the Issue Tracker.**
 **Upgrade guide found in the 'Upgrade' section of the Admin panel **
 
