@@ -61,13 +61,13 @@ if(Input::exists()) {
 			$to_validation['mcname'] = array(
 				'required' => true,
 				'isvalid' => true,
-				'min' => 4,
+				'min' => 3,
 				'max' => 20,
 				'unique' => 'users'
 			);
 			$to_validation['username'] = array(
 				'required' => true,
-				'min' => 4,
+				'min' => 3,
 				'max' => 20,
 				'unique' => 'users'
 			);
@@ -76,7 +76,7 @@ if(Input::exists()) {
 			$to_validation['username'] = array(
 				'required' => true,
 				'isvalid' => true,
-				'min' => 4,
+				'min' => 3,
 				'max' => 20,
 				'unique' => 'users'
 			);
@@ -213,8 +213,8 @@ if(Input::exists()) {
 						if (strpos($error,'must be a minimum of 6 characters') !== false) {
 							echo 'Your password must be a minimum of 6 characters.<br />';
 						}
-						if (strpos($error,'must be a minimum of 4 characters') !== false) {
-							echo 'Your username must be a minimum of 4 characters.<br />';
+						if (strpos($error,'must be a minimum of 3 characters') !== false) {
+							echo 'Your username must be a minimum of 3 characters.<br />';
 						}
 						if (strpos($error,'must be a maximum of 30 characters') !== false) {
 							echo 'Your password must be a maximum of 30 characters.<br />';
