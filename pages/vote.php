@@ -126,7 +126,7 @@ $vote_enabled = null;
 			$n++;
 		}
 	?>
-	</div><br />
+	</div><br /><br />
 	<div class="row">
 	<?php
 		$n = 0;
@@ -134,6 +134,7 @@ $vote_enabled = null;
 	?>
 	  <div class="col-md-<?php echo $col; ?>">
         <center><a class="btn btn-lg btn-block btn-primary" href="<?php echo str_replace("&amp;", "&", htmlspecialchars($sites[$n + 4]->site)); ?>" target="_blank" role="button"><?php echo htmlspecialchars($sites[$n + 4]->name); ?></a></center>
+        <br>
 	  </div>
 	<?php
 			$n++;
