@@ -243,4 +243,25 @@ if($version == '0.3.3'){
 		"value" => "false"
 	));
 }
+
+if($version == '0.4.0'){
+	// Database changes:
+	// Change length of hash fields
+	$data = $queries->alterColumn("users_session", "`hash`", "varchar(64) NOT NULL");
+	$data = $queries->alterColumn("users_admin_session", "`hash`", "varchar(64) NOT NULL");
+	
+	// Change length of password field
+	$data = $queries->alterColumn("users", "`password`", "varchar(255) NOT NULL");
+	
+	// Add column to mc_servers table to store whether the server is pre Minecraft 1.7
+	$data = $queries->alterTable("mc_servers", "`pre`", "tinyint(4) NOT NULL DEFAULT '0'");
+	
+	// Update version name
+	$queries->update("settings", 30, array(
+		"value" => "0.4.1"
+	));
+	$queries->update("settings", 32, array(
+		"value" => "false"
+	));
+}
 ?>
