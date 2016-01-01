@@ -78,3 +78,18 @@
 - Add user tagging functionality to the forums, thanks to @fetch404
 - Add button to delete a staff application question
 - Fix forum table column widths
+
+0.4.1
+- Add support for pre Minecraft 1.7 servers
+- Don't lock accounts after submitting a password reset
+- Add XenForo converter
+- Allow use of hyperlinks in signatures
+- Sanitise usernames and fix blue hyperlinks in reports
+- Fix friends heads moving after hovering on profile pages
+- Add link to new repository for 1.0.0 in readme
+- Remove port number from index page if it is 25565
+- Increase length of password field and hash fields
+- Replace spaces in Minecraft usernames when checking if it is a valid Minecraft account
+- Decrease minimum username length to 3 characters
+- Add more padding to Vote page
+- Add ability to alter an existing database column
