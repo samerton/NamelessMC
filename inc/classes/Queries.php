@@ -98,6 +98,12 @@ class Queries {
 		}
 	}
 	
+	public function alterColumn($table, $column, $attributes){
+		if(!$this->_db->alterColumn($table, $column, $attributes)) {
+			throw new Exception('There was a problem performing that action.');
+		}
+	}
+	
 	public function tableExists($table){
 		return $this->_db->showTables($table);
 	}

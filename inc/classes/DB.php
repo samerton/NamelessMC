@@ -244,6 +244,15 @@ class DB {
 		return false;
 	}
 	
+	public function alterColumn($name, $column, $attributes) {
+		$name = $this->_prefix . $name;
+		$sql = "ALTER TABLE `{$name}` MODIFY COLUMN {$column} {$attributes}";
+			if(!$this->createQuery($sql)->error()) {
+				return $this;
+			}
+		return false;
+	}
+	
 	public function orderAll($table, $order, $sort) {
 		$table = $this->_prefix . $table;
 		if(isset($sort)){
