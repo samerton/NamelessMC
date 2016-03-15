@@ -18,6 +18,9 @@ require_once 'inc/functions/array_handling.php'; // Custom array functions
 // Define path
 define('ROOT_PATH', __DIR__);
 
+// Prevent requiring pages outside the root directory
+ini_set('open_basedir', ROOT_PATH);
+
 /*
  *  Get the directory the user is trying to access
  */ 
